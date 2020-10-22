@@ -10,6 +10,9 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@react-navigation/native": "^5.7.6",
+    "@react-navigation/stack": "^5.9.3",
+    "babel-plugin-module-resolver": "^4.0.0",
     "react": "16.13.1",
     "react-native": "0.63.2",
     "zenbaei_js_lib": "bitbucket:zenbaei/zenbaei_js_lib"
