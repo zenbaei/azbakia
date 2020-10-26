@@ -1,22 +1,30 @@
+import 'react-native-gesture-handler';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import React, {ReactNode} from 'react';
 import {StatusBar} from 'react-native';
-import appColors from 'resources/app-colors';
-import {NavigationScreens} from 'resources/navigation-screens';
-import LoginScreen from 'src/view/login-screen';
-import {AppBarStyle} from 'zenbaei_js_lib/react/resources/styles';
+import {NavigationScreens} from 'static/navigation-screens';
+import AppBarColorProps from 'zenbaei_js_lib/src/react/types/app-bar-color-props';
+import Colors from './src/static/app-colors';
+import LoginScreen from './src/view/login-screen';
 const Stack = createStackNavigator<NavigationScreens>();
 
 const App = (): ReactNode => {
-  StatusBar.setBackgroundColor(appColors.statusBar);
+  StatusBar.setBackgroundColor(Colors.statusBar);
   return (
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen
           name="loginScreen"
           component={LoginScreen}
-          options={{title: 'Login', ...AppBarStyle}}
+          options={{
+            title: 'Login',
+            ...AppBarColorProps(
+              Colors.appBar,
+              Colors.onSurface,
+              Colors.onSurface,
+            ),
+          }}
         />
       </Stack.Navigator>
     </NavigationContainer>

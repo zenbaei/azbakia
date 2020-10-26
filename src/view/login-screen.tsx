@@ -1,5 +1,5 @@
 import React from 'react';
-import Login from 'zenbaei_js_lib/react/components/Login';
+import Login from 'zenbaei_js_lib/src/react/components/login';
 
 export default function LoginScreen() {
   const loginClbk = () => {};
