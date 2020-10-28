@@ -4,13 +4,14 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "isolatedModules": true,
-    "jsx": "react",
+    "jsx": "react-native",
     "lib": ["es6"],
     "moduleResolution": "node",
     "noEmit": true,
     "strict": true,
     "target": "esnext",
-    "baseUrl": "./src"
+    "baseUrl": "./src",
+    "paths": {"@zenbaei/*": ["node_modules/zenbaei_js_lib/react/components/*"]}
   },
   "exclude": [
     "node_modules",

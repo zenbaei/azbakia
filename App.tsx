@@ -3,10 +3,10 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import React, {ReactNode} from 'react';
 import {StatusBar} from 'react-native';
-import {NavigationScreens} from 'static/navigation-screens';
-import AppBarColorProps from 'zenbaei_js_lib/src/react/types/app-bar-color-props';
-import Colors from './src/static/app-colors';
-import LoginScreen from './src/view/login-screen';
+import {NavigationScreens} from 'constants/navigation-screens';
+import {AppBarColorProps} from 'zenbaei_js_lib';
+import Colors from 'constants/app-colors';
+import LoginScreen from 'view/login-screen';
 const Stack = createStackNavigator<NavigationScreens>();
 
 const App = (): ReactNode => {

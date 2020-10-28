@@ -1,8 +1,8 @@
 import React from 'react';
-import Login from 'zenbaei_js_lib/src/react/components/login';
+import {Login} from 'zenbaei_js_lib';
 
 export default function LoginScreen() {
-  const loginClbk = () => {};
+  //const loginClbk = (id: string, password: string) => {};
 
-  return <Login id_placeholder="Email" on_submit_callback={loginClbk} />;
+  return <Login id_placeholder="email" on_submit_callback={() => {}} />;
 }
