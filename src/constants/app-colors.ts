@@ -1,11 +1,5 @@
-//import {AppColors, AppColorsImpl} from 'zenbaei_js_lib';
+import {AppColors, AppColorsImpl} from 'zenbaei-js-lib';
 
-//const Colors: AppColors = Object.create(AppColorsImpl);
-
-const Colors = {
-  appBar: 'black',
-  onSurface: 'white',
-  statusBar: 'black',
-};
+const Colors: AppColors = Object.create(AppColorsImpl);
 
 export default Colors;

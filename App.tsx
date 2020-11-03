@@ -4,7 +4,7 @@ import {createStackNavigator} from '@react-navigation/stack';
 import React, {ReactNode} from 'react';
 import {StatusBar} from 'react-native';
 import {NavigationScreens} from 'constants/navigation-screens';
-import {AppBarColorProps} from 'zenbaei_js_lib';
+import {AppBarColorProps} from 'zenbaei-js-lib';
 import Colors from 'constants/app-colors';
 import LoginScreen from 'view/login-screen';
 const Stack = createStackNavigator<NavigationScreens>();
