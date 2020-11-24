@@ -7,7 +7,7 @@ const mongoHttpService: MongoHttpService<User> = new MongoHttpService(
   ServerUrls.http,
   DbCollectionNames.users,
 );
-export const loginUser = async (
+export const getUser = async (
   id: string,
   password: string,
 ): Promise<User | undefined> => {
