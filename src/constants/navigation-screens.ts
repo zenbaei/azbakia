@@ -1,3 +1,6 @@
+import {User} from 'user/user';
+
 export type NavigationScreens = {
-  loginScreen: undefined;
+  loginScreen: {};
+  homeScreen: User;
 };
