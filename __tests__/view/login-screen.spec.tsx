@@ -4,9 +4,8 @@ import LoginScreen from 'view/login-screen';
 
 import {StackNavigationProp} from '@react-navigation/stack';
 import {NavigationScreens} from 'constants/navigation-screens';
-import {act, ReactTestInstance} from 'react-test-renderer';
+import {act} from 'react-test-renderer';
 import {StackNavigationPropStub} from '../stubs/stack-navigation-prop-stub';
-import {getMessages} from 'constants/in18/messages';
 import {User} from 'user/user';
 import {getUser} from 'user/user-service';
 
@@ -32,8 +31,8 @@ test(`Given username and password were empty, When doing login,
 });
 
 test(`Given username and password are filled but invalid, When doing login,
-  Then it should show an error and dont call navigation`, async () => {
-  expect.assertions(2);
+  Then it should not call navigation`, async () => {
+  expect.assertions(1);
   jest
     .spyOn(userService, 'getUser')
     .mockImplementation(() => Promise.resolve(undefined));
@@ -48,14 +47,12 @@ test(`Given username and password are filled but invalid, When doing login,
   await act(async () => {
     await fireEvent.press(getByText('Sign in'));
   });
-  const err: ReactTestInstance = getByText(getMessages().invalidUser);
-  expect(err).toBeTruthy();
   expect(navigate).not.toHaveBeenCalled();
 });
 
 test(`Given username and password are valid and user exist on db, When doing login, 
-  Then it should show no error and call navigate`, async () => {
-  expect.assertions(3);
+  Then it should call navigate`, async () => {
+  expect.assertions(2);
   const user: User = {email: 'islam'};
 
   jest
@@ -65,7 +62,7 @@ test(`Given username and password are valid and user exist on db, When doing log
   const getUserReturn: User = (await getUser('any', 'value')) as User;
   expect(getUserReturn.email).toBe('islam');
 
-  const {queryByText, getByPlaceholderText, getByText} = render(
+  const {getByPlaceholderText, getByText} = render(
     <LoginScreen
       navigation={navigation}
       route={{name: 'loginScreen', key: 'key1', params: {}}}
@@ -77,7 +74,5 @@ test(`Given username and password are valid and user exist on db, When doing log
     await fireEvent.press(getByText('Sign in'));
   });
 
-  const err: ReactTestInstance | null = queryByText(getMessages().invalidUser);
-  expect(err).toBeFalsy();
   expect(navigate).toHaveBeenCalledWith('homeScreen', user);
 });

@@ -1,4 +1,3 @@
 export const ServerUrls = {
-  http: '',
-  db: '',
+  http: 'http://localhost:8888',
 };
