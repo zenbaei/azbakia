@@ -51,7 +51,7 @@ test(`Given username and password are filled but invalid, When doing login,
 });
 
 test(`Given username and password are valid and user exist on db, When doing login, 
-  Then it should call navigate`, async () => {
+  Then it should call navigate to next screen`, async () => {
   expect.assertions(2);
   const user: User = {email: 'islam'};
 

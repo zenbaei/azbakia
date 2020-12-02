@@ -1,3 +1,2 @@
-export const ServerUrls = {
-  http: 'http://localhost:8888',
-};
+const androidEmulator = '10.0.2.2';
+export const httpServerAddress = `http://${androidEmulator}:3500`;

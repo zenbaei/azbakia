@@ -7,7 +7,14 @@ import {NavigationScreens} from 'constants/navigation-screens';
 import {AppBarColorProps} from 'zenbaei-js-lib';
 import Colors from 'constants/app-colors';
 import LoginScreen from 'view/login-screen';
+import {getMessages} from 'constants/in18/messages';
+import {HomeScreen} from 'view/home-screen';
+import {library} from '@fortawesome/fontawesome-svg-core';
+import {faArrowLeft} from '@fortawesome/free-solid-svg-icons';
+
 const Stack = createStackNavigator<NavigationScreens>();
+//adding icons
+library.add(faArrowLeft);
 
 const App = (): ReactNode => {
   StatusBar.setBackgroundColor(Colors.statusBar);
@@ -18,7 +25,19 @@ const App = (): ReactNode => {
           name="loginScreen"
           component={LoginScreen}
           options={{
-            title: 'Login',
+            title: getMessages().login,
+            ...AppBarColorProps(
+              Colors.appBar,
+              Colors.onSurface,
+              Colors.onSurface,
+            ),
+          }}
+        />
+        <Stack.Screen
+          name="homeScreen"
+          component={HomeScreen}
+          options={{
+            title: getMessages().home,
             ...AppBarColorProps(
               Colors.appBar,
               Colors.onSurface,

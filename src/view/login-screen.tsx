@@ -12,10 +12,11 @@ export default function LoginScreen({
       return;
     }
     const user: User | undefined = await getUser(id, password);
-
+    console.log(user);
     if (!user) {
       return;
     }
+
     navigation.navigate('homeScreen', user);
   };
 
