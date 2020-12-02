@@ -9,7 +9,7 @@
     "test": "jest",
     "lint": "eslint .",
     "clean": ".scripts/clean.sh",
-    "install-zenbaei": "npm i github:zenbaei/zenbaei-js-lib-node"
+    "zenbaei": "npm i github:zenbaei/zenbaei-js-lib"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.32",
@@ -24,7 +24,7 @@
     "react-native-safe-area-context": "^3.1.8",
     "react-native-screens": "^2.12.0",
     "react-native-svg": "^12.1.0",
-    "zenbaei-js-lib": "github:zenbaei/zenbaei-js-lib-node"
+    "zenbaei-js-lib": "github:zenbaei/zenbaei-js-lib"
   },
   "devDependencies": {
     "@babel/core": "^7.8.4",
