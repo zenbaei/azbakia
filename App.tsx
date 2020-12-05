@@ -4,17 +4,23 @@ import {createStackNavigator} from '@react-navigation/stack';
 import React, {ReactNode} from 'react';
 import {StatusBar} from 'react-native';
 import {NavigationScreens} from 'constants/navigation-screens';
-import {AppBarColorProps} from 'zenbaei-js-lib';
+import {AppBarColorProps} from 'zenbaei-js-lib/react';
 import Colors from 'constants/app-colors';
 import LoginScreen from 'view/login-screen';
 import {getMessages} from 'constants/in18/messages';
 import {HomeScreen} from 'view/home-screen';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {faArrowLeft} from '@fortawesome/free-solid-svg-icons';
+import {FileLogger} from 'react-native-file-logger';
 
 const Stack = createStackNavigator<NavigationScreens>();
 //adding icons
 library.add(faArrowLeft);
+FileLogger.configure({captureConsole: false});
+
+global.FileLog = (msg: string) => {
+  FileLogger.error(msg);
+};
 
 const App = (): ReactNode => {
   StatusBar.setBackgroundColor(Colors.statusBar);

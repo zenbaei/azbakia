@@ -2,7 +2,8 @@ import {NavigationScreens} from 'constants/navigation-screens';
 import React from 'react';
 import {User} from 'user/user';
 import {getUser} from 'user/user-service';
-import {Login, isEmpty, NavigationProps} from 'zenbaei-js-lib';
+import {Login, NavigationProps} from 'zenbaei-js-lib/react';
+import {isEmpty} from 'zenbaei-js-lib/utils';
 
 export default function LoginScreen({
   navigation,
@@ -12,7 +13,7 @@ export default function LoginScreen({
       return;
     }
     const user: User | undefined = await getUser(id, password);
-    console.log(user);
+
     if (!user) {
       return;
     }

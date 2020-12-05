@@ -1,6 +1,6 @@
 import {httpServerAddress} from 'app.config';
 import {DbCollectionNames} from 'constants/db-collection-names';
-import {MongoHttpService} from 'zenbaei-js-lib';
+import {MongoHttpService} from 'zenbaei-js-lib/utils';
 import {User} from './user';
 
 const moduleName: string = 'user-service';
@@ -15,5 +15,5 @@ export const getUser = async (
 ): Promise<User | undefined> => {
   const query: User = {email: id, password: password};
   const users = await mongoHttpService.getAll(query);
-  return users.length === 1 ? users[0] : undefined;
+  return users && users.length === 1 ? users[0] : undefined;
 };
