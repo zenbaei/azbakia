@@ -20,6 +20,7 @@ FileLogger.configure({captureConsole: false});
 
 global.FileLog = (msg: string) => {
   FileLogger.error(msg);
+  console.log(msg);
 };
 
 const App = (): ReactNode => {
