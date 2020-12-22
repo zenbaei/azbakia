@@ -6,7 +6,8 @@ export class Book extends _id {
     public genre: string,
     public newArrival: boolean,
     public price: number,
-    public imageName: string,
+    public imagesName: string[],
+    public description: string,
   ) {
     super();
   }

@@ -1,30 +1,37 @@
 import 'react-native-gesture-handler';
-import {NavigationContainer} from '@react-navigation/native';
+import {DrawerActions, NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
-import React, {ReactNode} from 'react';
-import {StatusBar} from 'react-native';
+import React, {ReactNode, useEffect} from 'react';
+import {StatusBar, TouchableOpacity} from 'react-native';
 import {NavigationScreens} from 'constants/navigation-screens';
-import {AppBarColorProps} from 'zenbaei-js-lib/react';
-import Colors from 'constants/app-colors';
+import {
+  AppBarColors,
+  Button,
+  NavigationProps,
+  Text,
+} from 'zenbaei-js-lib/react';
 import LoginScreen from 'view/login-screen';
 import {getMessages} from 'constants/in18/messages';
-import {HomeScreen} from 'view/home-screen';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {faArrowLeft} from '@fortawesome/free-solid-svg-icons';
 import {FileLogger} from 'react-native-file-logger';
-
+import {DarkTheme} from 'zenbaei-js-lib/constants';
+import {BookDetailsScreen} from 'view/book-details-screen';
+import {DrawerNavigation} from 'view/drawer-navigation';
 const Stack = createStackNavigator<NavigationScreens>();
+
 //adding icons
 library.add(faArrowLeft);
 FileLogger.configure({captureConsole: false});
-
-global.FileLog = (msg: string) => {
-  FileLogger.error(msg);
-  console.log(msg);
+global.FileLog = (msg: string | object) => {
+  FileLogger.error(msg as string);
 };
 
+global.LogLevel = 'Debug';
+global.AppTheme = DarkTheme;
+
 const App = (): ReactNode => {
-  StatusBar.setBackgroundColor(Colors.statusBar);
+  StatusBar.setBackgroundColor(global.AppTheme.statusBar);
   return (
     <NavigationContainer>
       <Stack.Navigator>
@@ -33,23 +40,23 @@ const App = (): ReactNode => {
           component={LoginScreen}
           options={{
             title: getMessages().login,
-            ...AppBarColorProps(
-              Colors.appBar,
-              Colors.onSurface,
-              Colors.onSurface,
-            ),
+            ...AppBarColors,
           }}
         />
         <Stack.Screen
-          name="homeScreen"
-          component={HomeScreen}
+          name="drawerNavigation"
+          component={DrawerNavigation}
           options={{
             title: getMessages().home,
-            ...AppBarColorProps(
-              Colors.appBar,
-              Colors.onSurface,
-              Colors.onSurface,
-            ),
+            ...AppBarColors,
+          }}
+        />
+        <Stack.Screen
+          name="bookDetailsScreen"
+          component={BookDetailsScreen}
+          options={{
+            title: getMessages().bookDetails,
+            ...AppBarColors,
           }}
         />
       </Stack.Navigator>

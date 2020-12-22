@@ -11,12 +11,14 @@
     "strict": true,
     "target": "esnext",
     "baseUrl": "./src",
+    "skipLibCheck": true,
     "paths": {"@zenbaei/*": ["node_modules/zenbaei_js_lib/react/components/*"]}
   },
   "exclude": [
     "node_modules",
     "babel.config.js",
     "metro.config.js",
-    "jest.config.js"
+    "jest.config.js",
+    "__tests__"
   ]
 }

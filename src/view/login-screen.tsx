@@ -1,24 +1,26 @@
 import {NavigationScreens} from 'constants/navigation-screens';
 import React from 'react';
 import {User} from 'user/user';
-import {getUser} from 'user/user-service';
+import {UserService} from 'user/user-service';
 import {Login, NavigationProps} from 'zenbaei-js-lib/react';
 import {isEmpty} from 'zenbaei-js-lib/utils';
 
 export default function LoginScreen({
   navigation,
 }: NavigationProps<NavigationScreens, 'loginScreen'>) {
-  const login = async (id: string, password: string) => {
-    if (!validate(id, password)) {
+  const login = async (email: string, password: string) => {
+    if (!validate(email, password)) {
       return;
     }
-    const user: User | undefined = await getUser(id, password);
+    const users: User[] | undefined = await userService.getByQuery({
+      email: email,
+      password: password,
+    });
 
-    if (!user) {
+    if (!users || users.length !== 1) {
       return;
     }
-
-    navigation.navigate('homeScreen', user);
+    navigation.navigate('drawerNavigation', users[0]);
   };
 
   const validate = (id: string, password: string): boolean => {
@@ -34,3 +36,5 @@ export default function LoginScreen({
     </>
   );
 }
+
+const userService: UserService = new UserService();
