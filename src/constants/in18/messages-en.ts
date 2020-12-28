@@ -6,4 +6,5 @@ export class Messages {
   bookGenre = 'Book Genre';
   description = 'Description';
   price = 'Price';
+  checkout = 'Checkout';
 }

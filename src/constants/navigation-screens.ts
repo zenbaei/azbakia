@@ -1,10 +1,12 @@
 import {Book} from 'book/book';
-import {User} from 'user/user';
 
 export type NavigationScreens = {
   loginScreen: {};
-  homeScreen: User;
+  homeScreen: any;
   bookDetailsScreen: Book;
+  bookImageScreen: Book;
   bookGenreScreen: {};
-  drawerNavigation: any;
+  checkoutScreen: {};
+  drawerNavigator: any;
+  stackNavigator: any;
 };

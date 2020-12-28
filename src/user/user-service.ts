@@ -1,4 +1,4 @@
-import {httpServerAddress} from 'app.config';
+import {mongoRestApi} from '../../app.config';
 import {DbCollectionNames} from 'constants/db-collection-names';
 import {MongoHttpService} from 'zenbaei-js-lib/utils';
 import {User} from './user';
@@ -7,7 +7,7 @@ const moduleName: string = 'user-service';
 
 export class UserService extends MongoHttpService<User> {
   constructor() {
-    super(httpServerAddress, DbCollectionNames.users);
+    super(mongoRestApi, DbCollectionNames.users);
   }
 
   getUser = async (id: string, password: string): Promise<User | undefined> => {
