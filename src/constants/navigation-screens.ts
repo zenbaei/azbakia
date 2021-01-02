@@ -4,9 +4,8 @@ export type NavigationScreens = {
   loginScreen: {};
   homeScreen: any;
   bookDetailsScreen: Book;
-  bookImageScreen: Book;
   bookGenreScreen: {};
   checkoutScreen: {};
+  lookInsideBookScreen: {imageFolderName: string};
   drawerNavigator: any;
-  stackNavigator: any;
 };

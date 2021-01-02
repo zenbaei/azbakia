@@ -12,6 +12,7 @@ import {HomeScreen} from '../home-screen';
 import {Item, Accordion} from 'react-native-paper/src/components/List/List';
 import {BookDetailsScreen} from 'view/book-details-screen';
 import {getAppTheme} from 'zenbaei-js-lib/theme';
+import {LookInsideBookScreen} from 'view/look-inside-book-screen';
 
 const Drawer = createDrawerNavigator<NavigationScreens>();
 
@@ -32,6 +33,11 @@ export function DrawerNavigator() {
         name="bookDetailsScreen"
         component={BookDetailsScreen}
         options={{title: getMessages().bookDetails}}
+      />
+      <Drawer.Screen
+        name="lookInsideBookScreen"
+        component={LookInsideBookScreen}
+        options={{title: getMessages().lookInside}}
       />
     </Drawer.Navigator>
   );

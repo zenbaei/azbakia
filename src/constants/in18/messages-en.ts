@@ -7,4 +7,5 @@ export class Messages {
   description = 'Description';
   price = 'Price';
   checkout = 'Checkout';
+  lookInside = 'Look inside';
 }

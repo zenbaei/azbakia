@@ -3,20 +3,22 @@ import {NavigationScreens} from 'constants/navigation-screens';
 import React from 'react';
 import {FlatList, Image, useWindowDimensions, View} from 'react-native';
 import {Fab, NavigationProps} from 'zenbaei-js-lib/react';
+import {getAppTheme} from 'zenbaei-js-lib/theme';
 
-export function BookImageScreen({
+export function LookInsideBookScreen({
   navigation,
   route,
-}: NavigationProps<NavigationScreens, 'bookImageScreen'>) {
+}: NavigationProps<NavigationScreens, 'lookInsideBookScreen'>) {
   const windowWidth = useWindowDimensions().width;
   const windowHeight = useWindowDimensions().height;
+  const imageFolderName = route.params.imageFolderName;
 
   return (
     <FlatList
       data={images}
       keyExtractor={(item) => item.name}
       horizontal
-      style={{position: 'absolute', display: visible ? 'flex' : 'none'}}
+      style={{position: 'absolute'}}
       renderItem={({item}) => {
         return (
           <View
@@ -25,21 +27,22 @@ export function BookImageScreen({
               padding: 10,
               borderRadius: 2,
               marginRight: 10,
-              ...styles.frame,
+              borderWidth: 4,
+              borderColor: getAppTheme().primary,
             }}>
             <Image
-              source={{uri: `${staticFileUrl}/bokhary/${item.name}`}}
+              source={{uri: `${staticFileUrl}/${imageFolderName}/${item.name}`}}
               style={{
                 height: windowHeight,
                 width: windowWidth - 30,
               }}
             />
             <Fab
+              icon="close"
               style={{
                 alignSelf: 'flex-end',
                 right: 20,
               }}
-              small
               onPress={() => navigation.navigate('bookDetailsScreen')}
             />
           </View>
@@ -48,3 +51,10 @@ export function BookImageScreen({
     />
   );
 }
+
+const images = [
+  {name: 'main.jpg'},
+  {name: '1.png'},
+  {name: '2.png'},
+  {name: '3.png'},
+];
