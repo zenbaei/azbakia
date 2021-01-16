@@ -1,9 +1,9 @@
 import {staticFileUrl} from '../../app.config';
 import {Book} from 'book/book';
+import {userService} from 'user/user-service';
 import {bookService} from 'book/book-service';
 import React, {useEffect, useState} from 'react';
-import {Image, ScrollView, StyleSheet, View} from 'react-native';
-import {TouchableHighlight} from 'react-native-gesture-handler';
+import {Image, ScrollView, View, TouchableHighlight} from 'react-native';
 import {
   Col,
   Grid,
@@ -15,11 +15,7 @@ import {
 } from 'zenbaei-js-lib/react';
 import {NavigationScreens} from 'constants/navigation-screens';
 import Snackbar from 'react-native-paper/src/components/Snackbar';
-import {cartService} from 'cart/cart-service';
-import {getAppTheme} from 'zenbaei-js-lib/themes';
 import {styles} from 'constants/styles';
-
-const booksInCart: Book[] = [];
 
 export function HomeScreen({
   navigation,
@@ -27,17 +23,12 @@ export function HomeScreen({
 }: NavigationProps<NavigationScreens, 'homeScreen'>) {
   const [books, setBooks] = useState([] as Book[]);
   const [isSnackBarVisible, setSnackBarVisible] = useState(false);
+  const [favBooks, setFavBooks] = useState(route.params.favBooks);
+  const [booksInCart, setBooksInCart] = useState([] as Book[]);
 
   useEffect(() => {
-    cartService.getUserCart(global.userEmail).then((savedBooks) => {
-      if (savedBooks) {
-        // booksInCart.concat(JSON.parse(savedBooks));
-      }
-    });
-
-    bookService.getByQuery({newArrival: true}).then((bks) => {
-      const arr: Book[] = bks ? bks : [];
-      setBooks(arr);
+    bookService.findByNewArrivals().then((bks) => {
+      setBooks(bks);
     });
   }, []);
 
@@ -46,18 +37,40 @@ export function HomeScreen({
     navigation.navigate('bookDetailsScreen', book);
   };
 
-  const addToCart = async (book: Book) => {
+  const addToFav = (bookName: string) => {
+    if (favBooks.find((val) => val === bookName)) {
+      return;
+    }
+    const favs: string[] = [...favBooks, bookName];
+    userService
+      .addToFavBook(global.user._id, favs)
+      .then(() => setFavBooks(favs));
+  };
+
+  const getFavIcon = (bookName: string): string => {
+    if (favBooks.find((val) => val === bookName)) {
+      return 'heart-outline';
+    }
+    return 'heart';
+  };
+
+  const addToCart = (book: Book) => {
     if (booksInCart.find((bk) => bk.name === book.name)) {
       return;
     }
-    booksInCart.push(book);
-    const sum: number = booksInCart
+    const cart = booksInCart.concat(book);
+    const sum: number = cart
       .map((bk) => bk.price)
       .reduce((acc, cur) => {
         return Number(acc) + Number(cur);
       }, 0);
-    cartService.addToCart(book.name, global.userEmail);
+
+    userService.addToCart(
+      global.user._id,
+      cart.map((bok) => bok.name),
+    );
     global.setRightHeaderLabel(`Checkout ..${sum}`);
+    setBooksInCart(cart);
     setSnackBarVisible(true);
   };
 
@@ -75,9 +88,9 @@ export function HomeScreen({
           />
         </TouchableHighlight>
         <Fab
-          icon="heart-outline"
+          icon={getFavIcon(book.name)}
           style={styles.fav}
-          onPress={() => console.log('Pressed')}
+          onPress={() => addToFav(book.name)}
         />
         <Fab
           icon="cart-outline"

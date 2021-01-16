@@ -9,8 +9,8 @@ class BookService extends MongoHttpService<Book> {
     super(mongoRestApi, DbCollectionNames.books);
   }
 
-  getNewArrivals = async (): Promise<Book[] | undefined> => {
-    return await this.getByQuery({
+  findByNewArrivals = (): Promise<Book[]> => {
+    return this.findAll({
       newArrival: true,
     });
   };

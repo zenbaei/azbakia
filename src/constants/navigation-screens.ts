@@ -2,10 +2,10 @@ import {Book} from 'book/book';
 
 export type NavigationScreens = {
   loginScreen: {};
-  homeScreen: any;
+  homeScreen: {favBooks: string[]; booksInCart: string[]};
   bookDetailsScreen: Book;
   bookGenreScreen: {};
   checkoutScreen: {};
   lookInsideBookScreen: {imageFolderName: string};
-  drawerNavigator: any;
+  drawerNavigator: {favBooks: string[]; booksInCart: string[]};
 };

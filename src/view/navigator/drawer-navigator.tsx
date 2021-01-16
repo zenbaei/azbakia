@@ -13,10 +13,14 @@ import {Item, Accordion} from 'react-native-paper/src/components/List/List';
 import {BookDetailsScreen} from 'view/book-details-screen';
 import {getAppTheme} from 'zenbaei-js-lib/theme';
 import {LookInsideBookScreen} from 'view/look-inside-book-screen';
+import {NavigationProps} from 'zenbaei-js-lib/react';
 
 const Drawer = createDrawerNavigator<NavigationScreens>();
 
-export function DrawerNavigator() {
+export function DrawerNavigator({
+  navigation,
+  route,
+}: NavigationProps<NavigationScreens, 'drawerNavigator'>) {
   useEffect(() => {}, []);
   return (
     <Drawer.Navigator
@@ -28,6 +32,10 @@ export function DrawerNavigator() {
         name="homeScreen"
         component={HomeScreen}
         options={{title: getMessages().home}}
+        initialParams={{
+          favBooks: route.params.favBooks,
+          booksInCart: route.params.booksInCart,
+        }}
       />
       <Drawer.Screen
         name="bookDetailsScreen"
