@@ -2,7 +2,7 @@ import {Book} from 'book/book';
 
 export type NavigationScreens = {
   loginScreen: {};
-  homeScreen: {favBooks: string[]; booksInCart: string[]};
+  bookScreen: {favBooks: string[]; booksInCart: string[]};
   bookDetailsScreen: Book;
   bookGenreScreen: {};
   checkoutScreen: {};

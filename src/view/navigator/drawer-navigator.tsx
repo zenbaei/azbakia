@@ -8,7 +8,7 @@ import {
 import {getMessages} from 'constants/in18/messages';
 import {NavigationScreens} from 'constants/navigation-screens';
 import React, {useEffect, useState} from 'react';
-import {HomeScreen} from '../home-screen';
+import {BookScreen} from '../book-screen';
 import {Item, Accordion} from 'react-native-paper/src/components/List/List';
 import {BookDetailsScreen} from 'view/book-details-screen';
 import {getAppTheme} from 'zenbaei-js-lib/theme';
@@ -24,13 +24,13 @@ export function DrawerNavigator({
   useEffect(() => {}, []);
   return (
     <Drawer.Navigator
-      initialRouteName={'homeScreen'}
+      initialRouteName={'bookScreen'}
       drawerContent={(props) => <CustomDrawerContent {...props} />}
       drawerStyle={{backgroundColor: getAppTheme().background}}
       drawerContentOptions={{labelStyle: {color: getAppTheme().onSurface}}}>
       <Drawer.Screen
-        name="homeScreen"
-        component={HomeScreen}
+        name="bookScreen"
+        component={BookScreen}
         options={{title: getMessages().home}}
         initialParams={{
           favBooks: route.params.favBooks,
@@ -61,7 +61,7 @@ function CustomDrawerContent(
       <DrawerItem
         labelStyle={{color: getAppTheme().onSurface}}
         label="Home"
-        onPress={() => props.navigation.navigate('homeScreen')}
+        onPress={() => props.navigation.navigate('bookScreen')}
       />
       <Accordion
         titleStyle={{color: getAppTheme().onSurface}}

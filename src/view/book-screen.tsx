@@ -16,11 +16,12 @@ import {
 import {NavigationScreens} from 'constants/navigation-screens';
 import Snackbar from 'react-native-paper/src/components/Snackbar';
 import {styles} from 'constants/styles';
+import {addToFav, getFavIcon} from './common-actions';
 
-export function HomeScreen({
+export function BookScreen({
   navigation,
   route,
-}: NavigationProps<NavigationScreens, 'homeScreen'>) {
+}: NavigationProps<NavigationScreens, 'bookScreen'>) {
   const [books, setBooks] = useState([] as Book[]);
   const [isSnackBarVisible, setSnackBarVisible] = useState(false);
   const [favBooks, setFavBooks] = useState(route.params.favBooks);
@@ -35,23 +36,6 @@ export function HomeScreen({
   const navToBookDetails = (book: Book) => {
     //bookService.getByUnique('_id', book._id);
     navigation.navigate('bookDetailsScreen', book);
-  };
-
-  const addToFav = (bookName: string) => {
-    if (favBooks.find((val) => val === bookName)) {
-      return;
-    }
-    const favs: string[] = [...favBooks, bookName];
-    userService
-      .addToFavBook(global.user._id, favs)
-      .then(() => setFavBooks(favs));
-  };
-
-  const getFavIcon = (bookName: string): string => {
-    if (favBooks.find((val) => val === bookName)) {
-      return 'heart-outline';
-    }
-    return 'heart';
   };
 
   const addToCart = (book: Book) => {
@@ -88,9 +72,9 @@ export function HomeScreen({
           />
         </TouchableHighlight>
         <Fab
-          icon={getFavIcon(book.name)}
+          icon="heart-outline"
           style={styles.fav}
-          onPress={() => addToFav(book.name)}
+          onPress={() => addToFav(book.name, favBooks)}
         />
         <Fab
           icon="cart-outline"
