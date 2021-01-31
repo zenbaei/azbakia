@@ -20,7 +20,7 @@ export default function LoginScreen({
     if (!user) {
       return;
     }
-    global.user.email = email;
+    //global.user.email = email;
     navigation.navigate('drawerNavigator', {
       favBooks: user.favBooks,
       booksInCart: user.booksInCart,
