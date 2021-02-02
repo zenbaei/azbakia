@@ -18,8 +18,14 @@ class UserService extends MongoHttpService<User> {
     const users = await this.findAll(query);
     return users && users.length === 1 ? users[0] : undefined;
   };
-  addToFavBook = (id: string, books: string[]): Promise<{updated: number}> => {
-    const updateQuery = {$set: {favBooks: books}};
+  updateFavOrCart = (
+    id: string,
+    books: string[],
+    attribute: favOrCart,
+  ): Promise<{updated: number}> => {
+    const object =
+      attribute === 'fav' ? {$set: {fav: books}} : {$set: {cart: books}};
+    const updateQuery = object;
     return this.updateById(id, updateQuery);
   };
 
@@ -29,4 +35,5 @@ class UserService extends MongoHttpService<User> {
   };
 }
 
+export type favOrCart = 'fav' | 'cart';
 export const userService = new UserService();

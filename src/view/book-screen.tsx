@@ -16,8 +16,7 @@ import {
 import {NavigationScreens} from 'constants/navigation-screens';
 import Snackbar from 'react-native-paper/src/components/Snackbar';
 import {styles} from 'constants/styles';
-import {addRemoveFromFav, getFavIconColor} from './common-actions';
-import {getAppTheme} from 'zenbaei-js-lib/theme';
+import {getIconColor, updateFavOrCart} from './common-actions';
 import {getMessages} from 'constants/in18/messages';
 
 export function BookScreen({
@@ -28,7 +27,7 @@ export function BookScreen({
   const [isSnackBarVisible, setSnackBarVisible] = useState(false);
   const [snackBarMsg, setSnackBarMsg] = useState('');
   const [favBooks, setFavBooks] = useState(route.params.favBooks);
-  const [booksInCart, setBooksInCart] = useState(route.params.booksInCart);
+  const [cartBooks, setCartBooks] = useState(route.params.booksInCart);
 
   useEffect(() => {
     bookService.findByNewArrivals().then((bks) => {
@@ -41,24 +40,35 @@ export function BookScreen({
     navigation.navigate('bookDetailsScreen', book);
   };
 
-  const addToCart = (book: Book) => {
-    if (booksInCart.find((bk) => bk.name === book.name)) {
-      return;
-    }
+  const sumCart = () => {
     const cart = booksInCart.concat(book);
     const sum: number = cart
       .map((bk) => bk.price)
       .reduce((acc, cur) => {
         return Number(acc) + Number(cur);
       }, 0);
-
-    userService.addToCart(
-      global.user._id,
-      cart.map((bok) => bok.name),
-    );
     global.setRightHeaderLabel(`Checkout ..${sum}`);
-    setBooksInCart(cart);
-    setSnackBarVisible(true);
+  };
+
+  const updateFav = (bookName: string) => {
+    updateFavOrCart(bookName, favBooks, 'fav').then((favs) => {
+      favs.length > favBooks.length
+        ? setSnackBarMsg(getMessages().addedToFav)
+        : setSnackBarMsg(getMessages().removedFromFav);
+      setFavBooks(favs);
+      setSnackBarVisible(true);
+    });
+  };
+
+  const updateCart = (bookName: string) => {
+    updateFavOrCart(bookName, cartBooks, 'cart').then((cart) => {
+      cart.length > cartBooks.length
+        ? setSnackBarMsg(getMessages().addedToCart)
+        : setSnackBarMsg(getMessages().removedFromCart);
+      setCartBooks(cart);
+      setSnackBarVisible(true);
+      sumCart();
+    });
   };
 
   const Item = ({book}: {book: Book}) => {
@@ -78,24 +88,17 @@ export function BookScreen({
           icon="heart-outline"
           style={{
             ...styles.fav,
-            backgroundColor: getFavIconColor(book.name, favBooks),
+            backgroundColor: getIconColor(book.name, favBooks),
           }}
-          onPress={() => {
-            addRemoveFromFav(book.name, favBooks).then((favs) => {
-              favs.length > favBooks.length
-                ? setSnackBarMsg(getMessages().addedToFav)
-                : setSnackBarMsg(getMessages().removedFromFav);
-              setFavBooks(favs);
-              setSnackBarVisible(true);
-            });
-          }}
+          onPress={() => updateFav(book.name)}
         />
         <Fab
           icon="cart-outline"
-          style={styles.cart}
-          onPress={() => {
-            addToCart(book);
+          style={{
+            ...styles.cart,
+            backgroundColor: getIconColor(book.name, favBooks),
           }}
+          onPress={() => updateCart(book.name)}
         />
         <View style={styles.wide}>
           <Text style={{...styles.title, ...styles.bold}} text={book.name} />
@@ -117,14 +120,13 @@ export function BookScreen({
             }}
           />
         </ScrollView>
-        <View style={{alignItems: 'center'}}>
-          <Snackbar
-            duration={5000}
-            visible={isSnackBarVisible}
-            onDismiss={() => setSnackBarVisible(false)}>
-            <Text style={{textAlign: 'center'}} text={snackBarMsg} />
-          </Snackbar>
-        </View>
+
+        <Snackbar
+          duration={5000}
+          visible={isSnackBarVisible}
+          onDismiss={() => setSnackBarVisible(false)}>
+          {snackBarMsg}
+        </Snackbar>
       </Col>
     </Grid>
   );
