@@ -1,22 +1,27 @@
 import {userService} from 'user/user-service';
+import {getAppTheme} from 'zenbaei-js-lib/theme';
 
 export const getFavIconColor = (
   bookName: string,
   favBooks: string[],
 ): string => {
   if (favBooks.find((val) => val === bookName)) {
-    return 'white';
+    return getAppTheme().primary;
   }
-  return 'red';
+  return getAppTheme().secondary;
 };
 
-export const addToFav = (
+export const addRemoveFromFav = async (
   bookName: string,
   favBooks: string[],
-): Promise<string[]> | void => {
-  if (favBooks.find((val) => val === bookName)) {
-    return;
+): Promise<string[]> => {
+  let favBooksClone = [...favBooks];
+  const index: number = favBooks.findIndex((val) => val === bookName);
+  if (index >= 0) {
+    favBooksClone.splice(index, 1);
+  } else {
+    favBooksClone = [...favBooks, bookName];
   }
-  const favs: string[] = [...favBooks, bookName];
-  return userService.addToFavBook(global.user._id, favs).then(() => favs);
+  const result = await userService.addToFavBook(global.user._id, favBooksClone);
+  return result.updated > 0 ? favBooksClone : favBooks;
 };

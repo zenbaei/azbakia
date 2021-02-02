@@ -10,6 +10,8 @@ target 'azbakia' do
 
 
 
+  pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
+
   target 'azbakiaTests' do
     inherit! :complete
     # Pods for testing

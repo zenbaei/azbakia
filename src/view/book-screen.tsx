@@ -16,7 +16,9 @@ import {
 import {NavigationScreens} from 'constants/navigation-screens';
 import Snackbar from 'react-native-paper/src/components/Snackbar';
 import {styles} from 'constants/styles';
-import {addToFav, getFavIcon} from './common-actions';
+import {addRemoveFromFav, getFavIconColor} from './common-actions';
+import {getAppTheme} from 'zenbaei-js-lib/theme';
+import {getMessages} from 'constants/in18/messages';
 
 export function BookScreen({
   navigation,
@@ -24,8 +26,9 @@ export function BookScreen({
 }: NavigationProps<NavigationScreens, 'bookScreen'>) {
   const [books, setBooks] = useState([] as Book[]);
   const [isSnackBarVisible, setSnackBarVisible] = useState(false);
+  const [snackBarMsg, setSnackBarMsg] = useState('');
   const [favBooks, setFavBooks] = useState(route.params.favBooks);
-  const [booksInCart, setBooksInCart] = useState([] as Book[]);
+  const [booksInCart, setBooksInCart] = useState(route.params.booksInCart);
 
   useEffect(() => {
     bookService.findByNewArrivals().then((bks) => {
@@ -73,8 +76,19 @@ export function BookScreen({
         </TouchableHighlight>
         <Fab
           icon="heart-outline"
-          style={styles.fav}
-          onPress={() => addToFav(book.name, favBooks)}
+          style={{
+            ...styles.fav,
+            backgroundColor: getFavIconColor(book.name, favBooks),
+          }}
+          onPress={() => {
+            addRemoveFromFav(book.name, favBooks).then((favs) => {
+              favs.length > favBooks.length
+                ? setSnackBarMsg(getMessages().addedToFav)
+                : setSnackBarMsg(getMessages().removedFromFav);
+              setFavBooks(favs);
+              setSnackBarVisible(true);
+            });
+          }}
         />
         <Fab
           icon="cart-outline"
@@ -103,12 +117,14 @@ export function BookScreen({
             }}
           />
         </ScrollView>
-        <Snackbar
-          duration={5000}
-          visible={isSnackBarVisible}
-          onDismiss={() => setSnackBarVisible(false)}>
-          Added to cart
-        </Snackbar>
+        <View style={{alignItems: 'center'}}>
+          <Snackbar
+            duration={5000}
+            visible={isSnackBarVisible}
+            onDismiss={() => setSnackBarVisible(false)}>
+            <Text style={{textAlign: 'center'}} text={snackBarMsg} />
+          </Snackbar>
+        </View>
       </Col>
     </Grid>
   );

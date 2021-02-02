@@ -20,10 +20,10 @@ export default function LoginScreen({
     if (!user) {
       return;
     }
-    //global.user.email = email;
+    global.user = {_id: user._id as string, email: email};
     navigation.navigate('drawerNavigator', {
-      favBooks: user.favBooks,
-      booksInCart: user.booksInCart,
+      favBooks: user.favBooks ? user.favBooks : [],
+      booksInCart: user.booksInCart ? user.booksInCart : [],
     });
   };
 
