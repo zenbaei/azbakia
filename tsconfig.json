@@ -11,8 +11,7 @@
     "strict": true,
     "target": "esnext",
     "baseUrl": "./src",
-    "skipLibCheck": true,
-    "paths": {"@zenbaei/*": ["node_modules/zenbaei_js_lib/react/components/*"]}
+    "skipLibCheck": true
   },
   "exclude": [
     "node_modules",

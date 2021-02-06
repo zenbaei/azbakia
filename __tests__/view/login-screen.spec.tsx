@@ -6,8 +6,6 @@ import {StackNavigationProp} from '@react-navigation/stack';
 import {NavigationScreens} from 'constants/navigation-screens';
 import {act} from 'react-test-renderer';
 import {StackNavigationPropStub} from '../stubs/stack-navigation-prop-stub';
-import {User} from 'user/user';
-import {getUser} from 'user/user-service';
 
 const navigation: StackNavigationProp<
   NavigationScreens,
@@ -34,7 +32,7 @@ test(`Given username and password are filled but invalid, When doing login,
   Then it should not call navigation`, async () => {
   expect.assertions(1);
   jest
-    .spyOn(userService, 'getUser')
+    .spyOn(userService.userService, 'findByEmailAndPass')
     .mockImplementation(() => Promise.resolve(undefined));
   const {getByText, getByPlaceholderText} = render(
     <LoginScreen
@@ -51,16 +49,13 @@ test(`Given username and password are filled but invalid, When doing login,
 });
 
 test(`Given username and password are valid and user exist on db, When doing login, 
-  Then it should call navigate to next screen`, async () => {
+  Then it should call navigate to next screen with the right route parameters`, async () => {
   expect.assertions(2);
-  const user: User = {email: 'islam'};
+  const user: any = {favBooks: ['book1']};
 
   jest
-    .spyOn(userService, 'getUser')
+    .spyOn(userService.userService, 'findByEmailAndPass')
     .mockImplementation(() => Promise.resolve(user));
-
-  const getUserReturn: User = (await getUser('any', 'value')) as User;
-  expect(getUserReturn.email).toBe('islam');
 
   const {getByPlaceholderText, getByText} = render(
     <LoginScreen
@@ -74,5 +69,9 @@ test(`Given username and password are valid and user exist on db, When doing log
     await fireEvent.press(getByText('Sign in'));
   });
 
-  expect(navigate).toHaveBeenCalledWith('homeScreen', user);
+  expect(navigate).toHaveBeenCalledWith('drawerNavigator', {
+    favBooks: user.favBooks,
+    booksInCart: [],
+  });
+  expect(global.user.email).toEqual('zenbaei@gmail.com');
 });
