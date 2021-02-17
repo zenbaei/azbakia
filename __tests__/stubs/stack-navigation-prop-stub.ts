@@ -1,59 +1,87 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import {NavigationScreens} from 'constants/navigation-screens';
-import {StackNavigationProp} from '@react-navigation/stack';
-import {NavigationAction, StackNavigationState} from '@react-navigation/native';
-import {User} from 'user/user';
+import {
+  StackNavigationOptions,
+  StackNavigationProp,
+} from '@react-navigation/stack';
+import {
+  EventListenerCallback,
+  EventMapCore,
+  NavigationAction,
+  StackNavigationState,
+} from '@react-navigation/native';
+import {StackNavigationEventMap} from '@react-navigation/stack/lib/typescript/src/types';
 
-export const StackNavigationPropStub: StackNavigationProp<
-  NavigationScreens,
-  'loginScreen'
-> = {
+export class StackNavigationPropStub<
+  T extends Record<string, object>,
+  K extends keyof T
+> implements StackNavigationProp<T, K> {
+  navigate<RouteName extends keyof T>(
+    ...args: undefined extends T[RouteName]
+      ? [RouteName] | [RouteName, T[RouteName]]
+      : [RouteName, T[RouteName]]
+  ): void;
+  navigate<RouteName extends keyof T>(
+    route:
+      | {key: string; params?: T[RouteName]}
+      | {name: RouteName; key?: string; params: T[RouteName]},
+  ): void;
+  navigate(route?: any, ...rest: any[]) {}
+  protected?: {a: T; b: keyof T; c: {}} & {
+    a: T;
+    b: K;
+    c: StackNavigationEventMap;
+  };
+
+  setParams(params: Partial<T[K]>): void {
+    throw new Error('Method not implemented.');
+  }
+  setOptions(options: Partial<StackNavigationOptions>): void {
+    throw new Error('Method not implemented.');
+  }
+  addListener(type, callback): () => void {
+    throw new Error('Method not implemented.');
+  }
+  removeListener(type, callback): void {
+    throw new Error('Method not implemented.');
+  }
+  replace<RouteName extends keyof T = string>(...args): void {
+    throw new Error('Method not implemented.');
+  }
+  push<RouteName extends keyof T>(...args): void {
+    throw new Error('Method not implemented.');
+  }
+  pop(count?: number): void {
+    throw new Error('Method not implemented.');
+  }
+  popToTop(): void {
+    throw new Error('Method not implemented.');
+  }
+  params: object;
   dispatch(
-    action:
-      | NavigationAction
-      | ((state: StackNavigationState<NavigationScreens>) => {}),
-  ) {},
+    action: NavigationAction | ((state: StackNavigationState<T>) => {}),
+  ) {}
 
-  navigate: () => {},
-  reset: () => {},
-  isFocused: (): boolean => {
+  reset() {}
+  goBack() {}
+
+  isFocused(): boolean {
     return true;
-  },
-  canGoBack: (): boolean => {
+  }
+
+  canGoBack(): boolean {
     return true;
-  },
-  goBack: () => {},
-  dangerouslyGetState: (): StackNavigationState<NavigationScreens> => {
+  }
+
+  dangerouslyGetState(): StackNavigationState<T> {
     return {
       index: 1,
       key: 'key1',
-      routeNames: ['loginScreen', 'homeScreen'],
+      routeNames: [],
       type: 'stack',
       stale: false,
-      routes: [{key: 'loginScreen', name: 'loginScreen', params: User}],
+      routes: [],
     };
-  },
-  dangerouslyGetParent: () => {
+  }
+  dangerouslyGetParent() {
     return undefined;
-  },
-};
-
-/*
-{
-    navProps: {loginScreen: undefined},
-    str: 'loginScreen',
-    many: {
-      index: 1,
-      key: 'key1',
-      routeNames: ['loginScreen', 'homeScreen'],
-      type: 'stack',
-      stale: false,
-      routes: [
-        {key: 'loginScreen', name: 'loginScreen', params: User},
-        'loginScreen',
-      ],
-      emp: {},
-      emp2: {},
-    }
+  }
 }
-*/

@@ -1,7 +1,6 @@
 import {staticFileUrl} from '../../app.config';
 import {Book} from 'book/book';
-import {userService} from 'user/user-service';
-import {bookService} from 'book/book-service';
+import BookService from 'book/book-service';
 import React, {useEffect, useState} from 'react';
 import {Image, ScrollView, View, TouchableHighlight} from 'react-native';
 import {
@@ -26,8 +25,9 @@ export function BookScreen({
   const [books, setBooks] = useState([] as Book[]);
   const [isSnackBarVisible, setSnackBarVisible] = useState(false);
   const [snackBarMsg, setSnackBarMsg] = useState('');
-  const [favBooks, setFavBooks] = useState(route.params.favBooks);
-  const [cartBooks, setCartBooks] = useState(route.params.booksInCart);
+  const [favBooks, setFavBooks] = useState([]);
+  const [cartBooks, setCartBooks] = useState([]);
+  const bookService = new BookService();
 
   useEffect(() => {
     bookService.findByNewArrivals().then((bks) => {
@@ -75,6 +75,7 @@ export function BookScreen({
     return (
       <Card width="50%">
         <TouchableHighlight
+          testID="touchable"
           key={book.name + 'toh'}
           onPress={() => {
             navToBookDetails(book);
@@ -96,7 +97,7 @@ export function BookScreen({
           icon="cart-outline"
           style={{
             ...styles.cart,
-            backgroundColor: getIconColor(book.name, favBooks),
+            backgroundColor: getIconColor(book.name, cartBooks),
           }}
           onPress={() => updateCart(book.name)}
         />

@@ -1,19 +1,17 @@
 import React from 'react';
 import {fireEvent, render} from '@testing-library/react-native';
-import LoginScreen from 'view/login-screen';
-
-import {StackNavigationProp} from '@react-navigation/stack';
-import {NavigationScreens} from 'constants/navigation-screens';
+import LoginScreen from '../../src/view/login-screen';
 import {act} from 'react-test-renderer';
 import {StackNavigationPropStub} from '../stubs/stack-navigation-prop-stub';
+import {NavigationScreens} from '../../src/constants/navigation-screens';
+import {userService} from '../../src/user/user-service';
 
-const navigation: StackNavigationProp<
+const navigation = new StackNavigationPropStub<
   NavigationScreens,
   'loginScreen'
-> = StackNavigationPropStub;
+>();
 
 const navigate: any = jest.spyOn(navigation, 'navigate');
-const userService = require('../../src/user/user-service');
 
 test(`Given username and password were empty, When doing login, 
     Then it should not call navigate`, async () => {
@@ -32,7 +30,7 @@ test(`Given username and password are filled but invalid, When doing login,
   Then it should not call navigation`, async () => {
   expect.assertions(1);
   jest
-    .spyOn(userService.userService, 'findByEmailAndPass')
+    .spyOn(userService, 'findByEmailAndPass')
     .mockImplementation(() => Promise.resolve(undefined));
   const {getByText, getByPlaceholderText} = render(
     <LoginScreen
@@ -54,7 +52,7 @@ test(`Given username and password are valid and user exist on db, When doing log
   const user: any = {favBooks: ['book1']};
 
   jest
-    .spyOn(userService.userService, 'findByEmailAndPass')
+    .spyOn(userService, 'findByEmailAndPass')
     .mockImplementation(() => Promise.resolve(user));
 
   const {getByPlaceholderText, getByText} = render(
