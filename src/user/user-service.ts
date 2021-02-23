@@ -2,6 +2,7 @@ import {mongoRestApi} from '../../app.config';
 import {DbCollectionNames} from 'constants/db-collection-names';
 import {MongoHttpService} from 'zenbaei-js-lib/utils';
 import {User} from './user';
+import {modificationResult} from 'zenbaei-js-lib/types';
 
 const moduleName: string = 'user-service';
 
@@ -22,14 +23,14 @@ class UserService extends MongoHttpService<User> {
     id: string,
     books: string[],
     attribute: favOrCart,
-  ): Promise<{updated: number}> => {
+  ): Promise<modificationResult> => {
     const object =
       attribute === 'fav' ? {$set: {fav: books}} : {$set: {cart: books}};
     const updateQuery = object;
     return this.updateById(id, updateQuery);
   };
 
-  addToCart = (id: string, books: string[]): Promise<{updated: number}> => {
+  addToCart = (id: string, books: string[]): Promise<modificationResult> => {
     const updateQuery = {$set: {booksInCart: books}};
     return this.updateById(id, updateQuery);
   };

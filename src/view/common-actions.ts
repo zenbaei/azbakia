@@ -8,6 +8,13 @@ export const getIconColor = (bookName: string, books: string[]): string => {
   return getAppTheme().secondary;
 };
 
+/**
+ *
+ * @param bookName
+ * @param books
+ * @param attribute
+ * @returns the updated array
+ */
 export const updateFavOrCart = async (
   bookName: string,
   books: string[],
@@ -25,5 +32,5 @@ export const updateFavOrCart = async (
     booksClone,
     attribute,
   );
-  return result.updated > 0 ? booksClone : books;
+  return result.modified > 0 ? booksClone : books;
 };

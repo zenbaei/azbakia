@@ -25,21 +25,20 @@ export function BookScreen({
   const [books, setBooks] = useState([] as Book[]);
   const [isSnackBarVisible, setSnackBarVisible] = useState(false);
   const [snackBarMsg, setSnackBarMsg] = useState('');
-  const [favBooks, setFavBooks] = useState([]);
-  const [cartBooks, setCartBooks] = useState([]);
+  const [favBooks, setFavBooks] = useState(route.params.fav);
+  const [cartBooks, setCartBooks] = useState(route.params.cart);
   const bookService = new BookService();
 
   useEffect(() => {
     bookService.findByNewArrivals().then((bks) => {
       setBooks(bks);
     });
-  }, []);
+  }, [bookService]);
 
   const navToBookDetails = (book: Book) => {
-    //bookService.getByUnique('_id', book._id);
     navigation.navigate('bookDetailsScreen', book);
   };
-
+  /*
   const sumCart = () => {
     const cart = booksInCart.concat(book);
     const sum: number = cart
@@ -49,7 +48,7 @@ export function BookScreen({
       }, 0);
     global.setRightHeaderLabel(`Checkout ..${sum}`);
   };
-
+*/
   const updateFav = (bookName: string) => {
     updateFavOrCart(bookName, favBooks, 'fav').then((favs) => {
       favs.length > favBooks.length
@@ -67,7 +66,6 @@ export function BookScreen({
         : setSnackBarMsg(getMessages().removedFromCart);
       setCartBooks(cart);
       setSnackBarVisible(true);
-      sumCart();
     });
   };
 

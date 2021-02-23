@@ -33,8 +33,8 @@ export function DrawerNavigator({
         component={BookScreen}
         options={{title: getMessages().home}}
         initialParams={{
-          favBooks: route.params.favBooks,
-          booksInCart: route.params.booksInCart,
+          fav: route.params.fav,
+          cart: route.params.cart,
         }}
       />
       <Drawer.Screen
