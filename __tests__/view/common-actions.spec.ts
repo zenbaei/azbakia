@@ -1,13 +1,16 @@
 import {getIconColor, updateFavOrCart} from '../../src/view/common-actions';
+import {modificationResult} from 'zenbaei-js-lib/types';
 
 const userServiceMock = require('../../src/user/user-service');
 const theme = require('zenbaei-js-lib/theme/app-theme');
 const arr: string[] = ['islam', 'ali', 'hassan'];
+let global: any;
 global.user = {_id: 1};
+const modified: modificationResult = {modified: 1};
 
 const addToFavBookSpy = jest
   .spyOn(userServiceMock.userService, 'updateFavOrCart')
-  .mockReturnValue({updated: 1});
+  .mockReturnValue(modified);
 
 jest
   .spyOn(theme, 'getAppTheme')
@@ -27,7 +30,7 @@ test(`Giving array string is provided, When the first argument is
   expect(result).toBe('black');
 });
 
-test(`Giving service is mocked and array is provided, When first argument exists in array, 
+test(`Giving service is mocked and array is provided, When passed argument exists in array, 
   Then it should remove it from the array and call the server with it`, async () => {
   expect.assertions(2);
   const result = await updateFavOrCart('ali', arr, 'fav');

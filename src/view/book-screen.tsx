@@ -33,7 +33,7 @@ export function BookScreen({
     bookService.findByNewArrivals().then((bks) => {
       setBooks(bks);
     });
-  }, [bookService]);
+  }, []);
 
   const navToBookDetails = (book: Book) => {
     navigation.navigate('bookDetailsScreen', book);
