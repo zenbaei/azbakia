@@ -1,36 +1,10 @@
-import {favOrCart, userService} from 'user/user-service';
-import {getAppTheme} from 'zenbaei-js-lib/theme';
-
-export const getIconColor = (bookName: string, books: string[]): string => {
-  if (books.find((val) => val === bookName)) {
-    return getAppTheme().primary;
+export const getIconColor = (
+  id: string,
+  ids: string[],
+  theme: AppThemeInterface,
+): string => {
+  if (ids.find((val) => val === id)) {
+    return theme.primary;
   }
-  return getAppTheme().secondary;
-};
-
-/**
- *
- * @param bookName
- * @param books
- * @param attribute
- * @returns the updated array
- */
-export const updateFavOrCart = async (
-  bookName: string,
-  books: string[],
-  attribute: favOrCart,
-): Promise<string[]> => {
-  let booksClone = [...books];
-  const index: number = books.findIndex((val) => val === bookName);
-  if (index >= 0) {
-    booksClone.splice(index, 1);
-  } else {
-    booksClone = [...books, bookName];
-  }
-  const result = await userService.updateFavOrCart(
-    global.user._id,
-    booksClone,
-    attribute,
-  );
-  return result.modified > 0 ? booksClone : books;
+  return theme.secondary;
 };

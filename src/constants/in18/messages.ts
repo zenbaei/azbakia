@@ -1,7 +1,9 @@
-import {Messages} from './messages-en';
+import {MessagesEn} from './messages-en';
 
-const messages: Messages = new Messages();
+export const getMessages = () => {
+  return MessagesEn;
+};
 
-export const getMessages = (): Messages => {
-  return messages;
+export const getMessage = (key: string): string => {
+  return MessagesEn[key];
 };

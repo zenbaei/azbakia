@@ -12,11 +12,13 @@ import {
   DarkTheme as PapDarkTheme,
   Provider as PaperProvider,
 } from 'react-native-paper';
-import {getAppTheme} from 'zenbaei-js-lib/theme';
+import {UserContextProvider} from 'user-context';
+import {Zenbaei} from 'zenbaei-js-lib/react';
 
 //adding icons
 library.add(faArrowLeft);
 FileLogger.configure({captureConsole: false});
+
 global.FileLog = (msg: string | object) => {
   FileLogger.error(msg as string);
 };
@@ -25,11 +27,15 @@ global.LogLevel = 'Debug';
 
 const App = (): ReactNode => {
   return (
-    <PaperProvider theme={CombinedDarkTheme}>
-      <NavigationContainer theme={CombinedDarkTheme}>
-        <StackNavigator />
-      </NavigationContainer>
-    </PaperProvider>
+    <Zenbaei>
+      <UserContextProvider>
+        <PaperProvider theme={CombinedDarkTheme}>
+          <NavigationContainer theme={CombinedDarkTheme}>
+            <StackNavigator />
+          </NavigationContainer>
+        </PaperProvider>
+      </UserContextProvider>
+    </Zenbaei>
   );
 };
 
@@ -41,6 +47,6 @@ const CombinedDarkTheme = {
   colors: {
     ...PapDarkTheme.colors,
     ...NavDarkTheme.colors,
-    primary: getAppTheme().primary,
+    primary: 'red',
   },
 };

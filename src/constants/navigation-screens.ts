@@ -1,11 +1,14 @@
-import {Book} from 'book/book';
+import {Book} from 'domain/book/book';
+import {Cart} from 'domain/user/user';
 
 export type NavigationScreens = {
   loginScreen: {};
-  bookScreen: {fav: string[]; cart: string[]};
+  bookScreen: {genre: string};
   bookDetailsScreen: Book;
   bookGenreScreen: {};
-  checkoutScreen: {};
+  cartScreen: {cart: Cart[]};
   lookInsideBookScreen: {imageFolderName: string};
-  drawerNavigator: {fav: string[]; cart: string[]};
+  drawerNavigator: {};
+  deliveryScreen: {};
+  paymentScreen: {};
 };

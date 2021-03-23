@@ -25,7 +25,7 @@ const navigation = new StackNavigationPropStub<
 const route: RouteProp<NavigationScreens, 'bookScreen'> = {
   key: 'books',
   name: 'bookScreen',
-  params: {favBooks: favBooks, booksInCart: cartBooks},
+  params: {fav: favBooks, cart: cartBooks, genre: 'history'},
 };
 
 jest.mock('../../src/book/book-service', () => {

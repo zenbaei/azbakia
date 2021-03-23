@@ -7,17 +7,14 @@ import {
 } from '@react-navigation/drawer';
 import {getMessages} from 'constants/in18/messages';
 import {NavigationScreens} from 'constants/navigation-screens';
-import React, {useEffect, useState} from 'react';
-import {BookScreen} from '../book-screen';
-import {
-  Item,
-  Accordion,
-  Icon,
-} from 'react-native-paper/src/components/List/List';
+import React, {useState} from 'react';
+import {BookScreen} from '../book/book-screen';
+import {Item, Accordion} from 'react-native-paper/src/components/List/List';
 import {BookDetailsScreen} from 'view/book-details-screen';
-import {getAppTheme} from 'zenbaei-js-lib/theme';
 import {LookInsideBookScreen} from 'view/look-inside-book-screen';
 import {NavigationProps} from 'zenbaei-js-lib/react';
+import {CartScreen} from 'view/cart/cart-screen';
+import {DeliveryScreen} from 'view/delivery/delivery-screen';
 
 const Drawer = createDrawerNavigator<NavigationScreens>();
 
@@ -25,7 +22,6 @@ export function DrawerNavigator({
   navigation,
   route,
 }: NavigationProps<NavigationScreens, 'drawerNavigator'>) {
-  useEffect(() => {}, []);
   return (
     <Drawer.Navigator
       initialRouteName={'bookScreen'}
@@ -33,22 +29,17 @@ export function DrawerNavigator({
       <Drawer.Screen
         name="bookScreen"
         component={BookScreen}
-        options={{title: getMessages().home}}
         initialParams={{
-          fav: route.params.fav,
-          cart: route.params.cart,
+          genre: undefined,
         }}
       />
-      <Drawer.Screen
-        name="bookDetailsScreen"
-        component={BookDetailsScreen}
-        options={{title: getMessages().bookDetails}}
-      />
+      <Drawer.Screen name="bookDetailsScreen" component={BookDetailsScreen} />
       <Drawer.Screen
         name="lookInsideBookScreen"
         component={LookInsideBookScreen}
-        options={{title: getMessages().lookInside}}
       />
+      <Drawer.Screen name="cartScreen" component={CartScreen} />
+      <Drawer.Screen name="deliveryScreen" component={DeliveryScreen} />
     </Drawer.Navigator>
   );
 }
@@ -56,17 +47,29 @@ export function DrawerNavigator({
 function CustomDrawerContent(
   props: DrawerContentComponentProps<DrawerContentOptions>,
 ) {
-  const [bookGenres, setBookGenres] = useState(['Novels', 'History']);
+  const [bookGenres] = useState(['Novels', 'History']);
 
   return (
     <DrawerContentScrollView {...props}>
       <DrawerItem
         label={getMessages().home}
-        onPress={() => props.navigation.navigate('bookScreen')}
+        onPress={() =>
+          props.navigation.navigate('bookScreen', {
+            genre: undefined,
+          })
+        }
       />
       <Accordion title={getMessages().bookGenre}>
         {bookGenres.map((genre) => (
-          <Item key={genre} title={genre} />
+          <Item
+            key={genre}
+            title={genre}
+            onPress={() => {
+              props.navigation.navigate('bookScreen', {
+                genre: genre,
+              });
+            }}
+          />
         ))}
       </Accordion>
       <DrawerItem

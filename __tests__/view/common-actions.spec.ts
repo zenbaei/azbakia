@@ -1,16 +1,21 @@
-import {getIconColor, updateFavOrCart} from '../../src/view/common-actions';
+import {
+  getIconColor,
+  addOrRemove,
+  incrementCart,
+  decrementCart,
+  addToCart,
+  removeFromCart,
+} from '../../src/view/common-actions';
+import {Cart} from '../../src/domain/user/user';
+import {userService} from '../../src/domain/user/user-service';
+import {bookService} from '../../src/domain/book/book-service';
+import {Book} from '../../src/domain/book/book';
 import {modificationResult} from 'zenbaei-js-lib/types';
 
-const userServiceMock = require('../../src/user/user-service');
 const theme = require('zenbaei-js-lib/theme/app-theme');
 const arr: string[] = ['islam', 'ali', 'hassan'];
 let global: any;
 global.user = {_id: 1};
-const modified: modificationResult = {modified: 1};
-
-const addToFavBookSpy = jest
-  .spyOn(userServiceMock.userService, 'updateFavOrCart')
-  .mockReturnValue(modified);
 
 jest
   .spyOn(theme, 'getAppTheme')
@@ -31,38 +36,101 @@ test(`Giving array string is provided, When the first argument is
 });
 
 test(`Giving service is mocked and array is provided, When passed argument exists in array, 
-  Then it should remove it from the array and call the server with it`, async () => {
-  expect.assertions(2);
-  const result = await updateFavOrCart('ali', arr, 'fav');
+  Then it should remove it from the array`, () => {
+  expect.assertions(1);
+  const result = addOrRemove('ali', arr);
   const modifiedArr = ['islam', 'hassan'];
-  expect(addToFavBookSpy).toHaveBeenCalledWith(1, modifiedArr, 'fav');
   expect(result).toEqual(modifiedArr);
 });
 
 test(`Giving service is mocked and array is provided, When first argument doest not exist in array, 
-  Then it should add it to the array and call the service with it`, async () => {
-  expect.assertions(2);
-  const result = await updateFavOrCart('mostafa', arr, 'fav');
-  expect(addToFavBookSpy).toHaveBeenCalledWith(
-    1,
-    arr.concat(['mostafa']),
-    'fav',
-  );
+  Then it should add it to the array`, () => {
+  expect.assertions(1);
+  const result = addOrRemove('mostafa', arr);
   expect(result).toEqual(arr.concat(['mostafa']));
 });
 
-test(`Giving service is mocked to fail update and array is provided, When first argument doest not exist in array, 
-  Then it should add it to the array and call the service with it
-  but returns the original array without modification`, async () => {
+test(`Giving cart array is provided, When the item doesn't exist,
+  Then it should add it with nuOfCopies equal to 1`, () => {
+  const cart = [];
+  const result = incrementCart('test', cart);
+  expect.assertions(1);
+  expect(result).toEqual([{bookName: 'test', nuOfCopies: 1}]);
+});
+
+test(`Giving cart array is provided, When the item already exist,
+  Then it should increment nuOfCopies by 1`, () => {
+  const cart: Cart[] = [
+    {bookName: 'b1', nuOfCopies: 1},
+    {bookName: 'b2', nuOfCopies: 1},
+  ] as Cart[];
+  const result = incrementCart('b2', cart);
   expect.assertions(2);
-  const addToFavBookSpyNoUpd = jest
-    .spyOn(userServiceMock.userService, 'updateFavOrCart')
-    .mockReturnValue({updated: 0});
-  const result = await updateFavOrCart('mostafa', arr, 'cart');
-  expect(addToFavBookSpyNoUpd).toHaveBeenCalledWith(
-    1,
-    arr.concat(['mostafa']),
-    'cart',
-  );
-  expect(result).toEqual(arr);
+  expect(result.length).toBe(2);
+  expect(result[1]).toEqual({bookName: 'b2', nuOfCopies: 2});
+});
+
+test(`Giving cart array is provided, When the item already exist with a nuOfCopies higher than 1,
+  Then it should decrement nuOfCopies by 1`, () => {
+  const cart: Cart[] = [
+    {bookName: 'b1', nuOfCopies: 1},
+    {bookName: 'b2', nuOfCopies: 2},
+  ] as Cart[];
+  const result = decrementCart('b2', cart);
+  expect.assertions(2);
+  expect(result.length).toBe(2);
+  expect(result[1]).toEqual({bookName: 'b2', nuOfCopies: 1});
+});
+
+test(`Giving cart array is provided, When the item already exist with a nuOfCopies equal to 1,
+  Then it should remove the item from the cart`, () => {
+  const cart: Cart[] = [
+    {bookName: 'b1', nuOfCopies: 1},
+    {bookName: 'b2', nuOfCopies: 2},
+  ] as Cart[];
+  const result = decrementCart('b1', cart);
+  expect.assertions(2);
+  expect(result.length).toBe(1);
+  expect(result[0]).toEqual({bookName: 'b2', nuOfCopies: 2});
+});
+
+test(`Given cart array is provided, When adding to cart, 
+  Then it should add to user's cart and substract from book copies`, async () => {
+  const modified: modificationResult = {modified: 1};
+  const userServiceSpy = jest
+    .spyOn(userService, 'updateCart')
+    .mockResolvedValue(modified);
+  const bookServiceSpy = jest
+    .spyOn(bookService, 'updateNuOfCopies')
+    .mockResolvedValue(modified);
+  const cart: Cart[] = [{bookName: 'b1', nuOfCopies: 2}];
+  const book: Book = {_id: '100', name: 'b1', nuOfCopies: 1} as Book;
+  expect.assertions(3);
+  const result: boolean = await addToCart(book, cart);
+  expect(userServiceSpy).toBeCalledTimes(1);
+  expect(bookServiceSpy).toBeCalledWith(book._id, 0);
+  expect(result).toBe(true);
+  userServiceSpy.mockClear();
+  bookServiceSpy.mockClear();
+});
+
+test(`Given cart array is provided, When removing from cart, 
+  Then it should substract or remove from user's cart 
+  and add to book copies`, async () => {
+  const modified: modificationResult = {modified: 1};
+  const userServiceSpy = jest
+    .spyOn(userService, 'updateCart')
+    .mockResolvedValue(modified);
+  const bookServiceSpy = jest
+    .spyOn(bookService, 'updateNuOfCopies')
+    .mockResolvedValue(modified);
+  const cart: Cart[] = [{bookName: 'b1', nuOfCopies: 2}];
+  const book: Book = {_id: '100', name: 'b1', nuOfCopies: 1} as Book;
+  expect.assertions(3);
+  const result: boolean = await removeFromCart(book, cart);
+  expect(userServiceSpy).toBeCalledTimes(1);
+  expect(bookServiceSpy).toBeCalledWith(book._id, 2);
+  expect(result).toBe(true);
+  userServiceSpy.mockClear();
+  bookServiceSpy.mockClear();
 });

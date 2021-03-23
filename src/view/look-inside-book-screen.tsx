@@ -1,9 +1,8 @@
-import {staticFileUrl} from '../../app.config';
+import {imagesNames, staticFileUrl} from '../../app.config';
 import {NavigationScreens} from 'constants/navigation-screens';
-import React from 'react';
+import React, {useContext} from 'react';
 import {FlatList, Image, useWindowDimensions, View} from 'react-native';
-import {Fab, NavigationProps} from 'zenbaei-js-lib/react';
-import {getAppTheme} from 'zenbaei-js-lib/theme';
+import {Ctx, Fab, NavigationProps} from 'zenbaei-js-lib/react';
 
 export function LookInsideBookScreen({
   navigation,
@@ -12,11 +11,12 @@ export function LookInsideBookScreen({
   const windowWidth = useWindowDimensions().width;
   const windowHeight = useWindowDimensions().height;
   const imageFolderName = route.params.imageFolderName;
+  const {theme} = useContext(Ctx);
 
   return (
     <FlatList
-      data={images}
-      keyExtractor={(item) => item.name}
+      data={imagesNames}
+      keyExtractor={(item) => item}
       horizontal
       style={{position: 'absolute'}}
       renderItem={({item}) => {
@@ -28,10 +28,10 @@ export function LookInsideBookScreen({
               borderRadius: 2,
               marginRight: 10,
               borderWidth: 4,
-              borderColor: getAppTheme().primary,
+              borderColor: theme.primary,
             }}>
             <Image
-              source={{uri: `${staticFileUrl}/${imageFolderName}/${item.name}`}}
+              source={{uri: `${staticFileUrl}/${imageFolderName}/${item}`}}
               style={{
                 height: windowHeight,
                 width: windowWidth - 30,
@@ -43,7 +43,7 @@ export function LookInsideBookScreen({
                 alignSelf: 'flex-end',
                 right: 20,
               }}
-              onPress={() => navigation.navigate('bookDetailsScreen')}
+              onPress={() => {}}
             />
           </View>
         );
@@ -51,10 +51,3 @@ export function LookInsideBookScreen({
     />
   );
 }
-
-const images = [
-  {name: 'main.jpg'},
-  {name: '1.png'},
-  {name: '2.png'},
-  {name: '3.png'},
-];

@@ -1,5 +1,5 @@
 import {NavigationScreens} from 'constants/navigation-screens';
-import React from 'react';
+import React, {useContext} from 'react';
 import {
   Grid,
   NavigationProps,
@@ -8,19 +8,22 @@ import {
   Fab,
   Card,
   Link,
+  Ctx,
 } from 'zenbaei-js-lib/react';
 import {Image, View} from 'react-native';
 import {staticFileUrl} from '../../app.config';
-import {Book} from 'book/book';
+import {Book} from 'domain/book/book';
 import {getMessages} from 'constants/in18/messages';
-import {styles} from 'constants/styles';
+import {getStyles} from 'constants/styles';
 
 export function BookDetailsScreen({
   navigation,
   route,
 }: NavigationProps<NavigationScreens, 'bookDetailsScreen'>) {
   const book: Book = route.params;
-  const viewDirection = book.bookLanguage === 'ar' ? 'flex-end' : 'flex-start';
+  const viewDirection = book.language === 'ar' ? 'flex-end' : 'flex-start';
+  const {theme} = useContext(Ctx);
+  const styles = getStyles(theme);
   return (
     <Grid>
       <Col>
@@ -38,7 +41,7 @@ export function BookDetailsScreen({
             icon="cart-outline"
             style={styles.cart}
             onPress={() => {
-              addToCart(book);
+              //addToCart(book);
             }}
           />
           <View style={styles.wide}>

@@ -9,7 +9,7 @@
     "test": "jest",
     "lint": "eslint .",
     "clean": ".scripts/clean.sh",
-    "install-zenbaei": "npm i github:zenbaei/zenbaei-js-lib"
+    "install-zenbaei": "git clone git@github.com:zenbaei/zenbaei-js-lib.git node-modules/zenbaei-js-lib"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.32",
@@ -17,8 +17,10 @@
     "@fortawesome/react-native-fontawesome": "^0.2.6",
     "@react-native-community/async-storage": "^1.12.1",
     "@react-native-community/masked-view": "^0.1.10",
+    "@react-native-picker/picker": "^1.9.11",
     "@react-navigation/drawer": "^5.11.4",
     "@react-navigation/native": "^5.8.4",
+    "git": "file:github.com:zenbaei/zenbaei-js-lib.git",
     "react": "16.13.1",
     "react-native": "0.63.3",
     "react-native-file-logger": "^0.2.1",
