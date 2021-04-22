@@ -1,9 +1,11 @@
 import {Book} from 'domain/book/book';
 import {bookService} from 'domain/book/book-service';
+import {SubGenre} from 'domain/genre/genre';
 import {Cart} from 'domain/user/user';
 import {userService} from 'domain/user/user-service';
 import {modificationResult} from 'zenbaei-js-lib/types';
 import {isEmpty} from 'zenbaei-js-lib/utils';
+import {pageSize} from '../../../app.config';
 
 export const _incrementCart = (bookId: string, cart: Cart[]): Cart[] => {
   let cartClone = [...cart];
@@ -81,10 +83,31 @@ export const updateFav = async (
   }
 };
 
-export const loadBooks = (genre: string): Promise<Book[]> => {
-  return isEmpty(genre)
-    ? bookService.findByNewArrivals()
-    : bookService.findByGenre(genre);
+export const loadBooks = (
+  subGenre: string,
+  skip: number,
+  limit: number,
+): Promise<Book[]> => {
+  return isEmpty(subGenre)
+    ? bookService.findByNewArrivals(skip, limit)
+    : bookService.findByGenre(subGenre, skip, limit);
+};
+
+export const calculateMaxPageSize = async (
+  genre: SubGenre,
+): Promise<number> => {
+  const result = isEmpty(genre?.nameEn)
+    ? await bookService.findByNewArrivals()
+    : await bookService.findByGenre(genre.nameEn);
+  return Math.ceil(result.length / pageSize);
+};
+
+export const findBook = async (id: string): Promise<Book> => {
+  return bookService.findOneById(id);
+};
+
+export const searchBooks = async (name: string): Promise<Book[]> => {
+  return bookService.findAllLike('name', name);
 };
 
 export type cartCallback = (modifiedCart: Cart[]) => void;

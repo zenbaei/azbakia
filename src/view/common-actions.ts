@@ -1,3 +1,5 @@
+import {AppThemeInterface} from 'zenbaei-js-lib/constants';
+
 export const getIconColor = (
   id: string,
   ids: string[],
@@ -7,4 +9,8 @@ export const getIconColor = (
     return theme.primary;
   }
   return theme.secondary;
+};
+
+export const unexpectedError = (navigation: any) => {
+  navigation.navigate('unexpectedErrorScreen', {});
 };

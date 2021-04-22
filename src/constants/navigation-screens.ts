@@ -1,9 +1,10 @@
 import {Book} from 'domain/book/book';
+import {SubGenre} from 'domain/genre/genre';
 import {Cart} from 'domain/user/user';
 
 export type NavigationScreens = {
   loginScreen: {};
-  bookScreen: {genre: string};
+  bookScreen: {subGenre: SubGenre};
   bookDetailsScreen: Book;
   bookGenreScreen: {};
   cartScreen: {cart: Cart[]};
@@ -11,4 +12,7 @@ export type NavigationScreens = {
   drawerNavigator: {};
   deliveryScreen: {};
   paymentScreen: {};
+  unexpectedErrorScreen: {};
+  registerScreen: {};
+  forgetPasswordScreen: {};
 };

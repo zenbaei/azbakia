@@ -1,43 +1,47 @@
 // CounterContext.tsx
+import {
+  getMessages,
+  MessagesInterface,
+} from 'constants/in18/messages-interface';
 import {Cart} from 'domain/user/user';
-import React from 'react';
+import React, {useCallback, useContext, useState} from 'react';
+import {Ctx} from 'zenbaei-js-lib/react';
+import {AppThemeInterface} from 'zenbaei-js-lib/constants';
 
-// Declaring the state object globally.
-const initialUserState = {
-  cart: [] as Cart[],
-  favs: [] as string[],
+interface UserProps {
+  cart: Cart[];
+  setCart: (car: Cart[]) => void;
+  favs: string[];
+  setFavs: (fvs: string[]) => void;
+  msgs: MessagesInterface;
+  theme: AppThemeInterface;
+  language: Language;
+}
+
+const initialValue: UserProps = {
+  cart: [],
+  favs: [],
+  setCart: () => {},
+  setFavs: () => {},
+  msgs: {} as MessagesInterface,
+  theme: {} as AppThemeInterface,
+  language: 'en',
 };
 
-const userContextWrapper = (component?: React.Component) => ({
-  ...initialUserState,
-  setCart: (cart: Cart[]) => {
-    initialUserState.cart = cart;
-    component?.setState({context: userContextWrapper(component)});
-  },
-  setFavs: (favs: string[]) => {
-    initialUserState.favs = favs;
-    component?.setState({context: userContextWrapper(component)});
-  },
-});
+export const UserContext = React.createContext<UserProps>(initialValue);
 
-type Context = ReturnType<typeof userContextWrapper>;
+export const UserContextProvider = (props: any) => {
+  const [cart, updCart] = useState([] as Cart[]);
+  const [favs, updFavs] = useState([] as string[]);
+  const {language, theme} = useContext(Ctx);
+  const msgs = getMessages(language);
 
-export const UserContext = React.createContext<Context>(userContextWrapper());
+  const setCart = useCallback((car: Cart[]) => updCart(car), []);
+  const setFavs = useCallback((fvs: string[]) => updFavs(fvs), []);
 
-interface State {
-  context: Context;
-}
+  const val = {cart, favs, setCart, setFavs, msgs, theme, language};
 
-export class UserContextProvider extends React.Component {
-  state: State = {
-    context: userContextWrapper(this),
-  };
-
-  render() {
-    return (
-      <UserContext.Provider value={this.state.context}>
-        {this.props.children}
-      </UserContext.Provider>
-    );
-  }
-}
+  return (
+    <UserContext.Provider value={val}>{props.children}</UserContext.Provider>
+  );
+};

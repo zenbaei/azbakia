@@ -1,139 +1,110 @@
-import {imagesNames, staticFileUrl} from '../../../app.config';
+import {pageSize} from '../../../app.config';
 import {Book} from 'domain/book/book';
 import React, {useCallback, useContext, useState} from 'react';
-import {Image, ScrollView, View, TouchableHighlight} from 'react-native';
-import {
-  Col,
-  Grid,
-  DataGrid,
-  NavigationProps,
-  Text,
-  Card,
-  Fab,
-  Button,
-  Ctx,
-} from 'zenbaei-js-lib/react';
+import {FlatList} from 'react-native';
+import {Grid, NavigationProps, Text, Row} from 'zenbaei-js-lib/react';
 import {NavigationScreens} from 'constants/navigation-screens';
-import Snackbar from 'react-native-paper/src/components/Snackbar';
-import {getStyles} from 'constants/styles';
-import {getIconColor} from '../common-actions';
-import {getMessage, getMessages} from 'constants/in18/messages';
-
-import {addToCart, loadBooks, updateFav} from './book-screen-actions';
+import {
+  findBook,
+  calculateMaxPageSize,
+  loadBooks,
+  searchBooks,
+} from './book-screen-actions';
 import {UserContext} from 'user-context';
 import {useFocusEffect} from '@react-navigation/native';
 import {isEmpty} from 'zenbaei-js-lib/utils';
+import ActivityIndicator from 'react-native-paper/src/components/ActivityIndicator';
+import {SearchBar} from 'view/search-bar';
+import {BookComponent} from 'component/book-component';
 
 export function BookScreen({
   navigation,
   route,
 }: NavigationProps<NavigationScreens, 'bookScreen'>) {
   const [books, setBooks] = useState([] as Book[]);
-  const [isSnackBarVisible, setSnackBarVisible] = useState(false);
-  const [snackBarMsg, setSnackBarMsg] = useState('');
-  const {cart, setCart, favs, setFavs} = useContext(UserContext);
-  const genre = route.params.genre;
-  const {theme} = useContext(Ctx);
-  const styles = getStyles(theme);
+  const subGenre = route.params.subGenre;
+  const [page, setPage] = useState(0);
+  const [animating, setAnimating] = useState(false);
+  const [maxPageSize, setMaxPageSize] = useState(1);
+  const {cart, msgs, theme, language} = useContext(UserContext);
 
   useFocusEffect(
     useCallback(() => {
-      global.setAppBarTitle(getMessages().home);
       cart.length > 0
         ? global.setDisplayCartBtn('flex')
         : global.setDisplayCartBtn('none');
-      loadBooks(genre).then((bks) => setBooks(bks));
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [genre, cart]),
+      calculateMaxPageSize(subGenre).then((val) => setMaxPageSize(val));
+      _loadBooks();
+    }, [subGenre, cart]),
   );
 
-  const navToBookDetails = (book: Book) =>
+  useFocusEffect(
+    useCallback(() => {
+      global.setAppBarTitle(msgs.home);
+    }, [msgs.home]),
+  );
+
+  const navigateToBookDetails = (book: Book) => {
     navigation.navigate('bookDetailsScreen', book);
+  };
 
-  const _updateFav = async (bookId: string) => {
-    updateFav(bookId, favs, (modifiedFavs, isAdded) => {
-      setSnackBarMsg(
-        isAdded ? getMessages().addedToFav : getMessages().removedFromCart,
-      );
-      setFavs(modifiedFavs);
-      setSnackBarVisible(true);
+  const _loadBooks = () => {
+    if (page > maxPageSize) {
+      return;
+    }
+    setAnimating(true);
+    loadBooks(subGenre?.nameEn, page * pageSize, pageSize).then((bks) => {
+      const arr = page === 0 ? bks : [...books, ...bks];
+      setBooks(arr);
+      setPage(page + 1);
+      setAnimating(false);
     });
   };
 
-  const _addToCart = (book: Book) => {
-    addToCart(book._id, book.availableCopies, cart, (modifiedCart) => {
-      setCart(modifiedCart);
-      setSnackBarMsg(getMessages().addedToCart);
-      setSnackBarVisible(true);
-    });
-  };
-
-  const Item = ({book}: {book: Book}) => {
+  const renderFooter = () => {
     return (
-      <Card width="47%">
-        <TouchableHighlight
-          testID="touchable"
-          key={book.name + 'toh'}
-          onPress={() => {
-            navToBookDetails(book);
-          }}>
-          <Image
-            source={{
-              uri: `${staticFileUrl}/${book.imageFolderName}/${imagesNames[0]}`,
-            }}
-            style={styles.image}
-          />
-        </TouchableHighlight>
-        <Fab
-          icon="heart-outline"
-          style={{
-            ...styles.fav,
-            backgroundColor: getIconColor(book._id, favs, theme),
-          }}
-          onPress={() => _updateFav(book._id)}
-        />
-        <View style={styles.wide}>
-          <Text style={{...styles.title, ...styles.bold}} text={book.name} />
-          <Text style={{...styles.bold, ...styles.price}} text={book.price} />
-          <Text
-            style={{...styles.bold, ...styles.price}}
-            text={`${getMessages().availableCopies}: ${book.availableCopies}`}
-          />
-        </View>
-        <Button
-          style={styles.addToCartButton}
-          label={getMessages().addToCart}
-          onPress={() => _addToCart(book)}
-        />
-      </Card>
+      <ActivityIndicator animating={animating} color={theme.onBackground} />
     );
   };
 
   return (
     <Grid>
-      <Col>
+      <Row>
+        <SearchBar
+          onChangeText={async (text) => {
+            const result = await searchBooks(text);
+            return result.map((bk) => ({value: bk._id, label: bk.name}));
+          }}
+          onSelectItem={async (id: string) => {
+            const book = await findBook(id);
+            navigateToBookDetails(book);
+          }}
+        />
         <Text
-          text={isEmpty(genre) ? getMessages().newArrivals : getMessage(genre)}
+          style={{fontWeight: 'bold'}}
+          text={
+            isEmpty(subGenre?.nameEn)
+              ? msgs.newArrivals
+              : language === 'en'
+              ? subGenre.nameEn
+              : subGenre.nameAr
+          }
           align="center"
         />
-        <ScrollView>
-          <DataGrid
-            horizontalAlignment={'space-between'}
-            data={books}
-            columns={2}
-            renderItem={(book: Book, _index: number) => (
-              <Item key={book.name} book={book} />
-            )}
-          />
-        </ScrollView>
-
-        <Snackbar
-          duration={5000}
-          visible={isSnackBarVisible}
-          onDismiss={() => setSnackBarVisible(false)}>
-          {snackBarMsg}
-        </Snackbar>
-      </Col>
+        <FlatList
+          style={{alignSelf: 'center'}}
+          scrollEnabled
+          numColumns={2}
+          data={books}
+          keyExtractor={(item) => item.name}
+          onEndReached={_loadBooks}
+          onEndReachedThreshold={0.1}
+          ListFooterComponent={renderFooter}
+          renderItem={({item}) => (
+            <BookComponent book={item} onPressImg={navigateToBookDetails} />
+          )}
+        />
+      </Row>
     </Grid>
   );
 }

@@ -3,7 +3,7 @@ import {
   NavigationContainer,
   DarkTheme as NavDarkTheme,
 } from '@react-navigation/native';
-import React, {ReactNode} from 'react';
+import React, {ReactNode, useContext} from 'react';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {faArrowLeft} from '@fortawesome/free-solid-svg-icons';
 import {FileLogger} from 'react-native-file-logger';
@@ -14,6 +14,7 @@ import {
 } from 'react-native-paper';
 import {UserContextProvider} from 'user-context';
 import {Zenbaei} from 'zenbaei-js-lib/react';
+import {DarkTheme} from 'zenbaei-js-lib/constants';
 
 //adding icons
 library.add(faArrowLeft);
@@ -47,6 +48,6 @@ const CombinedDarkTheme = {
   colors: {
     ...PapDarkTheme.colors,
     ...NavDarkTheme.colors,
-    primary: 'red',
+    primary: DarkTheme.primary,
   },
 };

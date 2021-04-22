@@ -1,4 +1,3 @@
-import {getMessages} from 'constants/in18/messages';
 import {NavigationScreens} from 'constants/navigation-screens';
 import {getStyles} from 'constants/styles';
 import React, {useCallback, useContext, useState} from 'react';
@@ -27,21 +26,19 @@ import {CartBookVO} from './cart-book-vo';
 
 export function CartScreen({
   navigation,
-  route,
 }: NavigationProps<NavigationScreens, 'cartScreen'>) {
   const [snackBarMsg, setSnackBarMsg] = useState('');
   const [isSnackBarVisible, setSnackBarVisible] = useState(false);
-  const {cart, setCart} = useContext(UserContext);
+  const {cart, setCart, msgs, theme} = useContext(UserContext);
   const [cartBooksVOs, setCartBooksVOs] = useState([] as CartBookVO[]);
-  const {theme} = useContext(Ctx);
   const styles = getStyles(theme);
 
   useFocusEffect(
     useCallback(() => {
-      global.setAppBarTitle(getMessages().cart);
+      global.setAppBarTitle(msgs.cart);
       global.setDisplayCartBtn('none');
       loadCartBooksVOs(cart).then((vo) => setCartBooksVOs(vo));
-    }, [cart]),
+    }, [cart, msgs.cart]),
   );
 
   const _removeFromCart = async (cartBookVO: CartBookVO) => {
@@ -51,7 +48,7 @@ export function CartScreen({
       cart,
       (modifiedCart) => {
         setCart(modifiedCart);
-        setSnackBarMsg(getMessages().removedFromCart);
+        setSnackBarMsg(msgs.removedFromCart);
         setSnackBarVisible(true);
       },
     );
@@ -77,10 +74,10 @@ export function CartScreen({
                   <Text text={vo.price} />
                   <Text
                     style={{...styles.bold, ...styles.price}}
-                    text={`${getMessages().nuOfCopies}: ${vo.nuOfCopies}`}
+                    text={`${msgs.nuOfCopies}: ${vo.nuOfCopies}`}
                   />
                   <Button
-                    label={getMessages().removeFromCart}
+                    label={msgs.removeFromCart}
                     onPress={() => _removeFromCart(vo)}
                   />
                 </Card>
@@ -91,13 +88,13 @@ export function CartScreen({
         {cart.length > 0 ? (
           <Text
             align="right"
-            text={`${getMessages().total}: ${calculateSum(cartBooksVOs)}`}
+            text={`${msgs.total}: ${calculateSum(cartBooksVOs)}`}
           />
         ) : (
-          <Text align="center" text={getMessages().emptyCart} />
+          <Text align="center" text={msgs.emptyCart} />
         )}
         <Button
-          label={getMessages().continue}
+          label={msgs.continue}
           onPress={() => navigation.navigate('deliveryScreen', {})}
         />
         <Snackbar

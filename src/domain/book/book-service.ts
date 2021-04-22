@@ -10,14 +10,21 @@ class BookService extends MongoHttpService<Book> {
     super(mongoRestApi, DbCollectionNames.books);
   }
 
-  findByNewArrivals = (): Promise<Book[]> => {
+  findByNewArrivals = (
+    skip: number = 0,
+    limit: number = 0,
+  ): Promise<Book[]> => {
     const book: any = {newArrivals: true, availableCopies: {$gt: 0}};
-    return this.findAll(book);
+    return this.findAll(book, undefined, skip, limit);
   };
 
-  findByGenre = (genre: string): Promise<Book[]> => {
+  findByGenre = (
+    genre: string,
+    skip: number = 0,
+    limit: number = 0,
+  ): Promise<Book[]> => {
     const book: any = {genre: genre, availableCopies: {$gt: 0}};
-    return this.findAll(book);
+    return this.findAll(book, undefined, skip, limit);
   };
 
   updateAvailableCopies = (

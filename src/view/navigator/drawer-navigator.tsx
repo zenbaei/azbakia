@@ -5,23 +5,21 @@ import {
   DrawerContentScrollView,
   DrawerItem,
 } from '@react-navigation/drawer';
-import {getMessages} from 'constants/in18/messages';
 import {NavigationScreens} from 'constants/navigation-screens';
-import React, {useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {BookScreen} from '../book/book-screen';
 import {Item, Accordion} from 'react-native-paper/src/components/List/List';
 import {BookDetailsScreen} from 'view/book-details-screen';
 import {LookInsideBookScreen} from 'view/look-inside-book-screen';
-import {NavigationProps} from 'zenbaei-js-lib/react';
 import {CartScreen} from 'view/cart/cart-screen';
 import {DeliveryScreen} from 'view/delivery/delivery-screen';
+import {Genre} from 'domain/genre/genre';
+import {genreService} from 'domain/genre/genre-service';
+import {UserContext} from 'user-context';
 
 const Drawer = createDrawerNavigator<NavigationScreens>();
 
-export function DrawerNavigator({
-  navigation,
-  route,
-}: NavigationProps<NavigationScreens, 'drawerNavigator'>) {
+export function DrawerNavigator() {
   return (
     <Drawer.Navigator
       initialRouteName={'bookScreen'}
@@ -30,7 +28,7 @@ export function DrawerNavigator({
         name="bookScreen"
         component={BookScreen}
         initialParams={{
-          genre: undefined,
+          subGenre: undefined,
         }}
       />
       <Drawer.Screen name="bookDetailsScreen" component={BookDetailsScreen} />
@@ -47,31 +45,40 @@ export function DrawerNavigator({
 function CustomDrawerContent(
   props: DrawerContentComponentProps<DrawerContentOptions>,
 ) {
-  const [bookGenres] = useState(['Novels', 'History']);
+  const {msgs, language} = useContext(UserContext);
+  const [genres, setGenres] = useState([] as Genre[]);
+
+  useEffect(() => {
+    genreService.findAll().then((grs) => setGenres(grs));
+  }, []);
 
   return (
     <DrawerContentScrollView {...props}>
       <DrawerItem
-        label={getMessages().home}
+        label={msgs.home}
         onPress={() =>
           props.navigation.navigate('bookScreen', {
-            genre: undefined,
+            subGenre: undefined,
           })
         }
       />
-      <Accordion title={getMessages().bookGenre}>
-        {bookGenres.map((genre) => (
-          <Item
-            key={genre}
-            title={genre}
-            onPress={() => {
-              props.navigation.navigate('bookScreen', {
-                genre: genre,
-              });
-            }}
-          />
-        ))}
-      </Accordion>
+      {genres.map((genre) => (
+        <Accordion
+          key={genre.nameEn}
+          title={language === 'en' ? genre.nameEn : genre.nameAr}>
+          {genre.subGenre.map((sub) => (
+            <Item
+              key={sub.nameEn}
+              title={language === 'en' ? sub.nameEn : sub.nameAr}
+              onPress={() => {
+                props.navigation.navigate('bookScreen', {
+                  subGenre: sub,
+                });
+              }}
+            />
+          ))}
+        </Accordion>
+      ))}
       <DrawerItem
         label="Profile"
         onPress={() => console.log('go to profile')}

@@ -4,17 +4,15 @@ import {
   Grid,
   NavigationProps,
   Text,
-  Col,
-  Fab,
-  Card,
   Link,
   Ctx,
+  Row,
 } from 'zenbaei-js-lib/react';
-import {Image, View} from 'react-native';
-import {staticFileUrl} from '../../app.config';
+import {View} from 'react-native';
 import {Book} from 'domain/book/book';
-import {getMessages} from 'constants/in18/messages';
 import {getStyles} from 'constants/styles';
+import {getMessages} from 'constants/in18/messages-interface';
+import {BookComponent} from 'component/book-component';
 
 export function BookDetailsScreen({
   navigation,
@@ -22,47 +20,31 @@ export function BookDetailsScreen({
 }: NavigationProps<NavigationScreens, 'bookDetailsScreen'>) {
   const book: Book = route.params;
   const viewDirection = book.language === 'ar' ? 'flex-end' : 'flex-start';
-  const {theme} = useContext(Ctx);
+  const {theme, language} = useContext(Ctx);
   const styles = getStyles(theme);
+  const msgs = getMessages(language);
+
   return (
     <Grid>
-      <Col>
-        <Card width="50%">
-          <Image
-            source={{uri: `${staticFileUrl}/${book.name}/main.jpg`}}
-            style={styles.image}
+      <Row>
+        <BookComponent book={book} />
+        <View style={styles.wide}>
+          <Link
+            style={{alignSelf: 'center'}}
+            label={msgs.lookInside}
+            onPress={() =>
+              navigation.navigate('lookInsideBookScreen', {
+                imageFolderName: book.name, //book.imageFolderName
+              })
+            }
           />
-          <Fab
-            icon="heart-outline"
-            style={styles.fav}
-            onPress={() => console.log('Pressed')}
-          />
-          <Fab
-            icon="cart-outline"
-            style={styles.cart}
-            onPress={() => {
-              //addToCart(book);
-            }}
-          />
-          <View style={styles.wide}>
-            <Link
-              style={{alignSelf: 'center'}}
-              label={getMessages().lookInside}
-              onPress={() =>
-                navigation.navigate('lookInsideBookScreen', {
-                  imageFolderName: book.name, //book.imageFolderName
-                })
-              }
-            />
-            <Text style={{...styles.bold, ...styles.price}} text={book.price} />
-          </View>
-        </Card>
+        </View>
 
         <View style={{alignItems: viewDirection}}>
-          <Text style={styles.bold} text={`${getMessages().description}:`} />
+          <Text style={styles.bold} text={`${msgs.description}:`} />
           <Text text={book.description} />
         </View>
-      </Col>
+      </Row>
     </Grid>
   );
 }

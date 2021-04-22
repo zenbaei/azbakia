@@ -5,5 +5,9 @@ module.exports = {
     '/node_modules/(?!zenbaei-js-lib)/react/components/*',
   ],
   testMatch: ['**/__tests__/**/*.spec.*', '**/__tests__/**/*.it.ts'],
-  setupFiles: ['./__tests__/setup.js'],
+  setupFiles: [
+    './__tests__/setup.js',
+    './node_modules/react-native-gesture-handler/jestSetup.js',
+  ],
+  globals: {setDisplayCartBtn: () => {}, setAppBarTitle: () => {}},
 };

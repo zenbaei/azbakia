@@ -1,5 +1,4 @@
-import { _id } from "zenbaei-js-lib/types";
-
+import {_id} from 'zenbaei-js-lib/types';
 
 export class Book extends _id {
   name!: string;
@@ -9,8 +8,6 @@ export class Book extends _id {
   price!: number;
   imageFolderName!: string;
   description!: string;
-  language: bookLanuguage = 'ar';
+  language: Language = 'ar';
   availableCopies: number = 1;
 }
-
-export type bookLanuguage = 'ar' | 'en';

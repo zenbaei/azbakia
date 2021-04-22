@@ -1,4 +1,3 @@
-import {getMessages} from 'constants/in18/messages';
 import {NavigationScreens} from 'constants/navigation-screens';
 import React, {useContext} from 'react';
 import {User} from 'domain/user/user';
@@ -11,14 +10,14 @@ import {useFocusEffect} from '@react-navigation/native';
 export default function LoginScreen({
   navigation,
 }: NavigationProps<NavigationScreens, 'loginScreen'>) {
-  const {setCart, setFavs} = useContext(UserContext);
+  const {setCart, setFavs, msgs} = useContext(UserContext);
 
   useFocusEffect(() => {
-    global.setAppBarTitle(getMessages().login);
+    global.setAppBarTitle(msgs.login);
     global.setDisplayCartBtn('none');
   });
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string) => {
     if (isEmpty(email) || isEmpty(password)) {
       return false;
     }
@@ -37,7 +36,6 @@ export default function LoginScreen({
     setCart(user.cart ? user.cart : []);
     setFavs(user.favs ? user.favs : []);
     navigation.navigate('drawerNavigator', {});
-    return true;
   };
 
   return (
@@ -45,8 +43,12 @@ export default function LoginScreen({
       <Login
         verticalAlignment="center"
         onPress={(id, password) => login(id, password)}
-        onPressForgetPass={() => {}}
-        onPressRegister={() => {}}
+        onPressForgetPass={() => {
+          navigation.navigate('forgetPasswordScreen', {});
+        }}
+        onPressRegister={() => {
+          navigation.navigate('registerScreen', {});
+        }}
       />
     </>
   );

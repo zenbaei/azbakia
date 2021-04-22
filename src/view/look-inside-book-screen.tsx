@@ -18,23 +18,14 @@ export function LookInsideBookScreen({
       data={imagesNames}
       keyExtractor={(item) => item}
       horizontal
-      style={{position: 'absolute'}}
       renderItem={({item}) => {
         return (
-          <View
-            style={{
-              width: windowWidth - 20,
-              padding: 10,
-              borderRadius: 2,
-              marginRight: 10,
-              borderWidth: 4,
-              borderColor: theme.primary,
-            }}>
+          <>
             <Image
               source={{uri: `${staticFileUrl}/${imageFolderName}/${item}`}}
               style={{
-                height: windowHeight,
-                width: windowWidth - 30,
+                width: '50%',
+                height: '50%',
               }}
             />
             <Fab
@@ -45,7 +36,7 @@ export function LookInsideBookScreen({
               }}
               onPress={() => {}}
             />
-          </View>
+          </>
         );
       }}
     />

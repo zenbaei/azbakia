@@ -1,13 +1,15 @@
 import React, {useContext, useState} from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 import {NavigationScreens} from 'constants/navigation-screens';
-import {getMessages} from 'constants/in18/messages';
 import {getNavigatorHeaderStyle, Button, Ctx} from 'zenbaei-js-lib/react';
 import IconButton from 'react-native-paper/src/components/IconButton';
 import {DrawerActions} from '@react-navigation/native';
 import LoginScreen from 'view/login/login-screen';
 import {DrawerNavigator} from './drawer-navigator';
 import {ViewStyle} from 'react-native';
+import {getMessages} from 'constants/in18/messages-interface';
+import {RegisterScreen} from 'view/login/register-screen';
+import {UnexpectedErrorScreen} from 'view/unexpected-error-screen';
 
 const Stack = createStackNavigator<NavigationScreens>();
 
@@ -20,10 +22,17 @@ export function StackNavigator() {
   global.setRightHeaderLabel = setLabel;
   global.setAppBarTitle = setAppBarTitle;
   global.setDisplayCartBtn = setDisplayCartBtn;
-  const {theme} = useContext(Ctx);
+  const {theme, language} = useContext(Ctx);
 
   const _displayMenuIcon = (routeName: string): ViewStyle => {
-    return {display: routeName !== 'loginScreen' ? 'flex' : 'none'};
+    return {
+      display:
+        routeName !== 'loginScreen' &&
+        routeName !== 'registerScreen' &&
+        routeName !== 'forgetPasswordScreen'
+          ? 'flex'
+          : 'none',
+    };
   };
 
   return (
@@ -43,7 +52,7 @@ export function StackNavigator() {
           return (
             <Button
               style={{display: displayCartBtn}}
-              label={label ? label : getMessages().cart}
+              label={label ? label : getMessages(language).cart}
               onPress={() => navigation.navigate('cartScreen')}
             />
           );
@@ -52,7 +61,12 @@ export function StackNavigator() {
         ...getNavigatorHeaderStyle(theme),
       })}>
       <Stack.Screen name="loginScreen" component={LoginScreen} />
+      <Stack.Screen name="registerScreen" component={RegisterScreen} />
       <Stack.Screen name="drawerNavigator" component={DrawerNavigator} />
+      <Stack.Screen
+        name="unexpectedErrorScreen"
+        component={UnexpectedErrorScreen}
+      />
     </Stack.Navigator>
   );
 }

@@ -1,4 +1,5 @@
 import {StyleSheet} from 'react-native';
+import {AppThemeInterface} from 'zenbaei-js-lib/constants';
 
 export const getStyles = (theme: AppThemeInterface) =>
   StyleSheet.create({
@@ -24,7 +25,7 @@ export const getStyles = (theme: AppThemeInterface) =>
       paddingVertical: 5,
       textAlign: 'center',
     },
-    image: {height: 150, width: 150, resizeMode: 'contain'},
+    image: {height: 150, width: 150, resizeMode: 'contain', aspectRatio: 2 / 2},
     addToCartButton: {
       marginTop: 5,
     },
