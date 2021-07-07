@@ -1,0 +1,214 @@
+import React from 'react';
+import {BookScreen} from '../../../src/view/book/book-screen';
+import {fireEvent, render, waitFor} from '@testing-library/react-native';
+import MockedNavigator from '../../stubs/mocked-navigator';
+import {bookService} from '../../../src/domain/book/book-service';
+import {Card, Fab} from 'zenbaei-js-lib/react';
+import {Book} from '../../../src/domain/book/book';
+import {Cart} from '../../../src/domain/user/user';
+import * as bookScreenActions from '../../../src/view/book/book-screen-actions';
+import {DarkTheme} from 'zenbaei-js-lib/constants';
+import {BookScreenWrapper} from '../../stubs/book-screen-wrapper';
+import {act} from 'react-test-renderer';
+
+const eventData = {
+  nativeEvent: {
+    contentOffset: {
+      y: 500,
+    },
+    contentSize: {
+      // Dimensions of the scrollable content
+      height: 500,
+      width: 100,
+    },
+    layoutMeasurement: {
+      // Dimensions of the device
+      height: 100,
+      width: 100,
+    },
+    target: {scrollY: 500},
+  },
+};
+
+const books: Book[] = [
+  {_id: '1', name: 'book1', price: 100, availableCopies: 2},
+  {_id: 2, name: 'book2', price: 50},
+  {_id: 3, name: 'book3', price: 20},
+] as Book[];
+
+const favBooks = ['1'];
+
+jest
+  .spyOn(bookService, 'findByNewArrivals')
+  .mockImplementation(() => Promise.resolve(books));
+
+const findByGenreSpy = jest
+  .spyOn(bookService, 'findByGenre')
+  .mockImplementation(() => Promise.resolve([]));
+
+jest
+  .spyOn(bookScreenActions, 'calculateMaxPageSize')
+  .mockImplementation(() => Promise.resolve(2));
+
+const updateFav = jest
+  .spyOn(bookScreenActions, 'updateFav')
+  .mockImplementation((id, favs, clb) => {
+    clb(favBooks, true);
+    return Promise.resolve();
+  });
+
+const addToCartSpy = jest
+  .spyOn(bookScreenActions, 'addToCart')
+  .mockImplementation((bk, cart, clb) => {
+    clb([{bookId: books[0]._id}] as Cart[]);
+    return Promise.resolve();
+  });
+
+jest.spyOn(bookScreenActions, 'updateCart').mockResolvedValue(true);
+jest.spyOn(bookScreenActions, 'updateAvailableCopies').mockResolvedValue(true);
+
+const getIconColorSpy = jest.spyOn(bookScreenActions, 'getIconColor');
+
+test(`Given bookService is mocked, When view is rendred, 
+  Then it should have a number of Item components`, async () => {
+  expect.assertions(1);
+  const {getAllByTestId} = render(<MockedNavigator component={BookScreen} />);
+  await waitFor(() =>
+    expect(getAllByTestId('touchable').length).toBe(books.length),
+  );
+});
+
+test(`Given books are loaded for display, When one of these books matches favBooks, 
+    Then it should has it fav icon with primary color`, async () => {
+  expect.assertions(4);
+  const {UNSAFE_getAllByType} = render(
+    <MockedNavigator component={BookScreen} />,
+  );
+  await waitFor(async () => {
+    const fab = UNSAFE_getAllByType(Card)[0].findByType(Fab);
+    const bkg = fab.props.style.backgroundColor;
+    expect(bkg).toBe(DarkTheme.secondary);
+    await fireEvent.press(fab);
+    expect(updateFav).toBeCalledTimes(1);
+    expect(getIconColorSpy).toBeCalledWith('1', ['1'], expect.anything());
+    expect(fab.props.style.backgroundColor).toBe(DarkTheme.primary);
+  });
+});
+
+/*
+Why not re-query books after adding to cart:
+  problem shows up while using scroll/paging. for instance 2 pages are loaded, an item
+  from the first page is added to cart. Changing cart will reload books using the current
+  page value which is page 2 causing the added item not to update in the view.
+  To fix, either reload all the pages until the current, or update the view without reloading
+  books.
+  Updating the view without reloading can be done either by updating the state or by ref.
+*/
+test(`Given services are mocked, When adding to cart a stale book that is not available anymore,
+  Then addToCart func shouldn't be called and this book addToCat button should be disabled`, async () => {
+  const findOne = jest.spyOn(bookService, 'findOne').mockImplementation(() =>
+    Promise.resolve({
+      _id: '1',
+      name: 'book1',
+      price: 100,
+      availableCopies: 0,
+    } as Book),
+  );
+
+  expect.assertions(3);
+  const {getAllByTestId} = render(<MockedNavigator component={BookScreen} />);
+  await waitFor(async () => {
+    expect(getAllByTestId('addToCartBtn').length).toBeGreaterThan(1);
+    const addToCartBtn = getAllByTestId('addToCartBtn')[0];
+    expect(addToCartBtn).not.toHaveProperty('disabled');
+    await fireEvent.press(addToCartBtn);
+    expect(addToCartSpy).not.toBeCalled();
+    // expect(getAllByTestId('addToCartBtn')[0].props).toHaveProperty('disabled'); 'disabled' not found in props
+    findOne.mockClear();
+  });
+});
+
+test(`Given services are mocked, When adding a book to cart,
+  Then addToCart func should be called and this book available copies should be decremented `, async () => {
+  const findOneByIdSpy = jest
+    .spyOn(bookService, 'findOne')
+    .mockImplementation(() =>
+      Promise.resolve({
+        _id: '1',
+        name: 'book1',
+        price: 100,
+        availableCopies: 1,
+      } as Book),
+    );
+  expect.assertions(5);
+  const {getAllByTestId} = render(<MockedNavigator component={BookScreen} />);
+  await waitFor(async () => {
+    expect(getAllByTestId('addToCartBtn').length).toBeGreaterThan(1);
+    expect(getAllByTestId('copies')[0].props.children).toContain('2');
+    const addToCartBtn = getAllByTestId('addToCartBtn')[0];
+    await fireEvent.press(addToCartBtn);
+    expect(addToCartSpy).toBeCalled();
+    expect(findOneByIdSpy).toBeCalledTimes(2);
+    expect(getAllByTestId('copies')[0].props.children).toContain('1');
+  });
+});
+
+test(`Given services are mocked, When rendering page, 
+  Then paging should have value of zero then incremented by 1 
+  without passing the max page size which is 2`, async () => {
+  expect.assertions(6);
+  const loadBooksSpy = jest.spyOn(bookScreenActions, 'loadBooks');
+  const {getByTestId, getAllByTestId} = render(
+    <MockedNavigator component={BookScreen} />,
+  );
+  await waitFor(async () => {
+    expect(loadBooksSpy).toBeCalledWith(undefined, 0);
+    expect(getAllByTestId('touchable').length).toBe(3);
+    await getByTestId('flatList').props.onEndReached(); //fireEvent.scroll(getByTestId('flatList'), eventData);
+    expect(loadBooksSpy).toBeCalledWith(undefined, 1);
+    expect(getAllByTestId('touchable').length).toBe(6);
+    //it shouldn't change after the next call
+    await getByTestId('flatList').props.onEndReached();
+    expect(getAllByTestId('touchable').length).toBe(6);
+    expect(loadBooksSpy).toBeCalledTimes(2);
+  });
+});
+
+test(`Given services are mocked, When rendering page and switching Genres, 
+  Then paging should be reset`, async () => {
+  expect.assertions(5);
+  const loadBooksSpy = jest.spyOn(bookScreenActions, 'loadBooks');
+  const {getByTestId, getAllByTestId} = render(
+    <MockedNavigator component={BookScreenWrapper} />,
+  );
+  await waitFor(async () => {
+    expect(loadBooksSpy).toBeCalledWith(undefined, 0);
+    expect(getAllByTestId('touchable').length).toBe(3);
+    await getByTestId('flatList').props.onEndReached();
+    expect(loadBooksSpy).toBeCalledWith(undefined, 1);
+  });
+
+  await act(async () => {
+    await fireEvent.press(getByTestId('fiqh'));
+    expect(loadBooksSpy).toBeCalledWith('fiqh', 0);
+  });
+
+  await act(async () => {
+    expect(findByGenreSpy).toBeCalledWith('fiqh', 0, expect.anything());
+  });
+});
+
+test(`Given services are mocked, When adding to cart, 
+  Then the button should change to remove from cart`, async () => {
+  expect.assertions(2);
+  const {getByTestId, getAllByTestId} = render(
+    <MockedNavigator component={BookScreen} />,
+  );
+  await waitFor(async () => {
+    const addToCartBtn = getAllByTestId('addToCartBtn')[0];
+    await fireEvent.press(addToCartBtn);
+    expect(addToCartSpy).toBeCalled();
+    const removeFromCartBtn = getByTestId('removeFromCartBtn');
+    expect(removeFromCartBtn).toBeTruthy();
+  });
+});

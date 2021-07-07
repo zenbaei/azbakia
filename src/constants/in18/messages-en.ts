@@ -1,6 +1,6 @@
 import {MessagesInterface} from './messages-interface';
 
-export const MessagesEn: MessagesInterface = {
+export const messagesEn: MessagesInterface = {
   invalidUser: 'Wrong username or password',
   login: 'Login',
   home: 'Home',
@@ -35,5 +35,9 @@ export const MessagesEn: MessagesInterface = {
     'Please activate your account by pressing on the following link:',
   activationEmailSubject: 'Activate your account on azbakia',
   searchPlaceholder: '..Enter book name',
-  getKeyAtRuntime: (key: string) => MessagesEn[key] as string,
+  inCart: 'In cart',
+  sorryBookNotAvailable:
+    'Sorry this book has been brought by another customer before your transaction',
+  noBooksAvailable: 'No books available under this category at the moment',
+  getKeyAtRuntime: (key: string) => messagesEn[key] as string,
 };

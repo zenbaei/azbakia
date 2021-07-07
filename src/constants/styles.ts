@@ -26,7 +26,7 @@ export const getStyles = (theme: AppThemeInterface) =>
       textAlign: 'center',
     },
     image: {height: 150, width: 150, resizeMode: 'contain', aspectRatio: 2 / 2},
-    addToCartButton: {
+    addToCartBtn: {
       marginTop: 5,
     },
   });

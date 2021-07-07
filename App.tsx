@@ -3,7 +3,7 @@ import {
   NavigationContainer,
   DarkTheme as NavDarkTheme,
 } from '@react-navigation/native';
-import React, {ReactNode, useContext} from 'react';
+import React, {ReactNode} from 'react';
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {faArrowLeft} from '@fortawesome/free-solid-svg-icons';
 import {FileLogger} from 'react-native-file-logger';

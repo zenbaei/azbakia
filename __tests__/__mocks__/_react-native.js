@@ -1,3 +1,4 @@
+/*
 import * as ReactNative from 'react-native';
 
 export const Platform = {
@@ -14,3 +15,16 @@ export default Object.setPrototypeOf(
   },
   ReactNative,
 );
+*/
+
+const rn = require('react-native');
+jest.mock('Linking', () => {
+  return {
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    openURL: jest.fn(),
+    canOpenURL: jest.fn(),
+    getInitialURL: jest.fn(),
+  };
+});
+module.exports = rn;

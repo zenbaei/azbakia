@@ -85,3 +85,16 @@ export class StackNavigationPropStub<
     return undefined;
   }
 }
+
+/*
+const navigation = new StackNavigationPropStub<
+  NavigationScreens,
+  'bookScreen'
+>();
+
+const route: RouteProp<NavigationScreens, 'bookScreen'> = {
+  key: 'books',
+  name: 'bookScreen',
+  params: {subGenre: undefined},
+};
+*/

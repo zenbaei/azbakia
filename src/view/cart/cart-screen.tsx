@@ -5,16 +5,15 @@ import {Image} from 'react-native';
 import {
   Button,
   Card,
-  Col,
+  Row,
   Ctx,
-  DataGrid,
   Grid,
   NavigationProps,
   Text,
 } from 'zenbaei-js-lib/react';
 import {imagesNames, staticFileUrl} from '../../../app.config';
 import Snackbar from 'react-native-paper/src/components/Snackbar';
-import {ScrollView} from 'react-native-gesture-handler';
+import {FlatList} from 'react-native-gesture-handler';
 import {
   calculateSum,
   loadCartBooksVOs,
@@ -56,35 +55,34 @@ export function CartScreen({
 
   return (
     <Grid>
-      <Col>
-        <ScrollView>
-          <DataGrid
-            data={cartBooksVOs}
-            columns={1}
-            renderItem={(vo, _index) => {
-              return (
-                <Card key={vo.name}>
-                  <Image
-                    source={{
-                      uri: `${staticFileUrl}/${vo.imageFolderName}/${imagesNames[0]}`,
-                    }}
-                    style={styles.image}
-                  />
-                  <Text text={vo.name} />
-                  <Text text={vo.price} />
-                  <Text
-                    style={{...styles.bold, ...styles.price}}
-                    text={`${msgs.nuOfCopies}: ${vo.nuOfCopies}`}
-                  />
-                  <Button
-                    label={msgs.removeFromCart}
-                    onPress={() => _removeFromCart(vo)}
-                  />
-                </Card>
-              );
-            }}
-          />
-        </ScrollView>
+      <Row>
+        <FlatList
+          data={cartBooksVOs}
+          numColumns={1}
+          keyExtractor={(item) => item._id}
+          renderItem={({item}) => {
+            return (
+              <Card key={item.name}>
+                <Image
+                  source={{
+                    uri: `${staticFileUrl}/${item.imageFolderName}/${imagesNames[0]}`,
+                  }}
+                  style={styles.image}
+                />
+                <Text text={item.name} />
+                <Text text={item.price} />
+                <Text
+                  style={{...styles.bold, ...styles.price}}
+                  text={`${msgs.nuOfCopies}: ${item.nuOfCopies}`}
+                />
+                <Button
+                  label={msgs.removeFromCart}
+                  onPress={() => _removeFromCart(item)}
+                />
+              </Card>
+            );
+          }}
+        />
         {cart.length > 0 ? (
           <Text
             align="right"
@@ -103,7 +101,7 @@ export function CartScreen({
           onDismiss={() => setSnackBarVisible(false)}>
           {snackBarMsg}
         </Snackbar>
-      </Col>
+      </Row>
     </Grid>
   );
 }

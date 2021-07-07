@@ -1,4 +1,4 @@
-import {MessagesEn} from 'constants/in18/messages-en';
+import {messagesEn} from 'constants/in18/messages-en';
 
 export interface MessagesInterface {
   [key: string]: string | ((key: string) => string);
@@ -35,14 +35,17 @@ export interface MessagesInterface {
   activationEmailSubject: string;
   activationEmailBody: string;
   searchPlaceholder: string;
+  inCart: string;
+  sorryBookNotAvailable: string;
+  noBooksAvailable: string;
   getKeyAtRuntime: (key: string) => string;
 }
 
 export const getMessages = (language: Language): MessagesInterface => {
   switch (language) {
     case 'en':
-      return MessagesEn;
+      return messagesEn;
     default:
-      return MessagesEn;
+      return messagesEn;
   }
 };
