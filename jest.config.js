@@ -9,5 +9,9 @@ module.exports = {
     './__tests__/setup.js',
     './node_modules/react-native-gesture-handler/jestSetup.js',
   ],
-  globals: {setDisplayCartBtn: () => {}, setAppBarTitle: () => {}},
+  globals: {
+    setDisplayCartBtn: () => {},
+    setAppBarTitle: () => {},
+    user: {_id: 1},
+  },
 };

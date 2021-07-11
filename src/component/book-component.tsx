@@ -1,14 +1,13 @@
 import {getStyles} from 'constants/styles';
 import {Book} from 'domain/book/book';
-import {bookService} from 'domain/book/book-service';
 import React, {useContext} from 'react';
 import {Alert, Image, TouchableHighlight, View} from 'react-native';
 import {UserContext} from 'user-context';
 import {
-  addToCart,
+  addOrRmvFrmCart,
   updateFav,
   getIconColor,
-  removeFromCart,
+  findBook,
 } from 'view/book/book-screen-actions';
 import {Button, Card, Fab, Text} from 'zenbaei-js-lib/react';
 import {staticFileUrl, imagesNames} from '../../app.config';
@@ -30,7 +29,6 @@ export const BookComponent = ({
 }) => {
   const {cart, setCart, favs, setFavs, msgs, theme} = useContext(UserContext);
   const styles = getStyles(theme);
-  const touchableRef = React.createRef<TouchableHighlight>();
 
   const _updateFav = async (bookId: string) => {
     updateFav(bookId, favs, (modifiedFavs, isAdded) => {
@@ -39,34 +37,26 @@ export const BookComponent = ({
     });
   };
 
-  const _addToCart = async (id: string) => {
-    const bk = await bookService.findOne('_id', id);
+  const _addOrRmvFrmCart = async (id: string, addOrRmv: 1 | -1) => {
+    const bk = await findBook(id);
     if (bk.availableCopies < 1) {
       // stale data
       Alert.alert(msgs.sorryBookNotAvailable);
       updateBookList(bk);
       return;
     }
-    addToCart(bk, cart, (modifiedCart) => {
+    addOrRmvFrmCart(bk, cart, addOrRmv, (modifiedCart) => {
       setCart(modifiedCart);
       showSnackBar(msgs.addedToCart);
-      bookService.findOne('_id', id).then((bok) => {
+      findBook(id).then((bok) => {
         updateBookList(bok);
       });
-    });
-  };
-
-  const _removeFromCart = async (bookId: string) => {
-    removeFromCart(bookId, cart, (modifiedCart) => {
-      setCart(modifiedCart);
-      showSnackBar(msgs.removedFromCart);
     });
   };
 
   return (
     <Card width="47%">
       <TouchableHighlight
-        ref={touchableRef}
         disabled={false}
         testID="touchable"
         key={book.name + 'toh'}
@@ -102,14 +92,14 @@ export const BookComponent = ({
           testID={'removeFromCartBtn'}
           style={styles.addToCartBtn}
           label={msgs.removeFromCart}
-          onPress={() => _removeFromCart(book._id)}
+          onPress={() => _addOrRmvFrmCart(book._id, -1)}
         />
       ) : (
         <Button
           testID={'addToCartBtn'}
           style={styles.addToCartBtn}
           label={msgs.addToCart}
-          onPress={() => _addToCart(book._id)}
+          onPress={() => _addOrRmvFrmCart(book._id, 1)}
         />
       )}
     </Card>

@@ -19,29 +19,18 @@ export const getIconColor = (
   return theme.secondary;
 };
 
-export const incrementCart = (bookId: string, cart: Cart[]): Cart[] => {
+export const _pushOrPopCart = (bookId: string, cart: Cart[]): Cart[] => {
   let cartClone = [...cart];
   const index: number = cart.findIndex((val) => val.bookId === bookId);
-  if (index >= 0) {
-    cartClone[index].nuOfCopies = cartClone[index].nuOfCopies + 1;
-  } else {
+  if (index === -1) {
     cartClone.push({bookId: bookId, nuOfCopies: 1});
-  }
-  return cartClone;
-};
-
-export const _decrementCart = (bookId: string, cart: Cart[]): Cart[] => {
-  let cartClone = [...cart];
-  const index: number = cart.findIndex((val) => val.bookId === bookId);
-  if (index >= 0 && cartClone[index].nuOfCopies > 1) {
-    cartClone[index].nuOfCopies = cartClone[index].nuOfCopies - 1;
-  } else if (index >= 0 && cartClone[index].nuOfCopies === 1) {
+  } else {
     cartClone.splice(index, 1);
   }
   return cartClone;
 };
 
-export const updateCart = async (cart: Cart[]): Promise<boolean> => {
+export const _updateCart = async (cart: Cart[]): Promise<boolean> => {
   const result: modificationResult = await userService.updateCart(
     global.user._id,
     cart,
@@ -49,7 +38,7 @@ export const updateCart = async (cart: Cart[]): Promise<boolean> => {
   return result.modified === 1;
 };
 
-export const updateAvailableCopies = async (
+export const _updateAvailableCopies = async (
   book: Book,
   addOrSub: number,
 ): Promise<boolean> => {
@@ -60,28 +49,18 @@ export const updateAvailableCopies = async (
   return result.modified === 1;
 };
 
-export const addToCart = async (
+export const addOrRmvFrmCart = async (
   book: Book,
   cart: Cart[],
+  addOrRmv: 1 | -1,
   callback: cartCallback,
 ): Promise<void> => {
-  const modifiedCart = incrementCart(book._id, cart);
-  const isCartUpdated: boolean = await updateCart(modifiedCart);
-  const isCopiesUpdated: boolean = await updateAvailableCopies(book, -1);
-  if (isCartUpdated && isCopiesUpdated) {
-    callback(modifiedCart);
-  }
-};
-
-export const removeFromCart = async (
-  bookId: string,
-  cart: Cart[],
-  callback: cartCallback,
-): Promise<void> => {
-  const modifiedCart = _decrementCart(bookId, cart);
-  const book = await bookService.findOne('_id', bookId);
-  const isCartUpdated: boolean = await updateCart(modifiedCart);
-  const isCopiesUpdated: boolean = await updateAvailableCopies(book, 1);
+  const modifiedCart = _pushOrPopCart(book._id, cart);
+  const isCartUpdated: boolean = await _updateCart(modifiedCart);
+  const isCopiesUpdated: boolean = await _updateAvailableCopies(
+    book,
+    -addOrRmv,
+  );
   if (isCartUpdated && isCopiesUpdated) {
     callback(modifiedCart);
   }
@@ -91,7 +70,7 @@ export const removeFromCart = async (
  *
  * @returns the updated array
  */
-export const addOrRemoveFromArr = (id: string, ids: string[]): string[] => {
+export const _pushOrPop = (id: string, ids: string[]): string[] => {
   let arrClone = [...ids];
   const index: number = ids.findIndex((val) => val === id);
   if (index >= 0) {
@@ -107,7 +86,7 @@ export const updateFav = async (
   favs: string[],
   callback: favCallback,
 ) => {
-  const modifiedFavs = addOrRemoveFromArr(bookId, favs);
+  const modifiedFavs = _pushOrPop(bookId, favs);
   const isAdded: boolean = modifiedFavs.length > favs.length;
   const result: modificationResult = isAdded
     ? await userService.addToFav(global.user._id, bookId)
@@ -145,3 +124,6 @@ export const searchBooks = async (name: string): Promise<Book[]> => {
 
 export type cartCallback = (modifiedCart: Cart[]) => void;
 type favCallback = (modifiedFavs: string[], isAdded: boolean) => void;
+
+export const findBook = (id: string): Promise<Book> =>
+  bookService.findOne('_id', id);

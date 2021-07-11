@@ -16,7 +16,6 @@ import {isEmpty} from 'zenbaei-js-lib/utils';
 import ActivityIndicator from 'react-native-paper/src/components/ActivityIndicator';
 import {SearchBar} from 'view/search-bar';
 import {BookComponent} from 'component/book-component';
-import {bookService} from 'domain/book/book-service';
 
 export function BookScreen({
   navigation,

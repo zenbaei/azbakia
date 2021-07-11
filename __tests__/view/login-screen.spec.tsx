@@ -1,10 +1,10 @@
 import React from 'react';
 import {fireEvent, render} from '@testing-library/react-native';
-import LoginScreen from '../../src/view/login-screen';
+import LoginScreen from '../../src/view/login/login-screen';
 import {act} from 'react-test-renderer';
 import {StackNavigationPropStub} from '../stubs/stack-navigation-prop-stub';
 import {NavigationScreens} from '../../src/constants/navigation-screens';
-import {userService} from '../../src/user/user-service';
+import {userService} from '../../src/domain/user/user-service';
 
 const navigation = new StackNavigationPropStub<
   NavigationScreens,

@@ -1,8 +1,8 @@
 import React from 'react';
 import {Button, NavigationProps} from 'zenbaei-js-lib/react';
-import {BookScreen} from '../../src/view/book/book-screen';
 import {NavigationScreens} from '../../src/constants/navigation-screens';
-export const BookScreenWrapper = ({
+import {BookScreen} from '../../src/view/book/book-screen';
+export const DrawerLike = ({
   navigation,
   route,
 }: NavigationProps<NavigationScreens, 'bookScreen'>) => {
