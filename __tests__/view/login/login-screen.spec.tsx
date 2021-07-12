@@ -1,10 +1,12 @@
 import React from 'react';
-import {fireEvent, render} from '@testing-library/react-native';
-import LoginScreen from '../../src/view/login/login-screen';
+import {fireEvent, render, waitFor} from '@testing-library/react-native';
+import LoginScreen from '../../../src/view/login/login-screen';
 import {act} from 'react-test-renderer';
-import {StackNavigationPropStub} from '../stubs/stack-navigation-prop-stub';
-import {NavigationScreens} from '../../src/constants/navigation-screens';
-import {userService} from '../../src/domain/user/user-service';
+import {StackNavigationPropStub} from '../../stubs/stack-navigation-prop-stub';
+import {NavigationScreens} from '../../../src/constants/navigation-screens';
+import {userService} from '../../../src/domain/user/user-service';
+
+jest.mock('@react-navigation/native');
 
 const navigation = new StackNavigationPropStub<
   NavigationScreens,
@@ -22,8 +24,10 @@ test(`Given username and password were empty, When doing login,
       route={{name: 'loginScreen', key: 'key1', params: {}}}
     />,
   );
-  await fireEvent.press(getByText('Sign in'));
-  expect(navigate).not.toHaveBeenCalled();
+  await act(async () => {
+    await fireEvent.press(getByText('Sign in'));
+    expect(navigate).not.toHaveBeenCalled();
+  });
 });
 
 test(`Given username and password are filled but invalid, When doing login,
@@ -38,18 +42,18 @@ test(`Given username and password are filled but invalid, When doing login,
       route={{name: 'loginScreen', key: 'key1', params: {}}}
     />,
   );
-  fireEvent.changeText(getByPlaceholderText('email'), 'zenbaei@gmail.com');
-  fireEvent.changeText(getByPlaceholderText('password'), 'pass');
   await act(async () => {
     await fireEvent.press(getByText('Sign in'));
+    fireEvent.changeText(getByPlaceholderText('email'), 'zenbaei@gmail.com');
+    fireEvent.changeText(getByPlaceholderText('password'), 'pass');
+    expect(navigate).not.toHaveBeenCalled();
   });
-  expect(navigate).not.toHaveBeenCalled();
 });
 
 test(`Given username and password are valid and user exist on db, When doing login, 
   Then it should call navigate to next screen with the right route parameters`, async () => {
   expect.assertions(2);
-  const user: any = {favBooks: ['book1']};
+  const user: any = {email: 'zenbaei@gmail.com'};
 
   jest
     .spyOn(userService, 'findByEmailAndPass')
@@ -61,15 +65,11 @@ test(`Given username and password are valid and user exist on db, When doing log
       route={{name: 'loginScreen', key: 'key1', params: {}}}
     />,
   );
-  fireEvent.changeText(getByPlaceholderText('email'), 'zenbaei@gmail.com');
-  fireEvent.changeText(getByPlaceholderText('password'), 'pass');
-  await act(async () => {
+  await waitFor(async () => {
+    fireEvent.changeText(getByPlaceholderText('email'), 'zenbaei@gmail.com');
+    fireEvent.changeText(getByPlaceholderText('password'), 'pass');
     await fireEvent.press(getByText('Sign in'));
+    expect(navigate).toHaveBeenCalledWith('drawerNavigator', {});
+    expect(global.user.email).toEqual('zenbaei@gmail.com');
   });
-
-  expect(navigate).toHaveBeenCalledWith('drawerNavigator', {
-    favBooks: user.favBooks,
-    booksInCart: [],
-  });
-  expect(global.user.email).toEqual('zenbaei@gmail.com');
 });
