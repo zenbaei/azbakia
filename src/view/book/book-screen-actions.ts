@@ -23,7 +23,7 @@ export const _pushOrPopCart = (bookId: string, cart: Cart[]): Cart[] => {
   let cartClone = [...cart];
   const index: number = cart.findIndex((val) => val.bookId === bookId);
   if (index === -1) {
-    cartClone.push({bookId: bookId, nuOfCopies: 1});
+    cartClone.push({bookId: bookId, requestedCopies: 1});
   } else {
     cartClone.splice(index, 1);
   }
@@ -38,13 +38,13 @@ export const _updateCart = async (cart: Cart[]): Promise<boolean> => {
   return result.modified === 1;
 };
 
-export const _updateAvailableCopies = async (
+export const _updateInventory = async (
   book: Book,
   addOrSub: number,
 ): Promise<boolean> => {
-  const result: modificationResult = await bookService.updateAvailableCopies(
+  const result: modificationResult = await bookService.updateInventory(
     book._id,
-    book.availableCopies + addOrSub,
+    book.inventory + addOrSub,
   );
   return result.modified === 1;
 };
@@ -57,10 +57,7 @@ export const addOrRmvFrmCart = async (
 ): Promise<void> => {
   const modifiedCart = _pushOrPopCart(book._id, cart);
   const isCartUpdated: boolean = await _updateCart(modifiedCart);
-  const isCopiesUpdated: boolean = await _updateAvailableCopies(
-    book,
-    -addOrRmv,
-  );
+  const isCopiesUpdated: boolean = await _updateInventory(book, -addOrRmv);
   if (isCartUpdated && isCopiesUpdated) {
     callback(modifiedCart);
   }

@@ -18,7 +18,7 @@ import {
   calculateSum,
   loadCartBooksVOs,
   flatenNumberToArray,
-  updateNuOfCopies,
+  updateRequestedCopies,
 } from './cart-screen-actions';
 import {UserContext} from 'user-context';
 import {useFocusEffect} from '@react-navigation/core';
@@ -54,8 +54,8 @@ export function CartScreen({
     );
   };
 */
-  const _updateNuOfCopies = (bookId: string, requestedCopies: string) => {
-    updateNuOfCopies(bookId, Number(requestedCopies));
+  const _updateRequestedCopies = (bookId: string, requestedCopies: string) => {
+    updateRequestedCopies(bookId, Number(requestedCopies));
   };
 
   return (
@@ -74,21 +74,17 @@ export function CartScreen({
                   }}
                   style={styles.image}
                 />
-                <Text testID="names" text={item.name} />
+                <Text text={item.name} />
                 <Text text={item.price} />
                 <Text
                   style={{...styles.bold, ...styles.price}}
-                  text={`${msgs.nuOfCopies}: ${item.nuOfCopies}`}
+                  text={`${msgs.nuOfCopies}: ${item.requestedCopies}`}
                 />
                 <Picker
-                  data={flatenNumberToArray(item.availableCopies)}
-                  selectedValue={String(item.nuOfCopies)}
+                  data={flatenNumberToArray(item.inventory)}
+                  selectedValue={String(item.requestedCopies)}
                   key={item._id}
-                  onValueChange={(val) => _updateNuOfCopies(item._id, val)}
-                />
-                <Button
-                  label={msgs.removeFromCart}
-                  onPress={() => _removeFromCart(item)}
+                  onValueChange={(val) => _updateRequestedCopies(item._id, val)}
                 />
               </Card>
             );

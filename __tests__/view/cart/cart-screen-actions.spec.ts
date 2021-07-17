@@ -5,11 +5,11 @@ import {userService} from '../../../src/domain/user/user-service';
 import * as actions from '../../../src/view/cart/cart-screen-actions';
 
 const cart: Cart[] = [
-  {bookId: '1', nuOfCopies: 1},
-  {bookId: '2', nuOfCopies: 2},
+  {bookId: '1', requestedCopies: 1},
+  {bookId: '2', requestedCopies: 2},
 ];
 
-const book = {_id: '1', availableCopies: 2} as Book;
+const book = {_id: '1', inventory: 2} as Book;
 
 jest.spyOn(bookService, 'findOne').mockResolvedValue(book);
 jest
@@ -21,7 +21,7 @@ const updateCartSpy = jest
   .mockResolvedValue({modified: 1});
 
 const updateAvailableCopiesSpy = jest
-  .spyOn(bookService, 'updateAvailableCopies')
+  .spyOn(bookService, 'updateInventory')
   .mockResolvedValue({modified: 1});
 
 test.todo('test summing books price');
@@ -45,7 +45,7 @@ test(`Given book's available copies data is stale,
     When copies are less than request cart copies,
     Then it should return false`, async () => {
   expect.assertions(1);
-  const result = await actions.updateNuOfCopies('1', 3);
+  const result = await actions.updateRequestedCopies('1', 3);
   expect(result).toBeFalsy();
 });
 
@@ -53,7 +53,7 @@ test(`Given book's available copies data is stale,
     When copies are larger or equal to requested cart copies,
     Then it should return true`, async () => {
   expect.assertions(1);
-  const result = await actions.updateNuOfCopies('1', 2);
+  const result = await actions.updateRequestedCopies('1', 2);
   expect(result).toBeTruthy();
 });
 
@@ -61,7 +61,7 @@ test(`Given a request for more copies happened from a client on cart screen,
     When updating the book's available copies,
     Then it should substract the new requested copies from the available one`, async () => {
   expect.assertions(1);
-  await actions.updateNuOfCopies('1', 1);
+  await actions.updateRequestedCopies('1', 1);
   expect(updateAvailableCopiesSpy).toBeCalledWith('1', 1);
 });
 
@@ -70,7 +70,9 @@ test(`Given a request for more copies happened from a client on cart screen,
     Then it should update the exact book with the request copies
     while leaving the other books in cart untouched`, async () => {
   expect.assertions(1);
-  await actions.updateNuOfCopies('1', 2);
-  const newCart: Cart[] = [{bookId: '1', nuOfCopies: 2}, cart[1]];
+  await actions.updateRequestedCopies('1', 2);
+  const newCart: Cart[] = [{bookId: '1', requestedCopies: 2}, cart[1]];
   expect(updateCartSpy).toBeCalledWith('11', newCart);
 });
+
+//test(`Given `);

@@ -33,7 +33,7 @@ const eventData = {
 */
 
 const books: Book[] = [
-  {_id: '1', name: 'book1', price: 100, availableCopies: 2},
+  {_id: '1', name: 'book1', price: 100, inventory: 2},
   {_id: '2', name: 'book2', price: 50},
   {_id: '3', name: 'book3', price: 20},
 ] as Book[];
@@ -65,7 +65,7 @@ jest
   .spyOn(userService, 'updateCart')
   .mockImplementation(() => Promise.resolve({modified: 1}));
 const updAvlCopiesSpy = jest
-  .spyOn(bookService, 'updateAvailableCopies')
+  .spyOn(bookService, 'updateInventory')
   .mockImplementation(() => Promise.resolve({modified: 1}));
 
 const getIconColorSpy = jest.spyOn(bookScreenActions, 'getIconColor');
@@ -119,7 +119,7 @@ test(`Given services are mocked, When adding to cart a stale book that is not av
       _id: '1',
       name: 'book1',
       price: 100,
-      availableCopies: 0,
+      inventory: 0,
     } as Book),
   );
   jest.spyOn(bookScreenActions, 'addOrRmvFrmCart');
@@ -152,7 +152,7 @@ test(`Given services are mocked, When adding a book to cart,
     );
     expect(updAvlCopiesSpy).toBeCalledWith(
       books[0]._id,
-      books[0].availableCopies - 1,
+      books[0].inventory - 1,
     );
   });
 });
@@ -164,7 +164,7 @@ test(`Given services are mocked,
     _id: '1',
     name: 'book1',
     price: 100,
-    availableCopies: 1, // current stock
+    inventory: 1, // current stock
   } as Book;
   jest
     .spyOn(bookService, 'findOne')

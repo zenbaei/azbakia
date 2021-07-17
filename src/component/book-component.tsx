@@ -39,7 +39,7 @@ export const BookComponent = ({
 
   const _addOrRmvFrmCart = async (id: string, addOrRmv: 1 | -1) => {
     const bk = await findBook(id);
-    if (bk.availableCopies < 1) {
+    if (bk.inventory < 1) {
       // stale data
       Alert.alert(msgs.sorryBookNotAvailable);
       updateBookList(bk);
@@ -86,7 +86,7 @@ export const BookComponent = ({
         <Text
           testID="copies"
           style={{...styles.bold, ...styles.price}}
-          text={`${msgs.availableCopies}: ${book.availableCopies}`}
+          text={`${msgs.availableCopies}: ${book.inventory}`}
         />
       </View>
       {cart.find((car) => car.bookId === book._id) ? (

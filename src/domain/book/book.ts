@@ -9,5 +9,5 @@ export class Book extends _id {
   imageFolderName!: string;
   description!: string;
   language: Language = 'ar';
-  availableCopies: number = 1;
+  inventory: number = 1;
 }

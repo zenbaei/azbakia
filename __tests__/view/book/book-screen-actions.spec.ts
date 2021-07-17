@@ -53,17 +53,17 @@ test(`Giving cart array is provided, When the item doesn't exist,
   const cart = [];
   const result = actions._pushOrPopCart('test', cart);
   expect.assertions(1);
-  expect(result).toEqual([{bookId: 'test', nuOfCopies: 1} as Cart]);
+  expect(result).toEqual([{bookId: 'test', requestedCopies: 1} as Cart]);
 });
 
 test(`Given cart array is provided, When adding to cart, 
   Then it should add to user's cart and substract from book copies`, async () => {
   const modified: modificationResult = {modified: 1};
   const updateAvlCopiesSpy = jest
-    .spyOn(bookService, 'updateAvailableCopies')
+    .spyOn(bookService, 'updateInventory')
     .mockResolvedValue(modified);
-  const cart: Cart[] = [{bookId: 'b1', nuOfCopies: 2}];
-  const book: Book = {_id: '100', name: 'b1', availableCopies: 1} as Book;
+  const cart: Cart[] = [{bookId: 'b1', requestedCopies: 2}];
+  const book: Book = {_id: '100', name: 'b1', inventory: 1} as Book;
   expect.assertions(3);
   await actions.addOrRmvFrmCart(book, cart, 1, (newCart) =>
     expect(newCart).toBeTruthy(),
@@ -75,23 +75,23 @@ test(`Given cart array is provided, When adding to cart,
 test(`Giving cart array is provided, When the item already exist in cart and readded(remove button),
   Then it should remove the item from the array`, () => {
   const cart: Cart[] = [
-    {bookId: 'b1', nuOfCopies: 1},
-    {bookId: 'b2', nuOfCopies: 2},
+    {bookId: 'b1', requestedCopies: 1},
+    {bookId: 'b2', requestedCopies: 2},
   ] as Cart[];
   const result = actions._pushOrPopCart('b2', cart);
   expect.assertions(2);
   expect(result.length).toBe(1);
-  expect(result[0]).toEqual({bookId: 'b1', nuOfCopies: 1});
+  expect(result[0]).toEqual({bookId: 'b1', requestedCopies: 1} as Cart);
 });
 
 test(`Given cart array is provided, When removing from cart, 
   Then it should remove the item from user's cart 
   and add to book copies`, async () => {
   const bookServiceSpy = jest
-    .spyOn(bookService, 'updateAvailableCopies')
+    .spyOn(bookService, 'updateInventory')
     .mockResolvedValue({modified: 1});
-  const cart: Cart[] = [{bookId: 'b1', nuOfCopies: 2}];
-  const book: Book = {_id: 'b1', availableCopies: 1} as Book;
+  const cart: Cart[] = [{bookId: 'b1', requestedCopies: 2}];
+  const book: Book = {_id: 'b1', inventory: 1} as Book;
   expect.assertions(3);
   await actions.addOrRmvFrmCart(book, cart, -1, (cartItems) => {
     expect(cartItems.length).toBe(0);

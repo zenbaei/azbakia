@@ -27,11 +27,11 @@ class BookService extends MongoHttpService<Book> {
     return this.findAll(book, undefined, skip, limit);
   };
 
-  updateAvailableCopies = (
+  updateInventory = (
     id: string,
-    availableCopies: number,
+    inventory: number,
   ): Promise<modificationResult> => {
-    const book: Book = {availableCopies: availableCopies} as Book;
+    const book: Book = {inventory: inventory} as Book;
     return this.updateById(id, {$set: book});
   };
 }
