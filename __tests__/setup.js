@@ -26,3 +26,6 @@ jest.mock('react-native/Libraries/Utilities/Platform', () => ({
 
 jest.mock('react-native-paper/src/components/FAB/FAB');
 */
+
+global.setDisplayCartBtn = () => {};
+global.setAppBarTitle = () => {};
