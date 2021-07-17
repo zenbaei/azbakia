@@ -47,7 +47,9 @@ export const BookComponent = ({
     }
     addOrRmvFrmCart(bk, cart, addOrRmv, (modifiedCart) => {
       setCart(modifiedCart);
-      showSnackBar(msgs.addedToCart);
+      addOrRmv === 1
+        ? showSnackBar(msgs.addedToCart)
+        : showSnackBar(msgs.removedFromCart);
       findBook(id).then((bok) => {
         updateBookList(bok);
       });

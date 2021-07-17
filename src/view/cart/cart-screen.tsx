@@ -6,10 +6,10 @@ import {
   Button,
   Card,
   Row,
-  Ctx,
   Grid,
   NavigationProps,
   Text,
+  Picker,
 } from 'zenbaei-js-lib/react';
 import {imagesNames, staticFileUrl} from '../../../app.config';
 import Snackbar from 'react-native-paper/src/components/Snackbar';
@@ -17,7 +17,8 @@ import {FlatList} from 'react-native-gesture-handler';
 import {
   calculateSum,
   loadCartBooksVOs,
-  removeFromCart,
+  flatenNumberToArray,
+  updateNuOfCopies,
 } from './cart-screen-actions';
 import {UserContext} from 'user-context';
 import {useFocusEffect} from '@react-navigation/core';
@@ -39,7 +40,7 @@ export function CartScreen({
       loadCartBooksVOs(cart).then((vo) => setCartBooksVOs(vo));
     }, [cart, msgs.cart]),
   );
-
+  /*
   const _removeFromCart = async (cartBookVO: CartBookVO) => {
     removeFromCart(
       cartBookVO._id,
@@ -51,6 +52,10 @@ export function CartScreen({
         setSnackBarVisible(true);
       },
     );
+  };
+*/
+  const _updateNuOfCopies = (bookId: string, requestedCopies: string) => {
+    updateNuOfCopies(bookId, Number(requestedCopies));
   };
 
   return (
@@ -69,11 +74,17 @@ export function CartScreen({
                   }}
                   style={styles.image}
                 />
-                <Text text={item.name} />
+                <Text testID="names" text={item.name} />
                 <Text text={item.price} />
                 <Text
                   style={{...styles.bold, ...styles.price}}
                   text={`${msgs.nuOfCopies}: ${item.nuOfCopies}`}
+                />
+                <Picker
+                  data={flatenNumberToArray(item.availableCopies)}
+                  selectedValue={String(item.nuOfCopies)}
+                  key={item._id}
+                  onValueChange={(val) => _updateNuOfCopies(item._id, val)}
                 />
                 <Button
                   label={msgs.removeFromCart}

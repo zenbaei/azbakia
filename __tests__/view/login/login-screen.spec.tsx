@@ -6,6 +6,8 @@ import {StackNavigationPropStub} from '../../stubs/stack-navigation-prop-stub';
 import {NavigationScreens} from '../../../src/constants/navigation-screens';
 import {userService} from '../../../src/domain/user/user-service';
 
+let global: any;
+
 jest.mock('@react-navigation/native');
 
 const navigation = new StackNavigationPropStub<

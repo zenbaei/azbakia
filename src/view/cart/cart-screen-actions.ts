@@ -1,6 +1,7 @@
 import {Book} from 'domain/book/book';
 import {bookService} from 'domain/book/book-service';
-import {Cart} from 'domain/user/user';
+import {Cart, User} from 'domain/user/user';
+import {userService} from 'domain/user/user-service';
 
 import {CartBookVO} from './cart-book-vo';
 
@@ -26,3 +27,38 @@ export const loadCartBooksVOs = async (cart: Cart[]): Promise<CartBookVO[]> => {
     );
   });
 };
+
+export const flatenNumberToArray = (val: number): labelValue[] => {
+  const arr: labelValue[] = [];
+  for (let i = 0; i <= val; i++) {
+    arr.push({label: String(i), value: String(i)});
+  }
+  return arr;
+};
+
+/**
+ *
+ * @returns false if book available copies data is stale and are less than
+ * the requested cart copies.
+ */
+export const updateNuOfCopies = async (
+  bookId: string,
+  requestedCopies: number,
+): Promise<boolean> => {
+  const book = await bookService.findOne('_id', bookId);
+  if (book.availableCopies < requestedCopies) {
+    return false;
+  }
+  bookService.updateAvailableCopies(
+    bookId,
+    book.availableCopies - requestedCopies,
+  );
+  const user: User = await userService.findOne('_id', global.user._id);
+  const cart: Cart[] = user.cart.map((crt) =>
+    crt.bookId === bookId ? {bookId: bookId, nuOfCopies: requestedCopies} : crt,
+  );
+  const isUpdated = userService.updateCart(user._id, cart);
+  return true;
+};
+
+type labelValue = {label: string; value: string};
