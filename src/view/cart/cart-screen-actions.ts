@@ -2,6 +2,7 @@ import {Book} from 'domain/book/book';
 import {bookService} from 'domain/book/book-service';
 import {Cart, User} from 'domain/user/user';
 import {userService} from 'domain/user/user-service';
+import {cartCallback} from 'view/book/book-screen-actions';
 
 import {CartBookVO} from './cart-book-vo';
 
@@ -42,22 +43,24 @@ export const flatenNumberToArray = (val: number): labelValue[] => {
  * the requested cart copies.
  */
 export const updateRequestedCopies = async (
-  bookId: string,
+  book: Book,
   requestedCopies: number,
-): Promise<boolean> => {
-  const book = await bookService.findOne('_id', bookId);
-  if (book.inventory < requestedCopies) {
-    return false;
-  }
-  bookService.updateInventory(bookId, book.inventory - requestedCopies);
+  clb: cartCallback,
+) => {
+  const invUpdated = await bookService.updateInventory(
+    book._id,
+    book.inventory - requestedCopies,
+  );
   const user: User = await userService.findOne('_id', global.user._id);
   const cart: Cart[] = user.cart.map((crt) =>
-    crt.bookId === bookId
-      ? {bookId: bookId, requestedCopies: requestedCopies}
+    crt.bookId === book._id
+      ? {bookId: book._id, requestedCopies: requestedCopies}
       : crt,
   );
-  const isUpdated = userService.updateCart(user._id, cart);
-  return true;
+  const cartUpdated = await userService.updateCart(user._id, cart);
+  if (invUpdated && cartUpdated) {
+    clb(cart);
+  }
 };
 
 type labelValue = {label: string; value: string};

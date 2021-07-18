@@ -23,6 +23,7 @@ import {
 import {UserContext} from 'user-context';
 import {useFocusEffect} from '@react-navigation/core';
 import {CartBookVO} from './cart-book-vo';
+import {addOrRmvFrmCart, findBook} from 'view/book/book-screen-actions';
 
 export function CartScreen({
   navigation,
@@ -54,8 +55,20 @@ export function CartScreen({
     );
   };
 */
-  const _updateRequestedCopies = (bookId: string, requestedCopies: string) => {
-    updateRequestedCopies(bookId, Number(requestedCopies));
+  const _updateRequestedCopies = async (
+    bookId: string,
+    requestedCopies: number,
+  ) => {
+    const book = await findBook(bookId);
+    if (book.inventory < requestedCopies) {
+      //todo: update listed book inventory
+      return;
+    }
+    if (requestedCopies === 0) {
+      addOrRmvFrmCart(book, cart, -1, (crt) => setCart(crt));
+      return;
+    }
+    updateRequestedCopies(book, requestedCopies, (crt) => setCart(crt));
   };
 
   return (
@@ -84,7 +97,9 @@ export function CartScreen({
                   data={flatenNumberToArray(item.inventory)}
                   selectedValue={String(item.requestedCopies)}
                   key={item._id}
-                  onValueChange={(val) => _updateRequestedCopies(item._id, val)}
+                  onValueChange={(val) =>
+                    _updateRequestedCopies(item._id, Number(val))
+                  }
                 />
               </Card>
             );
