@@ -17,7 +17,7 @@ export const messagesEn: MessagesInterface = {
   removedFromCart: 'Removed from cart',
   removeFromCart: 'Remove from cart',
   newArrivals: 'New Arrivals',
-  nuOfCopies: 'Number of copies',
+  amount: 'Amount',
   availableCopies: 'Available copies',
   total: 'tatal',
   emptyCart: 'Your cart is empty',
@@ -39,5 +39,6 @@ export const messagesEn: MessagesInterface = {
   sorryBookNotAvailable:
     'Sorry this book has been brought by another customer before your transaction',
   noBooksAvailable: 'No books available under this category at the moment',
+  noMoreCopiesAvailable: 'Sorry no more copies are available',
   getKeyAtRuntime: (key: string) => messagesEn[key] as string,
 };

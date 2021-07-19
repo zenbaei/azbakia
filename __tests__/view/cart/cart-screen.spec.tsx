@@ -11,9 +11,7 @@ import {Book} from '../../../src/domain/book/book';
 
 jest
   .spyOn(actions, 'loadCartBooksVOs')
-  .mockResolvedValue([
-    {_id: '1', inventory: 3, requestedCopies: 1},
-  ] as CartBookVO[]);
+  .mockResolvedValue([{_id: '1', inventory: 3, amount: 1}] as CartBookVO[]);
 
 const addOrRmvFrmCartSpy = jest
   .spyOn(bookScreenActions, 'addOrRmvFrmCart')
@@ -23,7 +21,7 @@ jest
   .spyOn(bookService, 'findOne')
   .mockResolvedValue({_id: '1', inventory: 3} as Book);
 
-const updateRequestedCopiesSpy = jest.spyOn(actions, 'updateRequestedCopies');
+const updateAmountSpy = jest.spyOn(actions, 'updateAmount');
 
 test(`Giving a book is added to cart,
     When displaying cart screen,
@@ -40,8 +38,8 @@ test(`Giving a book is added to cart,
 });
 
 test(`Giving a book is added to cart,
-    When displaying the requested book copies,
-    Then it should select the requested copies number from the drop-down list`, async () => {
+    When displaying the cart's book amount,
+    Then it should select this amount number from the drop-down list`, async () => {
   const {UNSAFE_getAllByType} = render(
     <MockedNavigator screen1={CartScreen} />,
   );
@@ -53,7 +51,7 @@ test(`Giving a book is added to cart,
 });
 
 test(`Giving a book is added to cart,
-    When changing the requested book copies to zero,
+    When changing the book's amount to zero,
     Then it should remove the book from the cart`, async () => {
   const {UNSAFE_getAllByType} = render(
     <MockedNavigator screen1={CartScreen} />,
@@ -68,6 +66,31 @@ test(`Giving a book is added to cart,
       -1,
       expect.anything(),
     );
-    expect(updateRequestedCopiesSpy).not.toBeCalled();
+    expect(updateAmountSpy).not.toBeCalled();
   });
 });
+
+test(`Given cart listed a book's inventory that will get exhausted after display,
+  When the user tries to add more copies of this book,
+  Then it should update the listed book inventory and show alert`, async () => {
+  jest
+    .spyOn(bookService, 'findOne')
+    .mockImplementationOnce(() =>
+      Promise.resolve({_id: '1', inventory: 0} as Book),
+    );
+  expect.assertions(2);
+  const {UNSAFE_getAllByType} = render(
+    <MockedNavigator screen1={CartScreen} />,
+  );
+  await waitFor(async () => {
+    const dropDown = UNSAFE_getAllByType(Picker);
+    expect(dropDown[0].props.data.length).toBe(4);
+    await fireEvent(dropDown[0], 'onValueChange', 2);
+    expect(dropDown[0].props.data.length).toBe(1); // 0
+  });
+});
+
+test(`Given book's inventory is 1 and Cart's requested copies is 1 for certain book,
+  When combined together on Cart screen as one drop down,
+  Then it should represents the requested amount as well the available inventory as 
+  the sum of both`);

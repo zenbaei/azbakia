@@ -105,12 +105,13 @@ test(`Given books are loaded for display, When one of these books matches favBoo
 
 /*
 Why not re-query books after adding to cart:
-  problem shows up while using scroll/paging. for instance 2 pages are loaded, an item
-  from the first page is added to cart. Changing cart will reload books using the current
+  problem shows up while using scroll/paging. for instance 2 pages are loaded,
+  we scrolled down to 2nd page (page var is now = 2) then we scrolled up to buy and item
+  from the first page. Changing cart will reload books using the current
   page value which is page 2 causing the added item not to update in the view.
   To fix, either reload all the pages until the current, or update the view without reloading
   books.
-  Updating the view without reloading can be done either by updating the state.
+  Updating the view without reloading can be done by updating the state.
 */
 test(`Given services are mocked, When adding to cart a stale book that is not available anymore,
   Then addToCart func shouldn't be called and this book addToCart button should be disabled`, async () => {
@@ -134,6 +135,8 @@ test(`Given services are mocked, When adding to cart a stale book that is not av
     // expect(getAllByTestId('addToCartBtn')[0].props).toHaveProperty('disabled'); 'disabled' not found in props
   });
 });
+
+test.todo(`test alert when book is not available`);
 
 test(`Given services are mocked, When adding a book to cart,
   Then addToCart func should be called and this book available copies should be decremented`, async () => {

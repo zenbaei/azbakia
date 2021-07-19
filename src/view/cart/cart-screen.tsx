@@ -1,7 +1,7 @@
 import {NavigationScreens} from 'constants/navigation-screens';
 import {getStyles} from 'constants/styles';
 import React, {useCallback, useContext, useState} from 'react';
-import {Image} from 'react-native';
+import {Alert, Image} from 'react-native';
 import {
   Button,
   Card,
@@ -18,12 +18,13 @@ import {
   calculateSum,
   loadCartBooksVOs,
   flatenNumberToArray,
-  updateRequestedCopies,
+  updateAmount,
 } from './cart-screen-actions';
 import {UserContext} from 'user-context';
 import {useFocusEffect} from '@react-navigation/core';
 import {CartBookVO} from './cart-book-vo';
 import {addOrRmvFrmCart, findBook} from 'view/book/book-screen-actions';
+import {Book} from 'domain/book/book';
 
 export function CartScreen({
   navigation,
@@ -55,20 +56,28 @@ export function CartScreen({
     );
   };
 */
-  const _updateRequestedCopies = async (
-    bookId: string,
-    requestedCopies: number,
-  ) => {
+  const _updateAmount = async (bookId: string, requestedCopies: number) => {
     const book = await findBook(bookId);
     if (book.inventory < requestedCopies) {
-      //todo: update listed book inventory
+      _updateListedBookInventory(book);
+      Alert.alert(msgs.noMoreCopiesAvailable);
       return;
     }
     if (requestedCopies === 0) {
       addOrRmvFrmCart(book, cart, -1, (crt) => setCart(crt));
       return;
     }
-    updateRequestedCopies(book, requestedCopies, (crt) => setCart(crt));
+    updateAmount(book, requestedCopies, (crt) => setCart(crt));
+  };
+
+  const _updateListedBookInventory = (book: Book) => {
+    const cartVOs = cartBooksVOs.map((vo) => {
+      if (vo._id === book._id) {
+        vo.inventory = book.inventory;
+      }
+      return vo;
+    });
+    setCartBooksVOs(cartVOs);
   };
 
   return (
@@ -91,15 +100,13 @@ export function CartScreen({
                 <Text text={item.price} />
                 <Text
                   style={{...styles.bold, ...styles.price}}
-                  text={`${msgs.nuOfCopies}: ${item.requestedCopies}`}
+                  text={`${msgs.amount}: ${item.amount}`}
                 />
                 <Picker
                   data={flatenNumberToArray(item.inventory)}
-                  selectedValue={String(item.requestedCopies)}
+                  selectedValue={String(item.amount)}
                   key={item._id}
-                  onValueChange={(val) =>
-                    _updateRequestedCopies(item._id, Number(val))
-                  }
+                  onValueChange={(val) => _updateAmount(item._id, Number(val))}
                 />
               </Card>
             );

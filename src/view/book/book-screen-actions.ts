@@ -23,7 +23,7 @@ export const _pushOrPopCart = (bookId: string, cart: Cart[]): Cart[] => {
   let cartClone = [...cart];
   const index: number = cart.findIndex((val) => val.bookId === bookId);
   if (index === -1) {
-    cartClone.push({bookId: bookId, requestedCopies: 1});
+    cartClone.push({bookId: bookId, amount: 1});
   } else {
     cartClone.splice(index, 1);
   }

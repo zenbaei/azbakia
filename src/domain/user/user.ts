@@ -10,5 +10,5 @@ export class User extends _id {
 
 export type Cart = {
   bookId: string;
-  requestedCopies: number;
+  amount: number;
 };

@@ -17,11 +17,11 @@ export const loadCartBooksVOs = async (cart: Cart[]): Promise<CartBookVO[]> => {
   const books: Book[] = await bookService.findAllByIds({$in: bookIds});
   return books.map((bk) => {
     const car = cart.find((val) => val.bookId === bk._id);
-    const price = (car?.requestedCopies as number) * bk.price;
+    const price = (car?.amount as number) * bk.price;
     return new CartBookVO(
       bk._id,
       bk.name,
-      car?.requestedCopies as number,
+      car?.amount as number,
       price,
       bk.imageFolderName,
       bk.inventory,
@@ -42,20 +42,18 @@ export const flatenNumberToArray = (val: number): labelValue[] => {
  * @returns false if book available copies data is stale and are less than
  * the requested cart copies.
  */
-export const updateRequestedCopies = async (
+export const updateAmount = async (
   book: Book,
-  requestedCopies: number,
+  amount: number,
   clb: cartCallback,
 ) => {
   const invUpdated = await bookService.updateInventory(
     book._id,
-    book.inventory - requestedCopies,
+    book.inventory - amount,
   );
   const user: User = await userService.findOne('_id', global.user._id);
   const cart: Cart[] = user.cart.map((crt) =>
-    crt.bookId === book._id
-      ? {bookId: book._id, requestedCopies: requestedCopies}
-      : crt,
+    crt.bookId === book._id ? {bookId: book._id, amount: amount} : crt,
   );
   const cartUpdated = await userService.updateCart(user._id, cart);
   if (invUpdated && cartUpdated) {

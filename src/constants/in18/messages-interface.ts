@@ -18,7 +18,7 @@ export interface MessagesInterface {
   removedFromCart: string;
   removeFromCart: string;
   newArrivals: string;
-  nuOfCopies: string;
+  amount: string;
   availableCopies: string;
   total: string;
   emptyCart: string;
@@ -38,6 +38,7 @@ export interface MessagesInterface {
   inCart: string;
   sorryBookNotAvailable: string;
   noBooksAvailable: string;
+  noMoreCopiesAvailable: string;
   getKeyAtRuntime: (key: string) => string;
 }
 
