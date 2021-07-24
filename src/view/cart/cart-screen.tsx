@@ -10,7 +10,6 @@ import {
   NavigationProps,
   Text,
   Picker,
-  IconButton,
 } from 'zenbaei-js-lib/react';
 import {imagesNames, staticFileUrl} from '../../../app.config';
 import Snackbar from 'react-native-paper/src/components/Snackbar';
@@ -20,12 +19,14 @@ import {
   loadCartBooksVOs,
   flatenNumberToArray,
   updateAmount,
+  removeFromCart,
 } from './cart-screen-actions';
 import {UserContext} from 'user-context';
 import {useFocusEffect} from '@react-navigation/core';
 import {CartBookVO} from './cart-book-vo';
-import {addOrRmvFrmCart, findBook} from 'view/book/book-screen-actions';
+import {findBook} from 'view/book/book-screen-actions';
 import {Book} from 'domain/book/book';
+import IconButton from 'react-native-paper/src/components/IconButton';
 
 export function CartScreen({
   navigation,
@@ -65,15 +66,14 @@ export function CartScreen({
     const book = await findBook(bookId);
     if (book.inventory + oldAmount < newAmount) {
       _updateListedBookInventory(book);
-      Alert.alert(msgs.noMoreCopiesAvailable);
+      Alert.alert(msgs.sorryInventoryChanged);
       return;
     }
     updateAmount(book, cart, oldAmount, newAmount, (crt) => setCart(crt));
   };
 
   const _removeFromCart = async (bookId: string) => {
-    const book = await findBook(bookId);
-    addOrRmvFrmCart(book, cart, -1, (crt) => setCart(crt));
+    removeFromCart(bookId, cart, (crt) => setCart(crt));
   };
 
   const _updateListedBookInventory = (book: Book) => {
@@ -116,7 +116,11 @@ export function CartScreen({
                     _updateAmount(item._id, item.amount, Number(val))
                   }
                 />
-                <IconButton iconName={'trash'} />
+                <IconButton
+                  icon={'delete'}
+                  color={theme.primary}
+                  onPress={() => _removeFromCart(item._id)}
+                />
               </Card>
             );
           }}

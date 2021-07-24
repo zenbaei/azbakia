@@ -64,8 +64,8 @@ export const addOrRmvFrmCart = async (
 };
 
 /**
- *
- * @returns the updated array
+ * If id exists in provided ids then remove, otherwise add.
+ * @returns - the updated array
  */
 export const _pushOrPop = (id: string, ids: string[]): string[] => {
   let arrClone = [...ids];

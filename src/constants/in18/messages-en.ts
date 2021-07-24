@@ -39,6 +39,7 @@ export const messagesEn: MessagesInterface = {
   sorryBookNotAvailable:
     'Sorry this book has been brought by another customer before your transaction',
   noBooksAvailable: 'No books available under this category at the moment',
-  noMoreCopiesAvailable: 'Sorry no more copies are available',
+  sorryInventoryChanged:
+    'Sorry the inventory has been changed while you were online',
   getKeyAtRuntime: (key: string) => messagesEn[key] as string,
 };

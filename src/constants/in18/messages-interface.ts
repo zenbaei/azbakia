@@ -38,7 +38,7 @@ export interface MessagesInterface {
   inCart: string;
   sorryBookNotAvailable: string;
   noBooksAvailable: string;
-  noMoreCopiesAvailable: string;
+  sorryInventoryChanged: string;
   getKeyAtRuntime: (key: string) => string;
 }
 

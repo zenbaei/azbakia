@@ -1,9 +1,9 @@
 import {Book} from 'domain/book/book';
 import {bookService} from 'domain/book/book-service';
-import {Cart, User} from 'domain/user/user';
+import {Cart} from 'domain/user/user';
 import {userService} from 'domain/user/user-service';
 import {cartCallback} from 'view/book/book-screen-actions';
-
+import {_pushOrPopCart} from '../book/book-screen-actions';
 import {CartBookVO} from './cart-book-vo';
 
 export const calculateSum = (cartBooksVO: CartBookVO[]): number => {
@@ -51,6 +51,27 @@ export const updateAmount = async (
   const modifiedCart: Cart[] = cart.map((crt) =>
     crt.bookId === book._id ? {bookId: book._id, amount: newAmount} : crt,
   );
+  const cartUpdated = await userService.updateCart(
+    global.user._id,
+    modifiedCart,
+  );
+  if (invUpdated && cartUpdated) {
+    clb(modifiedCart);
+  }
+};
+
+export const removeFromCart = async (
+  bookId: string,
+  cart: Cart[],
+  clb: cartCallback,
+) => {
+  const book = await bookService.findOne('_id', bookId);
+  const cartBk = cart.find((crt) => crt.bookId === bookId);
+  const invUpdated = await bookService.updateInventory(
+    bookId,
+    book.inventory + (cartBk ? cartBk.amount : 0),
+  );
+  const modifiedCart = _pushOrPopCart(bookId, cart);
   const cartUpdated = await userService.updateCart(
     global.user._id,
     modifiedCart,
