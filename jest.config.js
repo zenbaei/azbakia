@@ -10,6 +10,6 @@ module.exports = {
     './node_modules/react-native-gesture-handler/jestSetup.js',
   ],
   globals: {
-    user: {_id: 1},
+    user: {_id: '1'},
   },
 };

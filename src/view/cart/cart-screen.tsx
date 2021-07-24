@@ -10,6 +10,7 @@ import {
   NavigationProps,
   Text,
   Picker,
+  IconButton,
 } from 'zenbaei-js-lib/react';
 import {imagesNames, staticFileUrl} from '../../../app.config';
 import Snackbar from 'react-native-paper/src/components/Snackbar';
@@ -56,24 +57,29 @@ export function CartScreen({
     );
   };
 */
-  const _updateAmount = async (bookId: string, requestedCopies: number) => {
+  const _updateAmount = async (
+    bookId: string,
+    oldAmount: number,
+    newAmount: number,
+  ) => {
     const book = await findBook(bookId);
-    if (book.inventory < requestedCopies) {
+    if (book.inventory + oldAmount < newAmount) {
       _updateListedBookInventory(book);
       Alert.alert(msgs.noMoreCopiesAvailable);
       return;
     }
-    if (requestedCopies === 0) {
-      addOrRmvFrmCart(book, cart, -1, (crt) => setCart(crt));
-      return;
-    }
-    updateAmount(book, requestedCopies, (crt) => setCart(crt));
+    updateAmount(book, cart, oldAmount, newAmount, (crt) => setCart(crt));
+  };
+
+  const _removeFromCart = async (bookId: string) => {
+    const book = await findBook(bookId);
+    addOrRmvFrmCart(book, cart, -1, (crt) => setCart(crt));
   };
 
   const _updateListedBookInventory = (book: Book) => {
     const cartVOs = cartBooksVOs.map((vo) => {
       if (vo._id === book._id) {
-        vo.inventory = book.inventory;
+        vo.inventory = book.inventory + vo.amount;
       }
       return vo;
     });
@@ -103,11 +109,14 @@ export function CartScreen({
                   text={`${msgs.amount}: ${item.amount}`}
                 />
                 <Picker
-                  data={flatenNumberToArray(item.inventory)}
+                  data={flatenNumberToArray(item.inventory + item.amount)}
                   selectedValue={String(item.amount)}
                   key={item._id}
-                  onValueChange={(val) => _updateAmount(item._id, Number(val))}
+                  onValueChange={(val) =>
+                    _updateAmount(item._id, item.amount, Number(val))
+                  }
                 />
+                <IconButton iconName={'trash'} />
               </Card>
             );
           }}

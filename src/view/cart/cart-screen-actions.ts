@@ -31,33 +31,32 @@ export const loadCartBooksVOs = async (cart: Cart[]): Promise<CartBookVO[]> => {
 
 export const flatenNumberToArray = (val: number): labelValue[] => {
   const arr: labelValue[] = [];
-  for (let i = 0; i <= val; i++) {
+  for (let i = 1; i <= val; i++) {
     arr.push({label: String(i), value: String(i)});
   }
   return arr;
 };
 
-/**
- *
- * @returns false if book available copies data is stale and are less than
- * the requested cart copies.
- */
 export const updateAmount = async (
   book: Book,
-  amount: number,
+  cart: Cart[],
+  oldAmount: number,
+  newAmount: number,
   clb: cartCallback,
 ) => {
   const invUpdated = await bookService.updateInventory(
     book._id,
-    book.inventory - amount,
+    book.inventory + oldAmount - newAmount,
   );
-  const user: User = await userService.findOne('_id', global.user._id);
-  const cart: Cart[] = user.cart.map((crt) =>
-    crt.bookId === book._id ? {bookId: book._id, amount: amount} : crt,
+  const modifiedCart: Cart[] = cart.map((crt) =>
+    crt.bookId === book._id ? {bookId: book._id, amount: newAmount} : crt,
   );
-  const cartUpdated = await userService.updateCart(user._id, cart);
+  const cartUpdated = await userService.updateCart(
+    global.user._id,
+    modifiedCart,
+  );
   if (invUpdated && cartUpdated) {
-    clb(cart);
+    clb(modifiedCart);
   }
 };
 

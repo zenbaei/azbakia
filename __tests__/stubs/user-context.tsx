@@ -2,8 +2,8 @@
 import {
   getMessages,
   MessagesInterface,
-} from 'constants/in18/messages-interface';
-import {Cart} from 'domain/user/user';
+} from '../../src/constants/in18/messages-interface';
+import {Cart} from '../../src/domain/user/user';
 import React, {useCallback, useContext, useState} from 'react';
 import {Ctx} from 'zenbaei-js-lib/react';
 import {AppThemeInterface} from 'zenbaei-js-lib/constants';
@@ -18,8 +18,8 @@ interface UserProps {
   language: Language;
 }
 
-export const initialValue: UserProps = {
-  cart: [],
+const initialValue: UserProps = {
+  cart: [{bookId: '1', amount: 2} as Cart],
   favs: [],
   setCart: () => {},
   setFavs: () => {},
