@@ -24,7 +24,7 @@ global.FileLog = (msg: string | object) => {
   FileLogger.error(msg as string);
 };
 
-global.LogLevel = 'Debug';
+global.LogLevel = 'debug';
 
 const App = (): ReactNode => {
   return (

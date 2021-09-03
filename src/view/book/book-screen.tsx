@@ -1,14 +1,16 @@
 import {Book} from 'domain/book/book';
 import React, {useCallback, useContext, useState} from 'react';
-import {FlatList} from 'react-native';
+import {FlatList, StyleSheet} from 'react-native';
 import {Grid, NavigationProps, Text, Row} from 'zenbaei-js-lib/react';
 import {NavigationScreens} from 'constants/navigation-screens';
 import Snackbar from 'react-native-paper/src/components/Snackbar';
 import {
   findBook,
-  calculateMaxPageSize,
   loadBooks,
-  searchBooks,
+  searchBooksProjected,
+  loadSearchedBooks,
+  loadFirstSearchedBooksPageAndCalcTotalPageNumber,
+  loadFirstBooksPageAndCalcTotalPagesNumber,
 } from './book-screen-actions';
 import {UserContext} from 'user-context';
 import {useFocusEffect} from '@react-navigation/native';
@@ -22,20 +24,26 @@ export function BookScreen({
   route,
 }: NavigationProps<NavigationScreens, 'bookScreen'>) {
   const [books, setBooks] = useState([] as Book[]);
-  const subGenre = route.params.subGenre;
+  const subGenre = route.params?.subGenre;
   const [page, setPage] = useState(0);
+  const [maxPageNumber, setMaxPageNumber] = useState(1);
   const [animating, setAnimating] = useState(false);
-  const [maxPageSize, setMaxPageSize] = useState(1);
   const {cart, msgs, theme, language} = useContext(UserContext);
   const [snackBarMsg, setSnackBarMsg] = useState('');
+  const [searchToken, setSearchToken] = useState('');
   const [isSnackBarVisible, setSnackBarVisible] = useState(false);
+  const minSearchTextLength: number = 2;
 
   useFocusEffect(
     useCallback(() => {
-      resetBooks();
-      calculateMaxPageSize(subGenre).then((val) => {
-        setMaxPageSize(val);
-      });
+      loadFirstBooksPageAndCalcTotalPagesNumber(
+        subGenre,
+        (result, totalPagesNumber) => {
+          setMaxPageNumber(totalPagesNumber);
+          setBooks(result);
+          setPage(1);
+        },
+      );
     }, [subGenre]),
   );
 
@@ -57,27 +65,36 @@ export function BookScreen({
     navigation.navigate('bookDetailsScreen', book);
   };
 
-  const resetBooks = () => {
-    loadBooks(subGenre?.nameEn, 0).then((bks) => {
-      setBooks(bks);
-      setPage(1);
-    });
-  };
-
-  const loadNextBooks = () => {
-    if (page === maxPageSize) {
+  const loadNextPage = async () => {
+    let result: Book[];
+    if (page === maxPageNumber) {
       return;
     }
     setAnimating(true);
-    loadBooks(subGenre?.nameEn, page).then((bks) => {
-      const arr = [...books, ...bks];
-      setBooks(arr);
-      setPage(page + 1);
-      setAnimating(false);
-    });
+    if (searchToken.length > 0) {
+      result = await loadSearchedBooks(searchToken, page);
+    } else {
+      const bks = await loadBooks(subGenre?.nameEn, page);
+      result = [...books, ...bks];
+    }
+    setBooks(result);
+    setPage(page + 1);
+    setAnimating(false);
   };
 
-  const _updateBookList = (book: Book) => {
+  const onBlurHandler = async (text: string) => {
+    setSearchToken(text);
+    loadFirstSearchedBooksPageAndCalcTotalPageNumber(
+      text,
+      (result, totalPagesNumber) => {
+        setBooks(result);
+        setMaxPageNumber(totalPagesNumber);
+        setPage(1);
+      },
+    );
+  };
+
+  const _replaceStaleBook = (book: Book) => {
     const bks = books.map((bk) => (bk._id === book._id ? book : bk));
     setBooks(bks);
   };
@@ -92,17 +109,19 @@ export function BookScreen({
     <Grid testID="grid">
       <Row>
         <SearchBar
+          minLength={minSearchTextLength}
           onChangeText={async (text) => {
-            const result = await searchBooks(text);
+            const result = await searchBooksProjected(text);
             return result.map((bk) => ({value: bk._id, label: bk.name}));
           }}
           onSelectItem={async (id: string) => {
             const book = await findBook(id);
-            navigateToBookDetails(book);
+            setBooks([book]);
           }}
+          onBlur={onBlurHandler}
         />
         <Text
-          style={{fontWeight: 'bold'}}
+          style={styles.boldText}
           text={
             isEmpty(subGenre?.nameEn)
               ? msgs.newArrivals
@@ -115,20 +134,20 @@ export function BookScreen({
         {books?.length > 0 ? (
           <FlatList
             testID="flatList"
-            style={{alignSelf: 'center'}}
+            style={styles.centerSelf}
             scrollEnabled
             numColumns={2}
             data={books}
             keyExtractor={(item) => item._id}
-            onEndReached={loadNextBooks}
-            onEndReachedThreshold={0.2}
+            onEndReached={loadNextPage}
+            onEndReachedThreshold={0.1}
             ListFooterComponent={renderFooter}
             renderItem={({item}) => (
               <BookComponent
                 book={item}
                 onPressImg={navigateToBookDetails}
-                updateBookList={(book: Book) => {
-                  _updateBookList(book);
+                replaceStaleBook={(book: Book) => {
+                  _replaceStaleBook(book);
                 }}
                 showSnackBar={(msg) => {
                   setSnackBarVisible(true);
@@ -139,7 +158,8 @@ export function BookScreen({
           />
         ) : (
           <Text
-            text={msgs.noBooksAvailable}
+            testID={'noResultFound'}
+            text={msgs.noResultFound}
             align="center"
             style={{color: theme.mediumEmphasis}}
           />
@@ -154,3 +174,8 @@ export function BookScreen({
     </Grid>
   );
 }
+
+const styles = StyleSheet.create({
+  centerSelf: {alignSelf: 'center'},
+  boldText: {fontWeight: 'bold'},
+});

@@ -14,7 +14,7 @@ class BookService extends MongoHttpService<Book> {
     skip: number = 0,
     limit: number = 0,
   ): Promise<Book[]> => {
-    const book: any = {newArrivals: true, availableCopies: {$gt: 0}};
+    const book: any = {newArrivals: true, inventory: {$gt: 0}};
     return this.findAll(book, undefined, skip, limit);
   };
 
@@ -23,7 +23,7 @@ class BookService extends MongoHttpService<Book> {
     skip: number = 0,
     limit: number = 0,
   ): Promise<Book[]> => {
-    const book: any = {genre: genre, availableCopies: {$gt: 0}};
+    const book: any = {genre: genre, inventory: {$gt: 0}};
     return this.findAll(book, undefined, skip, limit);
   };
 

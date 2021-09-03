@@ -41,5 +41,6 @@ export const messagesEn: MessagesInterface = {
   noBooksAvailable: 'No books available under this category at the moment',
   sorryInventoryChanged:
     'Sorry the inventory has been changed while you were online',
+  noResultFound: 'No result found',
   getKeyAtRuntime: (key: string) => messagesEn[key] as string,
 };

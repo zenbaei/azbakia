@@ -9,8 +9,7 @@
     "test": "jest",
     "lint": "eslint .",
     "clean": ".scripts/clean.sh",
-    "install-zenbaei": "rm -rf node_modules/zenbaei-js-lib; git clone git@github.com:zenbaei/zenbaei-js-lib.git node_modules/zenbaei-js-lib",
-    "install-zenbaei/@types": "rm -rf node_modules/@types/zenbaei-js-lib; git clone git@github.com:zenbaei/zenbaei-js-lib-types.git node_modules/@types/zenbaei-js-lib"
+    "install-zenbaei": "rm -rf node_modules/zenbaei-js-lib; git clone git@github.com:zenbaei/zenbaei-js-lib.git node_modules/zenbaei-js-lib; rm -rf node_modules/@types/zenbaei-js-lib; git clone git@github.com:zenbaei/zenbaei-js-lib-types.git node_modules/@types/zenbaei-js-lib"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.32",
@@ -37,6 +36,7 @@
     "@babel/core": "^7.8.4",
     "@babel/runtime": "^7.8.4",
     "@react-native-community/eslint-config": "^1.1.0",
+    "@testing-library/jest-native": "^4.0.2",
     "@testing-library/react-native": "^7.1.0",
     "@types/jest": "^26.0.14",
     "@types/node": "^14.14.5",

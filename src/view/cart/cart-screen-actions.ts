@@ -16,12 +16,12 @@ export const loadCartBooksVOs = async (cart: Cart[]): Promise<CartBookVO[]> => {
   const bookIds = cart.map((car) => car.bookId);
   const books: Book[] = await bookService.findAllByIds({$in: bookIds});
   return books.map((bk) => {
-    const car = cart.find((val) => val.bookId === bk._id);
-    const price = (car?.amount as number) * bk.price;
+    const crt = cart.find((val) => val.bookId === bk._id);
+    const price = crt ? crt.amount * bk.price : bk.price;
     return new CartBookVO(
       bk._id,
       bk.name,
-      car?.amount as number,
+      crt ? crt.amount : 1,
       price,
       bk.imageFolderName,
       bk.inventory,

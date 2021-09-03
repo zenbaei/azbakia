@@ -6,7 +6,7 @@ module.exports = {
   ],
   testMatch: ['**/__tests__/**/*.spec.*', '**/__tests__/**/*.it.ts'],
   setupFiles: [
-    './__tests__/setup.js',
+    './__tests__/setupEnv.js',
     './node_modules/react-native-gesture-handler/jestSetup.js',
   ],
   globals: {

@@ -5,7 +5,7 @@ import {Cart} from 'domain/user/user';
 import {userService} from 'domain/user/user-service';
 import {AppThemeInterface} from 'zenbaei-js-lib/constants';
 import {modificationResult} from 'zenbaei-js-lib/types';
-import {isEmpty, Logger} from 'zenbaei-js-lib/utils';
+import {isEmpty} from 'zenbaei-js-lib/utils';
 import {pageSize} from '../../../app.config';
 
 export const getIconColor = (
@@ -14,9 +14,9 @@ export const getIconColor = (
   theme: AppThemeInterface,
 ): string => {
   if (ids.find((val) => val === id)) {
-    return theme.primary;
+    return theme.secondary;
   }
-  return theme.secondary;
+  return theme.primary;
 };
 
 export const _pushOrPopCart = (bookId: string, cart: Cart[]): Cart[] => {
@@ -105,18 +105,51 @@ export const loadBooks = (subGenre: string, page: number): Promise<Book[]> => {
     : bookService.findByGenre(subGenre, page * pageSize, pageSize);
 };
 
-export const calculateMaxPageSize = async (
+/**
+ * Loads books respecting the page size
+ * @param genre
+ * @param clb
+ */
+export const loadFirstBooksPageAndCalcTotalPagesNumber = async (
   genre: SubGenre,
-): Promise<number> => {
-  Logger.debug('book-screen-actions', 'calculateMaxPageSize');
+  clb: (result: Book[], totalPagesNumber: number) => void,
+): Promise<void> => {
   const result = isEmpty(genre?.nameEn)
     ? await bookService.findByNewArrivals()
     : await bookService.findByGenre(genre.nameEn);
-  return Math.ceil(result.length / pageSize);
+  let resultPerPageSize =
+    result.length >= pageSize ? result.slice(0, pageSize) : result;
+  clb(resultPerPageSize, Math.ceil(result.length / pageSize));
 };
 
-export const searchBooks = async (name: string): Promise<Book[]> => {
-  return bookService.findAllLike('name', name);
+export const loadFirstSearchedBooksPageAndCalcTotalPageNumber = async (
+  searchToken: string,
+  clb: (result: Book[], totalPagesNumber: number) => void,
+): Promise<void> => {
+  const result = await bookService.findAllLike('name', searchToken, true);
+  let resultPerPageSize =
+    result.length >= pageSize ? result.slice(0, pageSize) : result;
+  clb(resultPerPageSize, Math.ceil(result.length / pageSize));
+};
+
+export const searchBooksProjected = async (name: string): Promise<Book[]> => {
+  return bookService.findAllLike('name', name, true, {
+    projection: {_id: 1, name: 1},
+  });
+};
+
+export const loadSearchedBooks = async (
+  name: string,
+  page: number,
+): Promise<Book[]> => {
+  return bookService.findAllLike(
+    'name',
+    name,
+    true,
+    undefined,
+    page * pageSize,
+    pageSize,
+  );
 };
 
 export type cartCallback = (modifiedCart: Cart[]) => void;

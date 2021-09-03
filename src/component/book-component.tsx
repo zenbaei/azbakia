@@ -19,12 +19,12 @@ import {staticFileUrl, imagesNames} from '../../app.config';
 export const BookComponent = ({
   book,
   onPressImg,
-  updateBookList,
+  replaceStaleBook,
   showSnackBar,
 }: {
   book: Book;
   onPressImg?: (book: Book) => void;
-  updateBookList: (book: Book) => void;
+  replaceStaleBook: (book: Book) => void;
   showSnackBar: (msg: string) => void;
 }) => {
   const {cart, setCart, favs, setFavs, msgs, theme} = useContext(UserContext);
@@ -42,7 +42,7 @@ export const BookComponent = ({
     if (bk.inventory < 1) {
       // stale data
       Alert.alert(msgs.sorryBookNotAvailable);
-      updateBookList(bk);
+      replaceStaleBook(bk);
       return;
     }
     addOrRmvFrmCart(bk, cart, addOrRmv, (modifiedCart) => {
@@ -51,13 +51,13 @@ export const BookComponent = ({
         ? showSnackBar(msgs.addedToCart)
         : showSnackBar(msgs.removedFromCart);
       findBook(id).then((bok) => {
-        updateBookList(bok);
+        replaceStaleBook(bok);
       });
     });
   };
 
   return (
-    <Card width="47%">
+    <Card width="auto">
       <TouchableHighlight
         disabled={false}
         testID="touchable"
@@ -98,6 +98,7 @@ export const BookComponent = ({
         />
       ) : (
         <Button
+          disabled={book.inventory > 0 ? false : true}
           testID={'addToCartBtn'}
           style={styles.addToCartBtn}
           label={msgs.addToCart}

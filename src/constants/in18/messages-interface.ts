@@ -39,6 +39,7 @@ export interface MessagesInterface {
   sorryBookNotAvailable: string;
   noBooksAvailable: string;
   sorryInventoryChanged: string;
+  noResultFound: string;
   getKeyAtRuntime: (key: string) => string;
 }
 

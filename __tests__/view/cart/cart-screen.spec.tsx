@@ -5,7 +5,6 @@ import {CartScreen} from '../../../src/view/cart/cart-screen';
 import * as actions from '../../../src/view/cart/cart-screen-actions';
 import {CartBookVO} from '../../../src/view/cart/cart-book-vo';
 import {Picker} from 'zenbaei-js-lib/react';
-import * as bookScreenActions from '../../../src/view/book/book-screen-actions';
 import {bookService} from '../../../src/domain/book/book-service';
 import {userService} from '../../../src/domain/user/user-service';
 import {Book} from '../../../src/domain/book/book';
@@ -33,11 +32,18 @@ const updateCartSpy = jest
   .spyOn(userService, 'updateCart')
   .mockResolvedValue({modified: 1});
 
+const removeFromCartSpy = jest.spyOn(actions, 'removeFromCart');
+
+afterEach(() => {
+  updateInventorySpy.mockClear();
+  updateCartSpy.mockClear();
+});
+
 test(`Giving a book is added to cart,
     When displaying the cart's book amount,
     Then it should select this amount number from the drop-down list`, async () => {
   const {UNSAFE_getAllByType} = render(
-    <MockedNavigator screen1={CartScreen} />,
+    <MockedNavigator screen1={CartScreen} cart={[cart1]} />,
   );
   expect.assertions(1);
   await waitFor(async () => {
@@ -205,16 +211,15 @@ test(`Given the invetory is 3 and the cart amount is 1,
   });
 });
 
-test.only(`Given the invetory has as stale data of 3 while the actual is 1 and the cart amount is 1,
+test(`Given the invetory has as stale data of 3 while the actual is 1 and the cart amount is 1,
   When the user request another 2 copies, 
-  Then no services should be called and the view should be updated to have only 1 in the drop down list`, async () => {
+  Then no services should be called and the view should be updated to have only 2 in the drop down list`, async () => {
   let dropDown: any;
   jest
     .spyOn(bookService, 'findOne')
     .mockImplementationOnce(() =>
       Promise.resolve({_id: '1', inventory: 1} as Book),
     );
-
   const {UNSAFE_getAllByType} = render(
     <MockedNavigator screen1={CartScreen} cart={[cart1]} />,
   );
@@ -226,8 +231,8 @@ test.only(`Given the invetory has as stale data of 3 while the actual is 1 and t
   });
   act(() => {
     expect(updateInventorySpy).not.toBeCalled();
-    expect(dropDown[0].props.data.length).toBe(1);
-    expect(dropDown[0].props.selectedValue).toBe(1);
+    expect(dropDown[0].props.data.length).toBe(2);
+    expect(dropDown[0].props.selectedValue).toBe('1');
   });
 });
 
@@ -237,10 +242,43 @@ test(`Given the invetory has as stale data of 3 while the actual is 0 and the ca
   jest
     .spyOn(bookService, 'findOne')
     .mockImplementationOnce(() =>
-      Promise.resolve({_id: '1', inventory: 1} as Book),
+      Promise.resolve({_id: '1', inventory: 0} as Book),
     );
+  const {UNSAFE_getByType} = render(
+    <MockedNavigator screen1={CartScreen} cart={[cart1]} />,
+  );
+  expect.assertions(3);
+  await waitFor(async () => {
+    const btn = UNSAFE_getByType(IconButton);
+    await fireEvent.press(btn);
+    expect(removeFromCartSpy).toBeCalled();
+  });
+  act(() => {
+    expect(updateInventorySpy).toBeCalledWith('1', 1);
+    expect(updateCartSpy).toBeCalledWith('1', []);
+  });
 });
 
 test(`Given the invetory has 0 copies and the cart amount is 1,
   When the cart is displayed, 
-  Then it should has only 1 item in the drop down`, () => {});
+  Then it should has only 1 item in the drop down`, async () => {
+  jest
+    .spyOn(actions, 'loadCartBooksVOs')
+    .mockImplementationOnce(() =>
+      Promise.resolve([{_id: '1', inventory: 0, amount: 1}] as CartBookVO[]),
+    );
+
+  const {UNSAFE_getAllByType} = render(
+    <MockedNavigator screen1={CartScreen} cart={[cart1]} />,
+  );
+  expect.assertions(2);
+  await waitFor(async () => {
+    const dropDown = UNSAFE_getAllByType(Picker);
+    expect(dropDown[0].props.data.length).toBe(1);
+    expect(dropDown[0].props.selectedValue).toBe('1');
+  });
+});
+
+test.todo(
+  `test changing amount relation with item price and total calculatino`,
+);

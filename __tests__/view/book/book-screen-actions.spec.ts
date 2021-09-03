@@ -53,7 +53,7 @@ test(`Giving cart array is provided, When the item doesn't exist,
   const cart = [];
   const result = actions._pushOrPopCart('test', cart);
   expect.assertions(1);
-  expect(result).toEqual([{bookId: 'test', requestedCopies: 1} as Cart]);
+  expect(result).toEqual([{bookId: 'test', amount: 1} as Cart]);
 });
 
 test(`Given cart array is provided, When adding to cart, 
@@ -62,7 +62,7 @@ test(`Given cart array is provided, When adding to cart,
   const updateAvlCopiesSpy = jest
     .spyOn(bookService, 'updateInventory')
     .mockResolvedValue(modified);
-  const cart: Cart[] = [{bookId: 'b1', requestedCopies: 2}];
+  const cart: Cart[] = [{bookId: 'b1', amount: 2}];
   const book: Book = {_id: '100', name: 'b1', inventory: 1} as Book;
   expect.assertions(3);
   await actions.addOrRmvFrmCart(book, cart, 1, (newCart) =>
@@ -75,13 +75,13 @@ test(`Given cart array is provided, When adding to cart,
 test(`Giving cart array is provided, When the item already exist in cart and readded(remove button),
   Then it should remove the item from the array`, () => {
   const cart: Cart[] = [
-    {bookId: 'b1', requestedCopies: 1},
-    {bookId: 'b2', requestedCopies: 2},
+    {bookId: 'b1', amount: 1},
+    {bookId: 'b2', amount: 2},
   ] as Cart[];
   const result = actions._pushOrPopCart('b2', cart);
   expect.assertions(2);
   expect(result.length).toBe(1);
-  expect(result[0]).toEqual({bookId: 'b1', requestedCopies: 1} as Cart);
+  expect(result[0]).toEqual({bookId: 'b1', amount: 1} as Cart);
 });
 
 test(`Given cart array is provided, When removing from cart, 
@@ -90,7 +90,7 @@ test(`Given cart array is provided, When removing from cart,
   const bookServiceSpy = jest
     .spyOn(bookService, 'updateInventory')
     .mockResolvedValue({modified: 1});
-  const cart: Cart[] = [{bookId: 'b1', requestedCopies: 2}];
+  const cart: Cart[] = [{bookId: 'b1', amount: 2}];
   const book: Book = {_id: 'b1', inventory: 1} as Book;
   expect.assertions(3);
   await actions.addOrRmvFrmCart(book, cart, -1, (cartItems) => {
@@ -98,4 +98,32 @@ test(`Given cart array is provided, When removing from cart,
   });
   expect(updateCartSpy).toBeCalledTimes(1);
   expect(bookServiceSpy).toBeCalledWith(book._id, 2);
+});
+
+test(`Given a find result is provided less than the page size, When calculating the max page number,
+  Then it should be one`, async () => {
+  expect.assertions(1);
+  jest
+    .spyOn(bookService, 'findByNewArrivals')
+    .mockResolvedValue([{_id: '1'}, {_id: '2'}] as Book[]);
+  await actions.loadFirstBooksPageAndCalcTotalPagesNumber(
+    undefined,
+    (result, pageNum) => {
+      expect(pageNum).toBe(1);
+    },
+  );
+});
+
+test.only(`Given a find result is provided greater than the page size, When calculating the max page number,
+  Then it should be 2`, async () => {
+  expect.assertions(1);
+  jest
+    .spyOn(bookService, 'findByNewArrivals')
+    .mockResolvedValue([{_id: '1'}, {_id: '2'}, {}, {}, {}, {}, {}] as Book[]);
+  await actions.loadFirstBooksPageAndCalcTotalPagesNumber(
+    undefined,
+    (result, pageNum) => {
+      expect(pageNum).toBe(2);
+    },
+  );
 });

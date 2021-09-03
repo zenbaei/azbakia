@@ -4,8 +4,6 @@ import {MongoHttpService} from 'zenbaei-js-lib/utils';
 import {Cart, User} from './user';
 import {modificationResult} from 'zenbaei-js-lib/types';
 
-const moduleName: string = 'user-service';
-
 class UserService extends MongoHttpService<User> {
   constructor() {
     super(mongoRestApi, DbCollectionNames.users);

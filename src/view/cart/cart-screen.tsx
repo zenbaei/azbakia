@@ -1,7 +1,7 @@
 import {NavigationScreens} from 'constants/navigation-screens';
 import {getStyles} from 'constants/styles';
 import React, {useCallback, useContext, useState} from 'react';
-import {Alert, Image} from 'react-native';
+import {Alert, Image, View} from 'react-native';
 import {
   Button,
   Card,
@@ -10,6 +10,7 @@ import {
   NavigationProps,
   Text,
   Picker,
+  Col,
 } from 'zenbaei-js-lib/react';
 import {imagesNames, staticFileUrl} from '../../../app.config';
 import Snackbar from 'react-native-paper/src/components/Snackbar';
@@ -72,14 +73,18 @@ export function CartScreen({
     updateAmount(book, cart, oldAmount, newAmount, (crt) => setCart(crt));
   };
 
-  const _removeFromCart = async (bookId: string) => {
-    removeFromCart(bookId, cart, (crt) => setCart(crt));
+  const _removeFromCart = (bookId: string) => {
+    removeFromCart(bookId, cart, (crt) => {
+      setCart(crt);
+      setSnackBarVisible(true);
+      setSnackBarMsg(msgs.removedFromCart);
+    });
   };
 
   const _updateListedBookInventory = (book: Book) => {
     const cartVOs = cartBooksVOs.map((vo) => {
       if (vo._id === book._id) {
-        vo.inventory = book.inventory + vo.amount;
+        vo.inventory = book.inventory;
       }
       return vo;
     });
@@ -88,62 +93,66 @@ export function CartScreen({
 
   return (
     <Grid>
-      <Row>
-        <FlatList
-          data={cartBooksVOs}
-          numColumns={1}
-          keyExtractor={(item) => item._id}
-          renderItem={({item}) => {
-            return (
-              <Card key={item.name}>
-                <Image
-                  source={{
-                    uri: `${staticFileUrl}/${item.imageFolderName}/${imagesNames[0]}`,
-                  }}
-                  style={styles.image}
-                />
-                <Text text={item.name} />
-                <Text text={item.price} />
-                <Text
-                  style={{...styles.bold, ...styles.price}}
-                  text={`${msgs.amount}: ${item.amount}`}
-                />
-                <Picker
-                  data={flatenNumberToArray(item.inventory + item.amount)}
-                  selectedValue={String(item.amount)}
-                  key={item._id}
-                  onValueChange={(val) =>
-                    _updateAmount(item._id, item.amount, Number(val))
-                  }
-                />
-                <IconButton
-                  icon={'delete'}
-                  color={theme.primary}
-                  onPress={() => _removeFromCart(item._id)}
-                />
-              </Card>
-            );
-          }}
-        />
-        {cart.length > 0 ? (
+      {cart.length > 0 ? (
+        <Row>
+          <FlatList
+            data={cartBooksVOs}
+            numColumns={1}
+            keyExtractor={(item) => item._id}
+            renderItem={({item}) => {
+              return (
+                <Card key={item.name}>
+                  <Image
+                    source={{
+                      uri: `${staticFileUrl}/${item.imageFolderName}/${imagesNames[0]}`,
+                    }}
+                    style={styles.image}
+                  />
+                  <Text text={item.name} />
+                  <Text text={item.price} />
+                  <View style={{flexDirection: 'row'}}>
+                    <Text style={{...styles.bold}} text={`${msgs.amount}: `} />
+                    <Picker
+                      width={'30%'}
+                      data={flatenNumberToArray(item.inventory + item.amount)}
+                      selectedValue={String(item.amount)}
+                      key={item._id}
+                      onValueChange={(val) =>
+                        _updateAmount(item._id, item.amount, Number(val))
+                      }
+                    />
+                  </View>
+                  <IconButton
+                    icon={'delete'}
+                    color={theme.primary}
+                    onPress={() => _removeFromCart(item._id)}
+                  />
+                </Card>
+              );
+            }}
+          />
           <Text
             align="right"
             text={`${msgs.total}: ${calculateSum(cartBooksVOs)}`}
           />
-        ) : (
-          <Text align="center" text={msgs.emptyCart} />
-        )}
-        <Button
-          label={msgs.continue}
-          onPress={() => navigation.navigate('deliveryScreen', {})}
-        />
-        <Snackbar
-          duration={5000}
-          visible={isSnackBarVisible}
-          onDismiss={() => setSnackBarVisible(false)}>
-          {snackBarMsg}
-        </Snackbar>
-      </Row>
+          <Button
+            label={msgs.continue}
+            onPress={() => navigation.navigate('deliveryScreen', {})}
+          />
+          <Snackbar
+            duration={5000}
+            visible={isSnackBarVisible}
+            onDismiss={() => setSnackBarVisible(false)}>
+            {snackBarMsg}
+          </Snackbar>
+        </Row>
+      ) : (
+        <Row verticalAlignment={'space-around'}>
+          <Col horizontalAlignment={'center'}>
+            <Text text={msgs.emptyCart} />
+          </Col>
+        </Row>
+      )}
     </Grid>
   );
 }
