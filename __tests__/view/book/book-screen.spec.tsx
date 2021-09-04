@@ -7,11 +7,12 @@ import {Card, Fab} from 'zenbaei-js-lib/react';
 import {Book} from '../../../src/domain/book/book';
 import * as bookScreenActions from '../../../src/view/book/book-screen-actions';
 import {DarkTheme} from 'zenbaei-js-lib/constants';
-import {DrawerLike} from '../../stubs/drawer-like';
+import {DrawerMock} from '../../stubs/drawer-mock';
 import {act} from 'react-test-renderer';
 import {userService} from '../../../src/domain/user/user-service';
 import {messagesEn} from '../../../src/constants/in18/messages-en';
 import '@testing-library/jest-native/extend-expect';
+import {pageSize} from '../../../app.config';
 
 /*
 const eventData = {
@@ -91,7 +92,9 @@ beforeEach(() => {
 test(`Given bookService is mocked, When view is rendred, 
   Then it should have a number of Item components`, async () => {
   expect.assertions(1);
-  const {getAllByTestId} = render(<MockedNavigator screen1={BookScreen} />);
+  const {getAllByTestId} = render(
+    <MockedNavigator screens={[{name: 'bookScreen', component: BookScreen}]} />,
+  );
   await waitFor(() =>
     expect(getAllByTestId('touchable').length).toBe(books.length),
   );
@@ -101,7 +104,7 @@ test(`Given books are loaded for display, When adding a book to favourite,
     Then it should change its color to secondary`, async () => {
   expect.assertions(4);
   const {UNSAFE_getAllByType} = render(
-    <MockedNavigator screen1={BookScreen} />,
+    <MockedNavigator screens={[{name: 'bookScreen', component: BookScreen}]} />,
   );
   await waitFor(async () => {
     const fab = UNSAFE_getAllByType(Card)[0].findByType(Fab);
@@ -118,7 +121,10 @@ test(`Given a book is included in favourites, When displaying this book favourit
     Then it should have secondary color`, async () => {
   expect.assertions(1);
   const {UNSAFE_getAllByType} = render(
-    <MockedNavigator screen1={BookScreen} favs={['1']} />,
+    <MockedNavigator
+      screens={[{name: 'bookScreen', component: BookScreen}]}
+      favs={['1']}
+    />,
   );
   await waitFor(async () => {
     const fab = UNSAFE_getAllByType(Card)[0].findByType(Fab);
@@ -148,7 +154,9 @@ test(`Given services are mocked, When adding to cart a stale book that is not av
     } as Book),
   );
   expect.assertions(4);
-  const {getAllByTestId} = render(<MockedNavigator screen1={BookScreen} />);
+  const {getAllByTestId} = render(
+    <MockedNavigator screens={[{name: 'bookScreen', component: BookScreen}]} />,
+  );
   await waitFor(async () => {
     expect(getAllByTestId('addToCartBtn').length).toBeGreaterThan(1);
     const addToCartBtn = getAllByTestId('addToCartBtn')[0];
@@ -159,12 +167,14 @@ test(`Given services are mocked, When adding to cart a stale book that is not av
   });
 });
 
-test.todo(`test alert when book is not available`);
+test.todo(`test alert when stale displayed book becomes not available`);
 
 test(`Given services are mocked, When adding a book to cart,
   Then addToCart func should be called and this book available copies should be decremented`, async () => {
   expect.assertions(2);
-  const {getAllByTestId} = render(<MockedNavigator screen1={BookScreen} />);
+  const {getAllByTestId} = render(
+    <MockedNavigator screens={[{name: 'bookScreen', component: BookScreen}]} />,
+  );
   await waitFor(async () => {
     const addToCartBtn = getAllByTestId('addToCartBtn')[0];
     await fireEvent.press(addToCartBtn);
@@ -196,7 +206,9 @@ test(`Given services are mocked,
     .spyOn(bookService, 'findOne')
     .mockImplementation(() => Promise.resolve(bk));
   expect.assertions(3);
-  const {getAllByTestId} = render(<MockedNavigator screen1={BookScreen} />);
+  const {getAllByTestId} = render(
+    <MockedNavigator screens={[{name: 'bookScreen', component: BookScreen}]} />,
+  );
   await waitFor(async () => {
     expect(getAllByTestId('copies')[0].props.children).toContain('2');
     const addToCartBtn = getAllByTestId('addToCartBtn')[0];
@@ -217,7 +229,9 @@ test(`Given services are mocked,
   When adding a book to cart then removing it,
   Then book's available copies should be decremented then incremented`, async () => {
   expect.assertions(3);
-  const {getAllByTestId} = render(<MockedNavigator screen1={BookScreen} />);
+  const {getAllByTestId} = render(
+    <MockedNavigator screens={[{name: 'bookScreen', component: BookScreen}]} />,
+  );
   await waitFor(async () => {
     expect(getAllByTestId('copies')[0].props.children).toContain('2');
     const addToCartBtn = getAllByTestId('addToCartBtn')[0];
@@ -237,42 +251,57 @@ test(`Given services are mocked, When rendering page,
   Then paging should have value of zero then incremented by 1 
   without passing the max page size which is 2`, async () => {
   expect.assertions(5);
-  const loadBooksSpy = jest.spyOn(bookScreenActions, 'loadBooks');
+  const loadBooksByPageSpy = jest.spyOn(bookScreenActions, 'loadBooksByPage');
   const {getByTestId, getAllByTestId} = render(
-    <MockedNavigator screen1={BookScreen} />,
+    <MockedNavigator screens={[{name: 'bookScreen', component: BookScreen}]} />,
   );
   await waitFor(async () => {
     expect(getAllByTestId('touchable').length).toBe(3);
     await getByTestId('flatList').props.onEndReached(); //fireEvent.scroll(getByTestId('flatList'), eventData);
-    expect(loadBooksSpy).toBeCalledWith(undefined, 1);
+    expect(loadBooksByPageSpy).toBeCalledWith(undefined, 1);
     expect(getAllByTestId('touchable').length).toBe(6);
     //it shouldn't change after the next call
     await getByTestId('flatList').props.onEndReached();
     expect(getAllByTestId('touchable').length).toBe(6);
-    expect(loadBooksSpy).toBeCalledTimes(1);
+    expect(loadBooksByPageSpy).toBeCalledTimes(1);
   });
 });
 
-test.only(`Given services are mocked, When rendering page and switching Genres, 
+test(`Given services are mocked, When rendering page and switching Genres, 
   Then paging should be reset`, async () => {
-  expect.assertions(5);
-  const loadBooksSpy = jest.spyOn(bookScreenActions, 'loadBooks');
+  expect.assertions(6);
+  const loadFirstBooksPageSpy = jest
+    .spyOn(bookScreenActions, 'loadFirstBooksPageAndCalcTotalPagesNumber')
+    .mockImplementationOnce((genere, clb) => {
+      clb(books, 2);
+      return Promise.resolve();
+    });
+  const loadBooksByPageSpy = jest.spyOn(bookScreenActions, 'loadBooksByPage');
+
   const {getByTestId, getAllByTestId} = render(
-    <MockedNavigator screen1={DrawerLike} screen2={BookScreen} />,
+    <MockedNavigator
+      screens={[
+        {name: 'drawerNavigator', component: DrawerMock},
+        {name: 'bookScreen', component: BookScreen},
+      ]}
+    />,
   );
   await waitFor(async () => {
+    await fireEvent.press(getByTestId('hadith'));
     expect(getAllByTestId('touchable').length).toBe(3);
-    await getByTestId('flatList').props.onEndReached();
+    expect(loadFirstBooksPageSpy).toBeCalledWith('hadith', expect.anything());
   });
 
   await act(async () => {
-    expect(loadBooksSpy).toBeCalledWith(undefined, 1);
     await fireEvent.press(getByTestId('fiqh'));
   });
 
-  act(() => {
-    expect(loadBooksSpy).toBeCalledWith('fiqh', 1);
-    expect(findByGenreSpy).toBeCalledWith('fiqh', 1, expect.anything());
+  await act(async () => {
+    expect(loadFirstBooksPageSpy).toBeCalledWith('fiqh', expect.anything());
+    expect(getAllByTestId('touchable').length).toBe(3);
+    await getByTestId('flatList').props.onEndReached();
+    expect(loadBooksByPageSpy).toBeCalledWith('fiqh', 1);
+    expect(findByGenreSpy).toBeCalledWith('fiqh', 1 * pageSize, pageSize);
   });
 });
 
@@ -280,7 +309,7 @@ test(`Given services are mocked, When adding to cart,
   Then the button should change to remove from cart`, async () => {
   expect.assertions(1);
   const {getByTestId, getAllByTestId} = render(
-    <MockedNavigator screen1={BookScreen} />,
+    <MockedNavigator screens={[{name: 'bookScreen', component: BookScreen}]} />,
   );
   await waitFor(async () => {
     const btn = getAllByTestId('addToCartBtn')[0];
@@ -307,7 +336,9 @@ test(`Given search text is entered and result exists, When user taps outside,
     clb(searchResult, 1);
     return Promise.resolve();
   });
-  const {getByTestId} = render(<MockedNavigator screen1={BookScreen} />);
+  const {getByTestId} = render(
+    <MockedNavigator screens={[{name: 'bookScreen', component: BookScreen}]} />,
+  );
   let flatList: any;
   await waitFor(async () => {
     flatList = getByTestId('flatList');
@@ -333,7 +364,9 @@ test(`Given search text is entered that has no result, When user taps outside,
     clb(searchResult, 0);
     return Promise.resolve();
   });
-  const {getByTestId} = render(<MockedNavigator screen1={BookScreen} />);
+  const {getByTestId} = render(
+    <MockedNavigator screens={[{name: 'bookScreen', component: BookScreen}]} />,
+  );
   let flatList: any;
   await waitFor(async () => {
     flatList = getByTestId('flatList');
@@ -361,7 +394,9 @@ test(`Given search text is just tapped on or a space is entered, When user taps 
     clb(searchResult, 1);
     return Promise.resolve();
   });
-  const {getByTestId} = render(<MockedNavigator screen1={BookScreen} />);
+  const {getByTestId} = render(
+    <MockedNavigator screens={[{name: 'bookScreen', component: BookScreen}]} />,
+  );
   let flatList: any;
   await waitFor(async () => {
     flatList = getByTestId('flatList');

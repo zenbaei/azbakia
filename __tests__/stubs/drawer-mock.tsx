@@ -1,11 +1,9 @@
 import React from 'react';
 import {Button, NavigationProps} from 'zenbaei-js-lib/react';
 import {NavigationScreens} from '../../src/constants/navigation-screens';
-import {BookScreen} from '../../src/view/book/book-screen';
-export const DrawerLike = ({
+export const DrawerMock = ({
   navigation,
-  route,
-}: NavigationProps<NavigationScreens, 'bookScreen'>) => {
+}: NavigationProps<NavigationScreens, 'drawerNavigator'>) => {
   return (
     <>
       <Button
@@ -22,7 +20,6 @@ export const DrawerLike = ({
           navigation.navigate('bookScreen', {subGenre: {nameEn: 'fiqh'}})
         }
       />
-      <BookScreen navigation={navigation} route={route} />
     </>
   );
 };

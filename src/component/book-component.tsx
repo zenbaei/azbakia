@@ -1,6 +1,7 @@
 import {getStyles} from 'constants/styles';
 import {Book} from 'domain/book/book';
 import React, {useContext} from 'react';
+import {ViewStyle} from 'react-native';
 import {Alert, Image, TouchableHighlight, View} from 'react-native';
 import {UserContext} from 'user-context';
 import {
@@ -10,25 +11,31 @@ import {
   findBook,
 } from 'view/book/book-screen-actions';
 import {Button, Card, Fab, Text} from 'zenbaei-js-lib/react';
-import {staticFileUrl, imagesNames} from '../../app.config';
+import {staticFileUrl, imagesNames, currency} from '../../app.config';
 
 /**
  *
- * @param updateBookList - it will be called in case of stale book availablity, to update book list.
+ * @param replaceDisplayedBook - used to replace displayed book with the most recent
+ * from db after update or in case of stale data.
  */
 export const BookComponent = ({
   book,
   onPressImg,
-  replaceStaleBook,
+  replaceDisplayedBook,
   showSnackBar,
+  showForCartScreen = false,
 }: {
   book: Book;
   onPressImg?: (book: Book) => void;
-  replaceStaleBook: (book: Book) => void;
+  replaceDisplayedBook: (book: Book) => void;
   showSnackBar: (msg: string) => void;
+  showForCartScreen?: boolean;
 }) => {
   const {cart, setCart, favs, setFavs, msgs, theme} = useContext(UserContext);
   const styles = getStyles(theme);
+  const showForCartScreenStyle: ViewStyle = {
+    display: showForCartScreen ? 'none' : 'flex',
+  };
 
   const _updateFav = async (bookId: string) => {
     updateFav(bookId, favs, (modifiedFavs, isAdded) => {
@@ -42,7 +49,7 @@ export const BookComponent = ({
     if (bk.inventory < 1) {
       // stale data
       Alert.alert(msgs.sorryBookNotAvailable);
-      replaceStaleBook(bk);
+      replaceDisplayedBook(bk);
       return;
     }
     addOrRmvFrmCart(bk, cart, addOrRmv, (modifiedCart) => {
@@ -51,7 +58,7 @@ export const BookComponent = ({
         ? showSnackBar(msgs.addedToCart)
         : showSnackBar(msgs.removedFromCart);
       findBook(id).then((bok) => {
-        replaceStaleBook(bok);
+        replaceDisplayedBook(bok);
       });
     });
   };
@@ -82,17 +89,20 @@ export const BookComponent = ({
       />
       <View style={styles.wide}>
         <Text style={{...styles.title, ...styles.bold}} text={book.name} />
-        <Text style={{...styles.bold, ...styles.price}} text={book.price} />
+        <Text
+          style={{...styles.bold, ...styles.price}}
+          text={`${book.price} ${currency}`}
+        />
         <Text
           testID="copies"
-          style={{...styles.bold, ...styles.price}}
+          style={{...styles.bold, ...styles.price, ...showForCartScreenStyle}}
           text={`${msgs.availableCopies}: ${book.inventory}`}
         />
       </View>
       {cart.find((car) => car.bookId === book._id) ? (
         <Button
           testID={'removeFromCartBtn'}
-          style={styles.addToCartBtn}
+          style={{...styles.addToCartBtn, ...showForCartScreenStyle}}
           label={msgs.removeFromCart}
           onPress={() => _addOrRmvFrmCart(book._id, -1)}
         />
@@ -100,7 +110,7 @@ export const BookComponent = ({
         <Button
           disabled={book.inventory > 0 ? false : true}
           testID={'addToCartBtn'}
-          style={styles.addToCartBtn}
+          style={{...styles.addToCartBtn, ...showForCartScreenStyle}}
           label={msgs.addToCart}
           onPress={() => _addOrRmvFrmCart(book._id, 1)}
         />

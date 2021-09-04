@@ -1,6 +1,5 @@
 import {Book} from 'domain/book/book';
 import {bookService} from 'domain/book/book-service';
-import {SubGenre} from 'domain/genre/genre';
 import {Cart} from 'domain/user/user';
 import {userService} from 'domain/user/user-service';
 import {AppThemeInterface} from 'zenbaei-js-lib/constants';
@@ -99,10 +98,13 @@ export const updateFav = async (
  * @param page - starts from zero
  * @returns
  */
-export const loadBooks = (subGenre: string, page: number): Promise<Book[]> => {
-  return isEmpty(subGenre)
+export const loadBooksByPage = (
+  genre: string,
+  page: number,
+): Promise<Book[]> => {
+  return isEmpty(genre)
     ? bookService.findByNewArrivals(page * pageSize, pageSize)
-    : bookService.findByGenre(subGenre, page * pageSize, pageSize);
+    : bookService.findByGenre(genre, page * pageSize, pageSize);
 };
 
 /**
@@ -111,12 +113,12 @@ export const loadBooks = (subGenre: string, page: number): Promise<Book[]> => {
  * @param clb
  */
 export const loadFirstBooksPageAndCalcTotalPagesNumber = async (
-  genre: SubGenre,
+  genre: string,
   clb: (result: Book[], totalPagesNumber: number) => void,
 ): Promise<void> => {
-  const result = isEmpty(genre?.nameEn)
+  const result = isEmpty(genre)
     ? await bookService.findByNewArrivals()
-    : await bookService.findByGenre(genre.nameEn);
+    : await bookService.findByGenre(genre);
   let resultPerPageSize =
     result.length >= pageSize ? result.slice(0, pageSize) : result;
   clb(resultPerPageSize, Math.ceil(result.length / pageSize));
@@ -138,7 +140,7 @@ export const searchBooksProjected = async (name: string): Promise<Book[]> => {
   });
 };
 
-export const loadSearchedBooks = async (
+export const loadSearchedBooksByPage = async (
   name: string,
   page: number,
 ): Promise<Book[]> => {

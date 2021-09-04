@@ -1,10 +1,9 @@
 import {NavigationScreens} from 'constants/navigation-screens';
 import {getStyles} from 'constants/styles';
 import React, {useCallback, useContext, useState} from 'react';
-import {Alert, Image, View} from 'react-native';
+import {Alert, StyleSheet, View} from 'react-native';
 import {
   Button,
-  Card,
   Row,
   Grid,
   NavigationProps,
@@ -12,7 +11,6 @@ import {
   Picker,
   Col,
 } from 'zenbaei-js-lib/react';
-import {imagesNames, staticFileUrl} from '../../../app.config';
 import Snackbar from 'react-native-paper/src/components/Snackbar';
 import {FlatList} from 'react-native-gesture-handler';
 import {
@@ -28,6 +26,7 @@ import {CartBookVO} from './cart-book-vo';
 import {findBook} from 'view/book/book-screen-actions';
 import {Book} from 'domain/book/book';
 import IconButton from 'react-native-paper/src/components/IconButton';
+import {BookComponent} from 'component/book-component';
 
 export function CartScreen({
   navigation,
@@ -101,33 +100,56 @@ export function CartScreen({
             keyExtractor={(item) => item._id}
             renderItem={({item}) => {
               return (
-                <Card key={item.name}>
-                  <Image
-                    source={{
-                      uri: `${staticFileUrl}/${item.imageFolderName}/${imagesNames[0]}`,
-                    }}
-                    style={styles.image}
-                  />
-                  <Text text={item.name} />
-                  <Text text={item.price} />
-                  <View style={{flexDirection: 'row'}}>
-                    <Text style={{...styles.bold}} text={`${msgs.amount}: `} />
-                    <Picker
-                      width={'30%'}
-                      data={flatenNumberToArray(item.inventory + item.amount)}
-                      selectedValue={String(item.amount)}
-                      key={item._id}
-                      onValueChange={(val) =>
-                        _updateAmount(item._id, item.amount, Number(val))
-                      }
-                    />
-                  </View>
-                  <IconButton
-                    icon={'delete'}
-                    color={theme.primary}
-                    onPress={() => _removeFromCart(item._id)}
-                  />
-                </Card>
+                <Grid>
+                  <Row>
+                    <Col horizontalAlignment={'space-around'}>
+                      <BookComponent
+                        showForCartScreen
+                        book={
+                          {
+                            _id: item._id,
+                            name: item.name,
+                            price: item.price,
+                            imageFolderName: item.imageFolderName,
+                          } as Book
+                        }
+                        replaceDisplayedBook={() => {}}
+                        showSnackBar={(msg) => {
+                          setSnackBarMsg(msg);
+                          setSnackBarVisible(true);
+                        }}
+                        onPressImg={(bk) =>
+                          navigation.navigate('bookDetailsScreen', bk)
+                        }
+                      />
+                      <View>
+                        <View style={inlineStyles.amountStyle}>
+                          <Text
+                            style={{...styles.bold}}
+                            text={`${msgs.amount}: `}
+                          />
+                          <Picker
+                            width={'40%'}
+                            data={flatenNumberToArray(
+                              item.inventory + item.amount,
+                            )}
+                            selectedValue={String(item.amount)}
+                            key={item._id}
+                            onValueChange={(val) =>
+                              _updateAmount(item._id, item.amount, Number(val))
+                            }
+                          />
+                        </View>
+                        <IconButton
+                          style={inlineStyles.removeIconStyle}
+                          icon={'delete'}
+                          color={theme.secondary}
+                          onPress={() => _removeFromCart(item._id)}
+                        />
+                      </View>
+                    </Col>
+                  </Row>
+                </Grid>
               );
             }}
           />
@@ -156,3 +178,11 @@ export function CartScreen({
     </Grid>
   );
 }
+
+const inlineStyles = StyleSheet.create({
+  amountStyle: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+  },
+  removeIconStyle: {alignSelf: 'flex-end'},
+});

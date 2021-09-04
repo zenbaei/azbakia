@@ -8,15 +8,11 @@ import {messagesEn} from '../../src/constants/in18/messages-en';
 
 const Stack = createStackNavigator();
 const MockedNavigator = ({
-  screen1,
-  screen2 = ({navigation, route}) => {
-    return <></>;
-  },
+  screens,
   cart = [],
   favs = [],
 }: {
-  screen1: any;
-  screen2?: any;
+  screens: {name: string; component: React.FunctionComponent<any>}[];
   cart?: Cart[];
   favs?: string[];
 }) => {
@@ -24,8 +20,13 @@ const MockedNavigator = ({
     <MockedUserContextProvider car={cart} fav={favs}>
       <NavigationContainer>
         <Stack.Navigator>
-          <Stack.Screen name="passedScreen1" component={screen1} />
-          <Stack.Screen name="bookScreen" component={screen2} />
+          {screens.map((scr) => (
+            <Stack.Screen
+              key={scr.name}
+              name={scr.name}
+              component={scr.component}
+            />
+          ))}
         </Stack.Navigator>
       </NavigationContainer>
     </MockedUserContextProvider>

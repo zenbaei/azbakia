@@ -6,9 +6,9 @@ import {NavigationScreens} from 'constants/navigation-screens';
 import Snackbar from 'react-native-paper/src/components/Snackbar';
 import {
   findBook,
-  loadBooks,
+  loadBooksByPage,
   searchBooksProjected,
-  loadSearchedBooks,
+  loadSearchedBooksByPage,
   loadFirstSearchedBooksPageAndCalcTotalPageNumber,
   loadFirstBooksPageAndCalcTotalPagesNumber,
 } from './book-screen-actions';
@@ -30,14 +30,14 @@ export function BookScreen({
   const [animating, setAnimating] = useState(false);
   const {cart, msgs, theme, language} = useContext(UserContext);
   const [snackBarMsg, setSnackBarMsg] = useState('');
-  const [searchToken, setSearchToken] = useState('');
   const [isSnackBarVisible, setSnackBarVisible] = useState(false);
+  const [searchToken, setSearchToken] = useState('');
   const minSearchTextLength: number = 2;
 
   useFocusEffect(
     useCallback(() => {
       loadFirstBooksPageAndCalcTotalPagesNumber(
-        subGenre,
+        subGenre?.nameEn,
         (result, totalPagesNumber) => {
           setMaxPageNumber(totalPagesNumber);
           setBooks(result);
@@ -61,10 +61,6 @@ export function BookScreen({
     }, [cart.length]),
   );
 
-  const navigateToBookDetails = (book: Book) => {
-    navigation.navigate('bookDetailsScreen', book);
-  };
-
   const loadNextPage = async () => {
     let result: Book[];
     if (page === maxPageNumber) {
@@ -72,9 +68,9 @@ export function BookScreen({
     }
     setAnimating(true);
     if (searchToken.length > 0) {
-      result = await loadSearchedBooks(searchToken, page);
+      result = await loadSearchedBooksByPage(searchToken, page);
     } else {
-      const bks = await loadBooks(subGenre?.nameEn, page);
+      const bks = await loadBooksByPage(subGenre?.nameEn, page);
       result = [...books, ...bks];
     }
     setBooks(result);
@@ -94,7 +90,7 @@ export function BookScreen({
     );
   };
 
-  const _replaceStaleBook = (book: Book) => {
+  const _replaceDisplayedBook = (book: Book) => {
     const bks = books.map((bk) => (bk._id === book._id ? book : bk));
     setBooks(bks);
   };
@@ -145,9 +141,11 @@ export function BookScreen({
             renderItem={({item}) => (
               <BookComponent
                 book={item}
-                onPressImg={navigateToBookDetails}
-                replaceStaleBook={(book: Book) => {
-                  _replaceStaleBook(book);
+                onPressImg={() =>
+                  navigation.navigate('bookDetailsScreen', item)
+                }
+                replaceDisplayedBook={(book: Book) => {
+                  _replaceDisplayedBook(book);
                 }}
                 showSnackBar={(msg) => {
                   setSnackBarVisible(true);
