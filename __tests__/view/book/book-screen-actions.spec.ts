@@ -1,5 +1,4 @@
 import {AppThemeInterface} from 'zenbaei-js-lib/constants';
-import {modificationResult} from 'zenbaei-js-lib/types';
 import {Book} from '../../../src/domain/book/book';
 import {bookService} from '../../../src/domain/book/book-service';
 import {userService} from '../../../src/domain/user/user-service';
@@ -7,6 +6,7 @@ import {Cart} from '../../../src/domain/user/user';
 import * as actions from '../../../src/view/book/book-screen-actions';
 
 const arr: string[] = ['islam', 'ali', 'hassan'];
+let global: any;
 
 const updateCartSpy = jest
   .spyOn(userService, 'updateCart')
@@ -17,20 +17,27 @@ const theme: AppThemeInterface = {
   secondary: 'black',
 } as AppThemeInterface;
 
-beforeEach(() => updateCartSpy.mockClear());
+const updateInventorySpy = jest
+  .spyOn(bookService, 'updateInventory')
+  .mockResolvedValue({modified: 1});
 
-test(`Giving array string is provided, When the first argument 
-    exits in the array, Then it should return primary color`, () => {
+beforeEach(() => {
+  updateCartSpy.mockClear();
+  updateInventorySpy.mockClear();
+});
+
+test(`Giving a string array has an item, When checking that item in this array,
+    Then it should return secondary color`, () => {
   expect.assertions(1);
   const result = actions.getIconColor('ali', arr, theme);
-  expect(result).toBe('white');
+  expect(result).toBe(theme.secondary);
 });
 
 test(`Giving array string is provided, When the first argument is 
-    not in the array, Then it should return secondary color`, () => {
+    not in the array, Then it should return primary color`, () => {
   expect.assertions(1);
   const result = actions.getIconColor('karim', arr, theme);
-  expect(result).toBe('black');
+  expect(result).toBe(theme.primary);
 });
 
 test(`Giving service is mocked and array is provided, When passed argument exists in array, 
@@ -51,53 +58,49 @@ test(`Giving service is mocked and array is provided, When first argument doest 
 test(`Giving cart array is provided, When the item doesn't exist,
   Then it should add it with nuOfCopies equal to 1`, () => {
   const cart = [];
-  const result = actions._pushOrPopCart('test', cart);
   expect.assertions(1);
-  expect(result).toEqual([{bookId: 'test', amount: 1} as Cart]);
+  const {modifiedCart} = actions._pushOrPopCart('test', cart);
+  expect(modifiedCart).toEqual([{bookId: 'test', amount: 1} as Cart]);
 });
 
 test(`Given cart array is provided, When adding to cart, 
   Then it should add to user's cart and substract from book copies`, async () => {
-  const modified: modificationResult = {modified: 1};
-  const updateAvlCopiesSpy = jest
-    .spyOn(bookService, 'updateInventory')
-    .mockResolvedValue(modified);
-  const cart: Cart[] = [{bookId: 'b1', amount: 2}];
-  const book: Book = {_id: '100', name: 'b1', inventory: 1} as Book;
+  const cart: Cart[] = [{bookId: 'b1'} as Cart];
+  const book: Book = {_id: '100', name: 'bkname', inventory: 1} as Book;
   expect.assertions(3);
-  await actions.addOrRmvFrmCart(book, cart, 1, (newCart) =>
-    expect(newCart).toBeTruthy(),
-  );
-  expect(updateCartSpy).toBeCalledTimes(1);
-  expect(updateAvlCopiesSpy).toBeCalledWith(book._id, 0);
+  await actions.addOrRmvFrmCart(book, cart, (newCart) => {
+    expect(newCart).toBeTruthy();
+  });
+  expect(updateCartSpy).toBeCalledWith(global.user._id, [
+    {bookId: 'b1'},
+    {bookId: '100', amount: 1},
+  ]);
+  expect(updateInventorySpy).toBeCalledWith(book._id, 0);
 });
 
-test(`Giving cart array is provided, When the item already exist in cart and readded(remove button),
+test(`Giving cart had a book, When calling pushOrPop with same item,
   Then it should remove the item from the array`, () => {
   const cart: Cart[] = [
     {bookId: 'b1', amount: 1},
     {bookId: 'b2', amount: 2},
   ] as Cart[];
-  const result = actions._pushOrPopCart('b2', cart);
   expect.assertions(2);
-  expect(result.length).toBe(1);
-  expect(result[0]).toEqual({bookId: 'b1', amount: 1} as Cart);
+  const {modifiedCart} = actions._pushOrPopCart('b2', cart);
+  expect(modifiedCart.length).toBe(1);
+  expect(modifiedCart[0]).toEqual({bookId: 'b1', amount: 1} as Cart);
 });
 
 test(`Given cart array is provided, When removing from cart, 
   Then it should remove the item from user's cart 
   and add to book copies`, async () => {
-  const bookServiceSpy = jest
-    .spyOn(bookService, 'updateInventory')
-    .mockResolvedValue({modified: 1});
   const cart: Cart[] = [{bookId: 'b1', amount: 2}];
   const book: Book = {_id: 'b1', inventory: 1} as Book;
   expect.assertions(3);
-  await actions.addOrRmvFrmCart(book, cart, -1, (cartItems) => {
+  await actions.addOrRmvFrmCart(book, cart, (cartItems) => {
     expect(cartItems.length).toBe(0);
   });
   expect(updateCartSpy).toBeCalledTimes(1);
-  expect(bookServiceSpy).toBeCalledWith(book._id, 2);
+  expect(updateInventorySpy).toBeCalledWith(book._id, 3);
 });
 
 test(`Given a find result is provided less than the page size, When calculating the max page number,
@@ -114,7 +117,7 @@ test(`Given a find result is provided less than the page size, When calculating 
   );
 });
 
-test.only(`Given a find result is provided greater than the page size, When calculating the max page number,
+test(`Given a find result is provided greater than the page size, When calculating the max page number,
   Then it should be 2`, async () => {
   expect.assertions(1);
   jest
@@ -126,4 +129,14 @@ test.only(`Given a find result is provided greater than the page size, When calc
       expect(pageNum).toBe(2);
     },
   );
+});
+
+test(`Given a cart had 2 copies of a book, 
+  When removing this book from cart,
+  Then it should update the book inventory by adding 2 copies`, async () => {
+  const bk: Book = {_id: '1', inventory: 0} as Book;
+  const cart: Cart = {bookId: '1', amount: 2} as Cart;
+  await actions.addOrRmvFrmCart(bk, [cart], () => {});
+  expect.assertions(1);
+  expect(updateInventorySpy).toBeCalledWith('1', 2);
 });

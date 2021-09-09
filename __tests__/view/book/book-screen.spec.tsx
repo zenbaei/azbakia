@@ -37,7 +37,7 @@ const eventData = {
 
 const books: Book[] = [
   {_id: '1', name: 'book1', price: 100, inventory: 2},
-  {_id: '2', name: 'book2', price: 50},
+  {_id: '2', name: 'book2', price: 50, inventory: 1},
   {_id: '3', name: 'book3', price: 20},
 ] as Book[];
 
@@ -51,7 +51,7 @@ const findByGenreSpy = jest
   .spyOn(bookService, 'findByGenre')
   .mockImplementation(() => Promise.resolve([]));
 
-jest
+const loadFirstBooksPageSpy = jest
   .spyOn(bookScreenActions, 'loadFirstBooksPageAndCalcTotalPagesNumber')
   .mockImplementation((genre, clb) => {
     clb(books, 2);
@@ -270,12 +270,6 @@ test(`Given services are mocked, When rendering page,
 test(`Given services are mocked, When rendering page and switching Genres, 
   Then paging should be reset`, async () => {
   expect.assertions(6);
-  const loadFirstBooksPageSpy = jest
-    .spyOn(bookScreenActions, 'loadFirstBooksPageAndCalcTotalPagesNumber')
-    .mockImplementationOnce((genere, clb) => {
-      clb(books, 2);
-      return Promise.resolve();
-    });
   const loadBooksByPageSpy = jest.spyOn(bookScreenActions, 'loadBooksByPage');
 
   const {getByTestId, getAllByTestId} = render(

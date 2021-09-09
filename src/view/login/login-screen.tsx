@@ -41,7 +41,7 @@ export default function LoginScreen({
   return (
     <>
       <Login
-        verticalAlignment="center"
+        verticalAlign="center"
         onPress={(id, password) => login(id, password)}
         onPressForgetPass={() => {
           navigation.navigate('forgetPasswordScreen', {});

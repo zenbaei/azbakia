@@ -25,7 +25,7 @@ export const getStyles = (theme: AppThemeInterface) =>
       paddingVertical: 5,
       textAlign: 'center',
     },
-    image: {height: 150, width: 150, resizeMode: 'contain', aspectRatio: 2 / 2},
+    image: {width: 150, resizeMode: 'contain', aspectRatio: 2 / 2},
     addToCartBtn: {
       marginTop: 5,
     },
@@ -50,4 +50,5 @@ export const getStyles = (theme: AppThemeInterface) =>
       alignSelf: 'center',
       marginTop: 5,
     },
+    removeIconStyle: {alignSelf: 'flex-end', marginEnd: 30},
   });

@@ -1,70 +1,69 @@
 import {useFocusEffect} from '@react-navigation/native';
-import {getMessages} from 'constants/in18/messages-interface';
 import {NavigationScreens} from 'constants/navigation-screens';
-import {City} from 'domain/city/city';
 import React, {useCallback, useContext, useState} from 'react';
-import {ScrollView} from 'react-native';
 import {UserContext} from 'user-context';
 import {
   Button,
-  Card,
   Col,
-  Ctx,
   Grid,
   NavigationProps,
-  Picker,
+  Row,
   Text,
 } from 'zenbaei-js-lib/react';
-import {loadCities} from './delivery-screen-actions';
+import {currency} from '../../../app.config';
+import {Addresses} from '../../component/address/address-component';
+import {userService} from 'domain/user/user-service';
+import {Address} from 'domain/address';
 
 export function DeliveryScreen({
   navigation,
 }: NavigationProps<NavigationScreens, 'deliveryScreen'>) {
-  const [selectedArea, setSelectedArea] = useState('');
-  const [cities, setCities] = useState([] as City[]);
-  const [selectedCity, setSelectedCity] = useState('');
-  const [areas, setAreas] = useState([] as string[]);
+  const [addresses, setAddresses] = useState([] as Address[]);
   const {msgs} = useContext(UserContext);
 
   useFocusEffect(
     useCallback(() => {
-      global.setAppBarTitle(msgs.delivery);
+      global.setAppBarTitle(msgs.chooseDeliveryAddress);
       global.setDisplayCartBtn('none');
-      loadCities().then((cty) => setCities(cty));
-    }, [msgs.delivery]),
+      userService.findOne('_id', global.user._id).then((user) => {
+        setAddresses(user.address);
+      });
+    }, [msgs.chooseDeliveryAddress]),
   );
-
-  const onCityValueChange = (item: string) => {
-    setSelectedCity(item);
-    const city = cities.find((ct) => ct.name === item);
-    setAreas(city?.areas as string[]);
-  };
 
   return (
     <Grid>
-      <Col>
-        <ScrollView>
-          <Card>
-            <Picker
-              selectedValue={selectedCity}
-              onValueChange={onCityValueChange}
-              data={cities.map((cty) => ({label: cty.name, value: cty.name}))}
-            />
-          </Card>
-          <Card>
-            <Picker
-              selectedValue={selectedArea}
-              onValueChange={(item) => setSelectedArea(item)}
-              data={areas.map((ar) => ({label: ar, value: ar}))}
-            />
-          </Card>
-        </ScrollView>
-        <Text text={`${msgs.deliveryCharge}: ${0}`} />
-        <Button
-          label={msgs.checkout}
-          onPress={() => navigation.navigate('paymentScreen', {})}
-        />
-      </Col>
+      <Row proportion={1}>
+        <Col>
+          <Addresses
+            data={addresses}
+            onSelectDefaultAddress={(adr) => {
+              const updatedAdds = addresses.map((ad) => {
+                ad.phoneNo === adr.phoneNo
+                  ? (ad.default = true)
+                  : (ad.default = false);
+                return ad;
+              });
+              userService.updateById(global.user._id, {
+                $set: {address: updatedAdds},
+              });
+              setAddresses(updatedAdds);
+            }}
+          />
+        </Col>
+      </Row>
+      <Row>
+        <Col>
+          <Text
+            align="right"
+            text={`${msgs.deliveryCharge}: ${0} ${currency}`}
+          />
+          <Button
+            label={msgs.checkout}
+            onPress={() => navigation.navigate('paymentScreen', {})}
+          />
+        </Col>
+      </Row>
     </Grid>
   );
 }

@@ -31,6 +31,7 @@ class BookService extends MongoHttpService<Book> {
     id: string,
     inventory: number,
   ): Promise<modificationResult> => {
+    console.log('updateInventory');
     const book: Book = {inventory: inventory} as Book;
     return this.updateById(id, {$set: book});
   };

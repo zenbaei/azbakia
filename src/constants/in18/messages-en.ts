@@ -42,5 +42,17 @@ export const messagesEn: MessagesInterface = {
   sorryInventoryChanged:
     'Sorry the inventory has been changed while you were online',
   noResultFound: 'No result found',
+  updated: 'Record updated',
+  address: 'Address',
+  street: 'Street',
+  city: 'City',
+  country: 'Country',
+  area: 'Area',
+  apartment: 'Apartment',
+  building: 'Building Number',
+  phoneNo: 'Mobile',
+  addAddress: 'Add address',
+  chooseDeliveryAddress: 'Choose delivery address',
+  createAddress: 'Create Address',
   getKeyAtRuntime: (key: string) => messagesEn[key] as string,
 };

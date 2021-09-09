@@ -1,7 +1,7 @@
 import {Book} from 'domain/book/book';
 import React, {useCallback, useContext, useState} from 'react';
 import {FlatList, StyleSheet} from 'react-native';
-import {Grid, NavigationProps, Text, Row} from 'zenbaei-js-lib/react';
+import {Grid, NavigationProps, Text, Row, Col} from 'zenbaei-js-lib/react';
 import {NavigationScreens} from 'constants/navigation-screens';
 import Snackbar from 'react-native-paper/src/components/Snackbar';
 import {
@@ -36,6 +36,7 @@ export function BookScreen({
 
   useFocusEffect(
     useCallback(() => {
+      global.setAppBarTitle(msgs.home);
       loadFirstBooksPageAndCalcTotalPagesNumber(
         subGenre?.nameEn,
         (result, totalPagesNumber) => {
@@ -44,13 +45,7 @@ export function BookScreen({
           setPage(1);
         },
       );
-    }, [subGenre]),
-  );
-
-  useFocusEffect(
-    useCallback(() => {
-      global.setAppBarTitle(msgs.home);
-    }, [msgs.home]),
+    }, [subGenre, msgs]),
   );
 
   useFocusEffect(
@@ -90,7 +85,7 @@ export function BookScreen({
     );
   };
 
-  const _replaceDisplayedBook = (book: Book) => {
+  const _updateisplayedBook = (book: Book) => {
     const bks = books.map((bk) => (bk._id === book._id ? book : bk));
     setBooks(bks);
   };
@@ -104,70 +99,72 @@ export function BookScreen({
   return (
     <Grid testID="grid">
       <Row>
-        <SearchBar
-          minLength={minSearchTextLength}
-          onChangeText={async (text) => {
-            const result = await searchBooksProjected(text);
-            return result.map((bk) => ({value: bk._id, label: bk.name}));
-          }}
-          onSelectItem={async (id: string) => {
-            const book = await findBook(id);
-            setBooks([book]);
-          }}
-          onBlur={onBlurHandler}
-        />
-        <Text
-          style={styles.boldText}
-          text={
-            isEmpty(subGenre?.nameEn)
-              ? msgs.newArrivals
-              : language === 'en'
-              ? subGenre.nameEn
-              : subGenre.nameAr
-          }
-          align="center"
-        />
-        {books?.length > 0 ? (
-          <FlatList
-            testID="flatList"
-            style={styles.centerSelf}
-            scrollEnabled
-            numColumns={2}
-            data={books}
-            keyExtractor={(item) => item._id}
-            onEndReached={loadNextPage}
-            onEndReachedThreshold={0.1}
-            ListFooterComponent={renderFooter}
-            renderItem={({item}) => (
-              <BookComponent
-                book={item}
-                onPressImg={() =>
-                  navigation.navigate('bookDetailsScreen', item)
-                }
-                replaceDisplayedBook={(book: Book) => {
-                  _replaceDisplayedBook(book);
-                }}
-                showSnackBar={(msg) => {
-                  setSnackBarVisible(true);
-                  setSnackBarMsg(msg);
-                }}
-              />
-            )}
+        <Col verticalAlign={'flex-start'}>
+          <SearchBar
+            minLength={minSearchTextLength}
+            onChangeText={async (text) => {
+              const result = await searchBooksProjected(text);
+              return result.map((bk) => ({value: bk._id, label: bk.name}));
+            }}
+            onSelectItem={async (id: string) => {
+              const book = await findBook(id);
+              setBooks([book]);
+            }}
+            onBlur={onBlurHandler}
           />
-        ) : (
           <Text
-            testID={'noResultFound'}
-            text={msgs.noResultFound}
+            style={styles.boldText}
+            text={
+              isEmpty(subGenre?.nameEn)
+                ? msgs.newArrivals
+                : language === 'en'
+                ? subGenre.nameEn
+                : subGenre.nameAr
+            }
             align="center"
-            style={{color: theme.mediumEmphasis}}
           />
-        )}
-        <Snackbar
-          duration={5000}
-          visible={isSnackBarVisible}
-          onDismiss={() => setSnackBarVisible(false)}>
-          {snackBarMsg}
-        </Snackbar>
+          {books?.length > 0 ? (
+            <FlatList
+              testID="flatList"
+              style={styles.centerSelf}
+              scrollEnabled
+              numColumns={2}
+              data={books}
+              keyExtractor={(item) => item._id}
+              onEndReached={loadNextPage}
+              onEndReachedThreshold={0.1}
+              ListFooterComponent={renderFooter}
+              renderItem={({item}) => (
+                <BookComponent
+                  book={item}
+                  onPressImg={() =>
+                    navigation.navigate('bookDetailsScreen', item)
+                  }
+                  updateDisplayedBook={(book: Book) => {
+                    _updateisplayedBook(book);
+                  }}
+                  showSnackBar={(msg) => {
+                    setSnackBarVisible(true);
+                    setSnackBarMsg(msg);
+                  }}
+                />
+              )}
+            />
+          ) : (
+            <Text
+              testID={'noResultFound'}
+              text={msgs.noResultFound}
+              align="center"
+              style={{color: theme.mediumEmphasis}}
+            />
+          )}
+          <Snackbar
+            duration={5000}
+            visible={isSnackBarVisible}
+            onDismiss={() => setSnackBarVisible(false)}>
+            {snackBarMsg}
+          </Snackbar>
+        </Col>
       </Row>
     </Grid>
   );

@@ -1,7 +1,12 @@
 import React, {useContext, useState} from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 import {NavigationScreens} from 'constants/navigation-screens';
-import {getNavigatorHeaderStyle, Button, Ctx} from 'zenbaei-js-lib/react';
+import {
+  getNavigatorHeaderStyle,
+  Button,
+  Ctx,
+  ForgetPassword,
+} from 'zenbaei-js-lib/react';
 import IconButton from 'react-native-paper/src/components/IconButton';
 import {DrawerActions} from '@react-navigation/native';
 import LoginScreen from 'view/login/login-screen';
@@ -10,6 +15,7 @@ import {ViewStyle} from 'react-native';
 import {getMessages} from 'constants/in18/messages-interface';
 import {RegisterScreen} from 'view/login/register-screen';
 import {UnexpectedErrorScreen} from 'view/unexpected-error-screen';
+import {ForgetPasswordScreen} from 'view/login/forget-password-screen';
 
 const Stack = createStackNavigator<NavigationScreens>();
 
@@ -62,6 +68,10 @@ export function StackNavigator() {
       })}>
       <Stack.Screen name="loginScreen" component={LoginScreen} />
       <Stack.Screen name="registerScreen" component={RegisterScreen} />
+      <Stack.Screen
+        name="forgetPasswordScreen"
+        component={ForgetPasswordScreen}
+      />
       <Stack.Screen name="drawerNavigator" component={DrawerNavigator} />
       <Stack.Screen
         name="unexpectedErrorScreen"

@@ -40,6 +40,18 @@ export interface MessagesInterface {
   noBooksAvailable: string;
   sorryInventoryChanged: string;
   noResultFound: string;
+  updated: string;
+  street: string;
+  phoneNo: string;
+  apartment: string;
+  building: string;
+  city: string;
+  country: string;
+  area: string;
+  address: string;
+  addAddress: string;
+  chooseDeliveryAddress: string;
+  createAddress: string;
   getKeyAtRuntime: (key: string) => string;
 }
 

@@ -1,3 +1,4 @@
+import {Address} from 'domain/address';
 import {_id} from 'zenbaei-js-lib/types';
 
 export class User extends _id {
@@ -6,6 +7,7 @@ export class User extends _id {
   favs: string[] = [];
   cart: Cart[] = [];
   activated: boolean = false;
+  address!: Address[];
 }
 
 export type Cart = {

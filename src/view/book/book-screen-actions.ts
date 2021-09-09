@@ -18,15 +18,28 @@ export const getIconColor = (
   return theme.primary;
 };
 
-export const _pushOrPopCart = (bookId: string, cart: Cart[]): Cart[] => {
+/**
+ *
+ * @param bookId
+ * @param cart
+ * @returns - the modified cart and the amount of 1 in case of adding to cart or the cart's amount
+ * in case of removing from cart
+ *
+ */
+export const _pushOrPopCart = (
+  bookId: string,
+  cart: Cart[],
+): {modifiedCart: Cart[]; cartAmount: number} => {
+  let amount: number = -1;
   let cartClone = [...cart];
   const index: number = cart.findIndex((val) => val.bookId === bookId);
   if (index === -1) {
     cartClone.push({bookId: bookId, amount: 1});
   } else {
-    cartClone.splice(index, 1);
+    const crt = cartClone.splice(index, 1);
+    amount = crt[0].amount;
   }
-  return cartClone;
+  return {modifiedCart: cartClone, cartAmount: amount};
 };
 
 export const _updateCart = async (cart: Cart[]): Promise<boolean> => {
@@ -39,11 +52,11 @@ export const _updateCart = async (cart: Cart[]): Promise<boolean> => {
 
 export const _updateInventory = async (
   book: Book,
-  addOrSub: number,
+  amount: number,
 ): Promise<boolean> => {
   const result: modificationResult = await bookService.updateInventory(
     book._id,
-    book.inventory + addOrSub,
+    book.inventory + amount,
   );
   return result.modified === 1;
 };
@@ -51,12 +64,11 @@ export const _updateInventory = async (
 export const addOrRmvFrmCart = async (
   book: Book,
   cart: Cart[],
-  addOrRmv: 1 | -1,
   callback: cartCallback,
 ): Promise<void> => {
-  const modifiedCart = _pushOrPopCart(book._id, cart);
+  const {modifiedCart, cartAmount} = _pushOrPopCart(book._id, cart);
+  const isCopiesUpdated: boolean = await _updateInventory(book, cartAmount);
   const isCartUpdated: boolean = await _updateCart(modifiedCart);
-  const isCopiesUpdated: boolean = await _updateInventory(book, -addOrRmv);
   if (isCartUpdated && isCopiesUpdated) {
     callback(modifiedCart);
   }

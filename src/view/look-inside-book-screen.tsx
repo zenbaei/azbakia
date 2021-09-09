@@ -1,18 +1,26 @@
 import {imagesNames, staticFileUrl} from '../../app.config';
 import {NavigationScreens} from 'constants/navigation-screens';
-import React, {useContext} from 'react';
-import {Alert, FlatList, Image, View} from 'react-native';
-import {Ctx, NavigationProps} from 'zenbaei-js-lib/react';
-import {FAB, IconButton} from 'react-native-paper';
+import React, {useCallback, useContext} from 'react';
+import {FlatList, Image, View} from 'react-native';
+import {NavigationProps} from 'zenbaei-js-lib/react';
+import {IconButton} from 'react-native-paper';
+import {useFocusEffect} from '@react-navigation/native';
+import {UserContext} from 'user-context';
 
 export function LookInsideBookScreen({
   navigation,
   route,
 }: NavigationProps<NavigationScreens, 'lookInsideBookScreen'>) {
   const imageFolderName = route.params.imageFolderName;
-  const {theme} = useContext(Ctx);
+  const {theme, msgs} = useContext(UserContext);
 
-  const BookInside = ({item}: {item: string[]}) => {
+  useFocusEffect(
+    useCallback(() => {
+      global.setAppBarTitle(msgs.lookInside);
+    }, [msgs]),
+  );
+
+  const BookInside = ({item}: {item: string}) => {
     return (
       <View
         style={{
