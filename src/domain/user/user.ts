@@ -8,6 +8,8 @@ export class User extends _id {
   cart: Cart[] = [];
   activated: boolean = false;
   address!: Address[];
+  phoneNo!: string;
+  additionalPhoneNo!: string;
 }
 
 export type Cart = {

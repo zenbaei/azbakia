@@ -14,6 +14,7 @@ import {currency} from '../../../app.config';
 import {Addresses} from '../../component/address/address-component';
 import {userService} from 'domain/user/user-service';
 import {Address} from 'domain/address';
+import {updateAddresses} from 'view/address/address-actions';
 
 export function DeliveryScreen({
   navigation,
@@ -23,12 +24,16 @@ export function DeliveryScreen({
 
   useFocusEffect(
     useCallback(() => {
-      global.setAppBarTitle(msgs.chooseDeliveryAddress);
-      global.setDisplayCartBtn('none');
       userService.findOne('_id', global.user._id).then((user) => {
         setAddresses(user.address);
       });
-    }, [msgs.chooseDeliveryAddress]),
+    }, []),
+  );
+  useFocusEffect(
+    useCallback(() => {
+      global.setAppBarTitle(msgs.chooseDeliveryAddress);
+      global.setDisplayCartBtn('none');
+    }, [msgs]),
   );
 
   return (
@@ -37,18 +42,23 @@ export function DeliveryScreen({
         <Col>
           <Addresses
             data={addresses}
+            onPressCreateAddressScreen={() =>
+              navigation.navigate('addressScreen', {
+                addresses: undefined,
+                index: undefined,
+              })
+            }
             onSelectDefaultAddress={(adr) => {
-              const updatedAdds = addresses.map((ad) => {
-                ad.phoneNo === adr.phoneNo
-                  ? (ad.default = true)
-                  : (ad.default = false);
-                return ad;
-              });
-              userService.updateById(global.user._id, {
-                $set: {address: updatedAdds},
-              });
-              setAddresses(updatedAdds);
+              updateAddresses(addresses, adr, (updatedAdds) =>
+                setAddresses(updatedAdds),
+              );
             }}
+            onPressEdit={(idx) =>
+              navigation.navigate('addressScreen', {
+                addresses: addresses,
+                index: idx,
+              })
+            }
           />
         </Col>
       </Row>

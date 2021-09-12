@@ -3,14 +3,18 @@ import {Address} from 'domain/address';
 import {Card, Col, Grid, Row, Text} from 'zenbaei-js-lib/react';
 import {IconButton, RadioButton} from 'react-native-paper';
 import {UserContext} from 'user-context';
-import {onSelectAddress} from './address-component';
+import {onSetDefaultAddress, onEditAddress} from './address-component';
 
 export const AddressChild = ({
   address,
+  index,
   onSelectDefaultAddress,
+  onPressEdit,
 }: {
   address: Address;
-  onSelectDefaultAddress: onSelectAddress;
+  index: number;
+  onSelectDefaultAddress: onSetDefaultAddress;
+  onPressEdit: onEditAddress;
 }): JSX.Element => {
   const {msgs, theme} = useContext(UserContext);
   return (
@@ -37,21 +41,13 @@ export const AddressChild = ({
               </Row>
               <Row style={{backgroundColor: theme.primary}}>
                 <Col>
-                  <Text text={msgs.phoneNo} />
-                </Col>
-                <Col>
-                  <Text text={address.phoneNo} />
-                </Col>
-              </Row>
-              <Row>
-                <Col>
                   <Text text={msgs.city} />
                 </Col>
                 <Col>
                   <Text text={address.city} />
                 </Col>
               </Row>
-              <Row style={{backgroundColor: theme.primary}}>
+              <Row>
                 <Col>
                   <Text text={msgs.area} />
                 </Col>
@@ -64,13 +60,13 @@ export const AddressChild = ({
               style={{alignSelf: 'flex-end'}}
               color={theme.secondary}
               icon={'pen'}
-              onPress={() => {}}
+              onPress={() => onPressEdit(index)}
             />
           </Card>
         </Col>
         <Col height={'100%'} verticalAlign={'center'}>
           <RadioButton
-            value={address.phoneNo}
+            value={index.toString()}
             status={address.default ? 'checked' : 'unchecked'}
             color={theme.secondary}
             uncheckedColor={theme.primary}

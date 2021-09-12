@@ -16,6 +16,8 @@ import {DeliveryScreen} from 'view/delivery/delivery-screen';
 import {Genre} from 'domain/genre/genre';
 import {genreService} from 'domain/genre/genre-service';
 import {UserContext} from 'user-context';
+import {AddressScreen} from 'view/address/address-screen';
+import {ProfileScreen} from 'view/profile/profile-screen';
 
 const Drawer = createDrawerNavigator<NavigationScreens>();
 
@@ -38,6 +40,8 @@ export function DrawerNavigator() {
       />
       <Drawer.Screen name="cartScreen" component={CartScreen} />
       <Drawer.Screen name="deliveryScreen" component={DeliveryScreen} />
+      <Drawer.Screen name="addressScreen" component={AddressScreen} />
+      <Drawer.Screen name="profileScreen" component={ProfileScreen} />
     </Drawer.Navigator>
   );
 }
@@ -80,8 +84,8 @@ function CustomDrawerContent(
         </Accordion>
       ))}
       <DrawerItem
-        label="Profile"
-        onPress={() => console.log('go to profile')}
+        label={msgs.profile}
+        onPress={() => props.navigation.navigate('profileScreen', {})}
       />
     </DrawerContentScrollView>
   );

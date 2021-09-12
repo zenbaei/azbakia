@@ -43,15 +43,23 @@ export interface MessagesInterface {
   updated: string;
   street: string;
   phoneNo: string;
+  additionalPhoneNo: string;
   apartment: string;
   building: string;
   city: string;
   country: string;
   area: string;
   address: string;
+  comment: string;
+  defaultAddress: string;
   addAddress: string;
   chooseDeliveryAddress: string;
   createAddress: string;
+  save: string;
+  update: string;
+  changePassword: string;
+  manageAddress: string;
+  profile: string;
   getKeyAtRuntime: (key: string) => string;
 }
 

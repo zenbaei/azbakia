@@ -1,18 +1,22 @@
 import {Address} from 'domain/address';
 import React, {useContext} from 'react';
-import {ScrollView} from 'react-native';
+import {ActivityIndicator, ScrollView} from 'react-native';
 import {UserContext} from 'user-context';
 import {Button, Card, Col, Grid, Row} from 'zenbaei-js-lib/react';
 import {AddressChild} from './address-child';
 
 export const Addresses = ({
-  data,
+  data = [],
   onSelectDefaultAddress,
+  onPressCreateAddressScreen,
+  onPressEdit,
 }: {
   data: Address[];
-  onSelectDefaultAddress: onSelectAddress;
+  onSelectDefaultAddress: onSetDefaultAddress;
+  onPressCreateAddressScreen: () => void;
+  onPressEdit: onEditAddress;
 }): JSX.Element => {
-  const {msgs} = useContext(UserContext);
+  const {msgs, theme} = useContext(UserContext);
 
   return (
     <Grid>
@@ -21,20 +25,32 @@ export const Addresses = ({
           <Card width="100%" style={{height: '100%'}}>
             <Row>
               <Col>
-                <Button label={msgs.addAddress} onPress={() => {}} />
+                <Button
+                  label={msgs.addAddress}
+                  onPress={onPressCreateAddressScreen}
+                />
               </Col>
             </Row>
             <Row proportion={1}>
               <Col>
-                <ScrollView>
-                  {data.map((ad) => (
-                    <AddressChild
-                      key={ad.phoneNo}
-                      address={ad}
-                      onSelectDefaultAddress={onSelectDefaultAddress}
-                    />
-                  ))}
-                </ScrollView>
+                {data.length > 0 ? (
+                  <ScrollView>
+                    {data.map((ad, idx) => (
+                      <AddressChild
+                        key={idx}
+                        address={ad}
+                        index={idx}
+                        onSelectDefaultAddress={onSelectDefaultAddress}
+                        onPressEdit={onPressEdit}
+                      />
+                    ))}
+                  </ScrollView>
+                ) : (
+                  <ActivityIndicator
+                    animating={true}
+                    color={theme.onBackground}
+                  />
+                )}
               </Col>
             </Row>
           </Card>
@@ -44,4 +60,5 @@ export const Addresses = ({
   );
 };
 
-export type onSelectAddress = (selecetdAddress: Address) => void;
+export type onSetDefaultAddress = (address: Address) => void;
+export type onEditAddress = (index: number) => void;
