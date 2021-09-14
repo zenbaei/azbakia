@@ -1,7 +1,7 @@
 import {Address} from 'domain/address';
 import {userService} from 'domain/user/user-service';
 
-export const updateAddresses = async (
+export const updateDefaultAddress = async (
   addresses: Address[],
   address: Address,
   clb: (updatedAdds: Address[]) => void,

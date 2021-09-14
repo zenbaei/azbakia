@@ -17,6 +17,7 @@ import {loadCities} from '../delivery/delivery-screen-actions';
 import {userService} from 'domain/user/user-service';
 import {Address} from 'domain/address';
 import {ScrollView} from 'react-native';
+import {Checkbox} from 'react-native-paper';
 
 export function AddressScreen({
   route,
@@ -31,7 +32,8 @@ export function AddressScreen({
   const [apartment, setApartment] = useState('');
   const [building, setBuilding] = useState('');
   const [comment, setComment] = useState('');
-  const {msgs} = useContext(UserContext);
+  const [defaultAddress, setDefaultAddress] = useState(false);
+  const {msgs, theme} = useContext(UserContext);
 
   useFocusEffect(
     useCallback(() => {
@@ -45,27 +47,40 @@ export function AddressScreen({
       loadCities().then((cty) => {
         setCities(cty);
         if (addresses && editAddressAtIndex) {
-          const address = addresses[editAddressAtIndex];
-          SetStreet(address.street);
-          setApartment(address.apartment);
-          setBuilding(address.building);
-          setComment(address.comment);
-          const c = cty.find((ct) => ct.name === address.city);
-          setAreas(c?.areas as string[]);
-          setSelectedCity(address.city);
-          setSelectedArea(address.area);
+          setFieldsState(cty);
         } else {
-          SetStreet('');
-          setApartment('');
-          setBuilding('');
-          setComment('');
-          const c = cty[0];
-          setAreas(c?.areas as string[]);
-          setSelectedCity(c.name);
+          resetFieldsState(cty);
         }
       });
     }, [addresses, editAddressAtIndex]),
   );
+
+  const setFieldsState = (city: City[]) => {
+    if (!addresses || !editAddressAtIndex) {
+      return;
+    }
+    const address: Address = addresses[editAddressAtIndex];
+    SetStreet(address.street);
+    setApartment(address.apartment);
+    setBuilding(address.building);
+    setComment(address.comment);
+    setDefaultAddress(address.default);
+    const c = city.find((ct) => ct.name === address.city);
+    setAreas(c?.areas as string[]);
+    setSelectedCity(address.city);
+    setSelectedArea(address.area);
+  };
+
+  const resetFieldsState = (city: City[]) => {
+    SetStreet('');
+    setApartment('');
+    setBuilding('');
+    setComment('');
+    setDefaultAddress(false);
+    const c = city[0];
+    setAreas(c?.areas as string[]);
+    setSelectedCity(c.name);
+  };
 
   const onCityValueChange = (item: string) => {
     setSelectedCity(item);
@@ -84,9 +99,14 @@ export function AddressScreen({
       default: false,
     };
     if (editAddressAtIndex) {
+      //update
+      if (defaultAddress) {
+        addresses?.forEach((adr) => (adr.default = false));
+      }
       addresses?.splice(editAddressAtIndex, 1, ad);
       userService.updateById(global.user._id, {$set: {address: addresses}});
     } else {
+      //create
       userService.updateById(global.user._id, {$push: {address: ad}});
     }
   };
@@ -169,6 +189,14 @@ export function AddressScreen({
             <Row>
               <Col>
                 <Text align="left" text={msgs.defaultAddress} />
+              </Col>
+              <Col>
+                <Checkbox
+                  color={theme.secondary}
+                  uncheckedColor={theme.primary}
+                  status={defaultAddress ? 'checked' : 'unchecked'}
+                  onPress={() => setDefaultAddress(!defaultAddress)}
+                />
               </Col>
             </Row>
           </ScrollView>

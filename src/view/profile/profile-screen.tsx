@@ -1,3 +1,4 @@
+import {Picker} from '@react-native-picker/picker';
 import {useFocusEffect} from '@react-navigation/core';
 import {Addresses} from 'component/address/address-component';
 import {NavigationScreens} from 'constants/navigation-screens';
@@ -5,7 +6,7 @@ import {Address} from 'domain/address';
 import {userService} from 'domain/user/user-service';
 import React, {useCallback, useContext, useState} from 'react';
 import {UserContext} from 'user-context';
-import {updateAddresses} from 'view/address/address-actions';
+import {updateDefaultAddress} from 'view/address/address-actions';
 import {
   Grid,
   Row,
@@ -56,18 +57,18 @@ export const ProfileScreen = ({
             data={addresses}
             onPressCreateAddressScreen={() =>
               navigation.navigate('addressScreen', {
-                addresses: [],
-                address: {} as Address,
+                addresses: addresses,
+                index: undefined,
               })
             }
-            onPressEdit={(ad) =>
+            onPressEdit={(idx) =>
               navigation.navigate('addressScreen', {
                 addresses: addresses,
-                address: ad,
+                index: idx,
               })
             }
             onSelectDefaultAddress={(ad) =>
-              updateAddresses(addresses, ad, (updatedAdds) =>
+              updateDefaultAddress(addresses, ad, (updatedAdds) =>
                 setAddresses(updatedAdds),
               )
             }

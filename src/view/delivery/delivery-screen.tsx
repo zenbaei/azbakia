@@ -14,7 +14,7 @@ import {currency} from '../../../app.config';
 import {Addresses} from '../../component/address/address-component';
 import {userService} from 'domain/user/user-service';
 import {Address} from 'domain/address';
-import {updateAddresses} from 'view/address/address-actions';
+import {updateDefaultAddress} from 'view/address/address-actions';
 
 export function DeliveryScreen({
   navigation,
@@ -44,12 +44,12 @@ export function DeliveryScreen({
             data={addresses}
             onPressCreateAddressScreen={() =>
               navigation.navigate('addressScreen', {
-                addresses: undefined,
+                addresses: addresses,
                 index: undefined,
               })
             }
             onSelectDefaultAddress={(adr) => {
-              updateAddresses(addresses, adr, (updatedAdds) =>
+              updateDefaultAddress(addresses, adr, (updatedAdds) =>
                 setAddresses(updatedAdds),
               );
             }}

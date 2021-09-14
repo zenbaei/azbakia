@@ -65,7 +65,7 @@ export function CartScreen({
   ) => {
     const book = await findBook(bookId);
     if (book.inventory + oldAmount < newAmount) {
-      _updateListedBookInventory(book);
+      _updateDisplayedBookInventory(book);
       Alert.alert(msgs.sorryInventoryChanged);
       return;
     }
@@ -76,7 +76,7 @@ export function CartScreen({
     });
   };
 
-  const _updateListedBookInventory = (book: Book) => {
+  const _updateDisplayedBookInventory = (book: Book) => {
     const cartVOs = cartBooksVOs.map((vo) => {
       if (vo._id === book._id) {
         vo.inventory = book.inventory;
@@ -86,92 +86,97 @@ export function CartScreen({
     setCartBooksVOs(cartVOs);
   };
 
-  return (
+  return cart.length > 0 ? (
     <Grid>
-      {cart.length > 0 ? (
-        <Row>
-          <Col>
-            <FlatList
-              data={cartBooksVOs}
-              numColumns={1}
-              keyExtractor={(item) => item._id}
-              renderItem={({item}) => {
-                return (
-                  <Grid>
-                    <Row>
-                      <Col proportion={2}>
-                        <BookComponent
-                          cartScreen
-                          book={
-                            {
-                              _id: item._id,
-                              name: item.name,
-                              price: item.price,
-                              imageFolderName: item.imageFolderName,
-                            } as Book
-                          }
-                          updateDisplayedBook={() => {}}
-                          showSnackBar={(msg) => {
-                            setSnackBarMsg(msg);
-                            setSnackBarVisible(true);
-                          }}
-                          onPressImg={(bk) =>
-                            navigation.navigate('bookDetailsScreen', bk)
-                          }
-                        />
-                      </Col>
-                      <Col verticalAlign="center">
-                        <Text
-                          align="center"
-                          style={{...styles.bold}}
-                          text={`${msgs.amount}:`}
-                        />
-                      </Col>
-                      <Col verticalAlign="center">
-                        <Picker
-                          width={'90%'}
-                          data={flatenNumberToArray(
-                            item.inventory + item.amount,
-                          )}
-                          selectedValue={String(item.amount)}
-                          key={item._id}
-                          onValueChange={(val) =>
-                            _updateAmount(item._id, item.amount, Number(val))
-                          }
-                        />
-                      </Col>
-                    </Row>
-                  </Grid>
-                );
-              }}
-            />
-            <Text
-              align="right"
-              text={`${msgs.total}: ${calculateSum(cartBooksVOs)} ${currency}`}
-            />
-            <Button
-              label={msgs.continue}
-              onPress={() => navigation.navigate('deliveryScreen', {})}
-            />
-            <Snackbar
-              duration={5000}
-              visible={isSnackBarVisible}
-              onDismiss={() => setSnackBarVisible(false)}>
-              {snackBarMsg}
-            </Snackbar>
-          </Col>
-        </Row>
-      ) : (
-        <Row>
-          <Col verticalAlign={'center'}>
-            <Text
-              style={{color: theme.mediumEmphasis}}
-              align="center"
-              text={msgs.emptyCart}
-            />
-          </Col>
-        </Row>
-      )}
+      <Row proportion={1}>
+        <Col>
+          <FlatList
+            data={cartBooksVOs}
+            numColumns={1}
+            keyExtractor={(item) => item._id}
+            renderItem={({item}) => {
+              return (
+                <Grid>
+                  <Row>
+                    <Col proportion={2}>
+                      <BookComponent
+                        cartScreen
+                        book={
+                          {
+                            _id: item._id,
+                            name: item.name,
+                            price: item.price,
+                            imageFolderName: item.imageFolderName,
+                          } as Book
+                        }
+                        updateDisplayedBook={() => {}}
+                        showSnackBar={(msg) => {
+                          setSnackBarMsg(msg);
+                          setSnackBarVisible(true);
+                        }}
+                        onPressImg={(bk) =>
+                          navigation.navigate('bookDetailsScreen', bk)
+                        }
+                      />
+                    </Col>
+                    <Col height="100%" verticalAlign="center">
+                      <Text
+                        align="center"
+                        style={{...styles.bold}}
+                        text={`${msgs.amount}:`}
+                      />
+                    </Col>
+                    <Col height="100%" verticalAlign="center">
+                      <Picker
+                        width={'90%'}
+                        data={flatenNumberToArray(item.inventory + item.amount)}
+                        selectedValue={String(item.amount)}
+                        key={item._id}
+                        onValueChange={(val) =>
+                          _updateAmount(item._id, item.amount, Number(val))
+                        }
+                      />
+                    </Col>
+                  </Row>
+                </Grid>
+              );
+            }}
+          />
+        </Col>
+      </Row>
+      <Row>
+        <Col>
+          <Text
+            align="right"
+            text={`${msgs.total}: ${calculateSum(cartBooksVOs)} ${currency}`}
+          />
+          <Button
+            label={msgs.continue}
+            onPress={() => navigation.navigate('deliveryScreen', {})}
+          />
+          <Snackbar
+            duration={2000}
+            style={{
+              backgroundColor: theme.secondary,
+            }}
+            visible={isSnackBarVisible}
+            onDismiss={() => setSnackBarVisible(false)}>
+            {snackBarMsg}
+          </Snackbar>
+        </Col>
+      </Row>
+    </Grid>
+  ) : (
+    <Grid>
+      <Row>
+        <Col verticalAlign={'center'}>
+          <Text
+            style={{color: theme.mediumEmphasis}}
+            align="center"
+            text={msgs.emptyCart}
+          />
+        </Col>
+      </Row>
     </Grid>
   );
 }
