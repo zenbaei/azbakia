@@ -10,11 +10,13 @@ export const AddressChild = ({
   index,
   onSelectDefaultAddress,
   onPressEdit,
+  onPressDelete,
 }: {
   address: Address;
   index: number;
   onSelectDefaultAddress: onSetDefaultAddress;
   onPressEdit: onEditAddress;
+  onPressDelete: onEditAddress;
 }): JSX.Element => {
   const {msgs, theme} = useContext(UserContext);
   return (
@@ -23,6 +25,22 @@ export const AddressChild = ({
         <Col proportion={9}>
           <Card width={'95%'}>
             <Grid>
+              <Row style={{backgroundColor: theme.primary}}>
+                <Col>
+                  <Text text={msgs.city} />
+                </Col>
+                <Col>
+                  <Text text={address.city} />
+                </Col>
+              </Row>
+              <Row>
+                <Col>
+                  <Text text={msgs.area} />
+                </Col>
+                <Col>
+                  <Text text={address.area} />
+                </Col>
+              </Row>
               <Row style={{backgroundColor: theme.primary}}>
                 <Col>
                   <Text text={msgs.street} />
@@ -41,27 +59,41 @@ export const AddressChild = ({
               </Row>
               <Row style={{backgroundColor: theme.primary}}>
                 <Col>
-                  <Text text={msgs.city} />
+                  <Text text={msgs.building} />
                 </Col>
                 <Col>
-                  <Text text={address.city} />
+                  <Text text={address.building} />
                 </Col>
               </Row>
               <Row>
                 <Col>
-                  <Text text={msgs.area} />
+                  <Text text={msgs.comment} />
                 </Col>
                 <Col>
-                  <Text text={address.area} />
+                  <Text text={address.comment} />
                 </Col>
               </Row>
             </Grid>
-            <IconButton
-              style={{alignSelf: 'flex-end'}}
-              color={theme.secondary}
-              icon={'pen'}
-              onPress={() => onPressEdit(index)}
-            />
+            <Grid style={{backgroundColor: 'transparent'}}>
+              <Row>
+                <Col>
+                  <IconButton
+                    style={{alignSelf: 'flex-start'}}
+                    color={theme.secondary}
+                    icon={'delete'}
+                    onPress={() => onPressDelete(index)}
+                  />
+                </Col>
+                <Col>
+                  <IconButton
+                    style={{alignSelf: 'flex-end'}}
+                    color={theme.secondary}
+                    icon={'pen'}
+                    onPress={() => onPressEdit(index)}
+                  />
+                </Col>
+              </Row>
+            </Grid>
           </Card>
         </Col>
         <Col height={'100%'} verticalAlign={'center'}>

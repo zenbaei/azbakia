@@ -44,20 +44,7 @@ export function CartScreen({
       loadCartBooksVOs(cart).then((vo) => setCartBooksVOs(vo));
     }, [cart, msgs]),
   );
-  /*
-  const _removeFromCart = async (cartBookVO: CartBookVO) => {
-    removeFromCart(
-      cartBookVO._id,
-      cartBookVO.availableCopies,
-      cart,
-      (modifiedCart) => {
-        setCart(modifiedCart);
-        setSnackBarMsg(msgs.removedFromCart);
-        setSnackBarVisible(true);
-      },
-    );
-  };
-*/
+
   const _updateAmount = async (
     bookId: string,
     oldAmount: number,
@@ -71,7 +58,7 @@ export function CartScreen({
     }
     updateAmount(book, cart, oldAmount, newAmount, (crt) => {
       setCart(crt);
-      setSnackBarMsg(msgs.updated);
+      setSnackBarMsg(msgs.amountUpdated);
       setSnackBarVisible(true);
     });
   };
@@ -152,7 +139,12 @@ export function CartScreen({
           />
           <Button
             label={msgs.continue}
-            onPress={() => navigation.navigate('deliveryScreen', {})}
+            onPress={() =>
+              navigation.navigate('addressListScreen', {
+                isDeliveryScreen: true,
+                title: msgs.chooseDeliveryAddress,
+              })
+            }
           />
           <Snackbar
             duration={2000}

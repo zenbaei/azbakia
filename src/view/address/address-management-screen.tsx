@@ -13,16 +13,17 @@ import {
   Row,
   Text,
 } from 'zenbaei-js-lib/react';
-import {loadCities} from '../delivery/delivery-screen-actions';
+import {loadCities} from './address-actions';
 import {userService} from 'domain/user/user-service';
 import {Address} from 'domain/address';
 import {ScrollView} from 'react-native';
-import {Checkbox} from 'react-native-paper';
+import {Snackbar} from 'react-native-paper';
 
-export function AddressScreen({
+export function AddressManagementScreen({
+  navigation,
   route,
-}: NavigationProps<NavigationScreens, 'addressScreen'>) {
-  const addresses = route.params.addresses;
+}: NavigationProps<NavigationScreens, 'addressManagementScreen'>) {
+  const addresses = route.params.addresses ? route.params.addresses : [];
   const editAddressAtIndex = route.params.index;
   const [selectedArea, setSelectedArea] = useState('');
   const [cities, setCities] = useState([] as City[]);
@@ -33,6 +34,8 @@ export function AddressScreen({
   const [building, setBuilding] = useState('');
   const [comment, setComment] = useState('');
   const [defaultAddress, setDefaultAddress] = useState(false);
+  const [isSnackBarVisible, setSnackBarVisible] = useState(false);
+  const [snackBarMsg, setSnackBarMsg] = useState('');
   const {msgs, theme} = useContext(UserContext);
 
   useFocusEffect(
@@ -46,17 +49,17 @@ export function AddressScreen({
     useCallback(() => {
       loadCities().then((cty) => {
         setCities(cty);
-        if (addresses && editAddressAtIndex) {
-          setFieldsState(cty);
-        } else {
+        if (editAddressAtIndex === undefined) {
           resetFieldsState(cty);
+        } else {
+          setFieldsState(cty);
         }
       });
-    }, [addresses, editAddressAtIndex]),
+    }, [editAddressAtIndex]),
   );
 
   const setFieldsState = (city: City[]) => {
-    if (!addresses || !editAddressAtIndex) {
+    if (!addresses || editAddressAtIndex === undefined) {
       return;
     }
     const address: Address = addresses[editAddressAtIndex];
@@ -78,8 +81,9 @@ export function AddressScreen({
     setComment('');
     setDefaultAddress(false);
     const c = city[0];
-    setAreas(c?.areas as string[]);
+    setAreas(c.areas);
     setSelectedCity(c.name);
+    setSelectedArea(c.areas[0]);
   };
 
   const onCityValueChange = (item: string) => {
@@ -88,27 +92,69 @@ export function AddressScreen({
     setAreas(cty?.areas as string[]);
   };
 
+  const navigateAndUpdateParams = (
+    adds: Address[],
+    index: number,
+    msg: string,
+  ) => {
+    navigation.navigate('addressManagementScreen', {
+      addresses: adds,
+      index: index,
+    });
+    setSnackBarMsg(msg);
+    setSnackBarVisible(true);
+  };
+
   const insertNewAddress = () => {
-    const ad: Address = {
+    const ad: Address = initAddress();
+    const clonedAddresses = [...addresses];
+    if (clonedAddresses && clonedAddresses.length === 0) {
+      ad.default = true;
+    }
+    clonedAddresses.push(ad);
+
+    userService
+      .updateById(global.user._id, {
+        $set: {address: clonedAddresses},
+      })
+      .then((mr) => {
+        if (mr.modified === 1) {
+          navigateAndUpdateParams(
+            clonedAddresses,
+            clonedAddresses.length - 1,
+            msgs.addressCreated,
+          );
+        }
+      });
+  };
+
+  const updateAddress = () => {
+    const ad = initAddress();
+    const clonedAddresses = [...addresses];
+    clonedAddresses.splice(editAddressAtIndex as number, 1, ad);
+    userService
+      .updateById(global.user._id, {$set: {address: clonedAddresses}})
+      .then((mr) => {
+        if (mr.modified === 1) {
+          navigateAndUpdateParams(
+            clonedAddresses,
+            editAddressAtIndex as number,
+            msgs.addressUpdated,
+          );
+        }
+      });
+  };
+
+  const initAddress = () => {
+    return {
       street: street,
       city: selectedCity,
       area: selectedArea,
       building: building,
       apartment: apartment,
       comment: comment,
-      default: false,
+      default: defaultAddress,
     };
-    if (editAddressAtIndex) {
-      //update
-      if (defaultAddress) {
-        addresses?.forEach((adr) => (adr.default = false));
-      }
-      addresses?.splice(editAddressAtIndex, 1, ad);
-      userService.updateById(global.user._id, {$set: {address: addresses}});
-    } else {
-      //create
-      userService.updateById(global.user._id, {$push: {address: ad}});
-    }
   };
 
   return (
@@ -186,25 +232,28 @@ export function AddressScreen({
                 />
               </Col>
             </Row>
-            <Row>
-              <Col>
-                <Text align="left" text={msgs.defaultAddress} />
-              </Col>
-              <Col>
-                <Checkbox
-                  color={theme.secondary}
-                  uncheckedColor={theme.primary}
-                  status={defaultAddress ? 'checked' : 'unchecked'}
-                  onPress={() => setDefaultAddress(!defaultAddress)}
-                />
-              </Col>
-            </Row>
           </ScrollView>
         </Col>
       </Row>
       <Row>
         <Col>
-          <Button label={msgs.save} onPress={() => insertNewAddress} />
+          <Button
+            label={msgs.save}
+            onPress={() =>
+              editAddressAtIndex === undefined
+                ? insertNewAddress()
+                : updateAddress()
+            }
+          />
+          <Snackbar
+            duration={2000}
+            style={{
+              backgroundColor: theme.secondary,
+            }}
+            visible={isSnackBarVisible}
+            onDismiss={() => setSnackBarVisible(false)}>
+            {snackBarMsg}
+          </Snackbar>
         </Col>
       </Row>
     </Grid>

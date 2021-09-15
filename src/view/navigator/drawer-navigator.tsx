@@ -12,12 +12,12 @@ import {Item, Accordion} from 'react-native-paper/src/components/List/List';
 import {BookDetailsScreen} from 'view/book-details-screen';
 import {LookInsideBookScreen} from 'view/look-inside-book-screen';
 import {CartScreen} from 'view/cart/cart-screen';
-import {DeliveryScreen} from 'view/delivery/delivery-screen';
 import {Genre} from 'domain/genre/genre';
 import {genreService} from 'domain/genre/genre-service';
 import {UserContext} from 'user-context';
-import {AddressScreen} from 'view/address/address-screen';
+import {AddressManagementScreen} from 'view/address/address-management-screen';
 import {ProfileScreen} from 'view/profile/profile-screen';
+import {AddressListScreen} from 'view/address/address-list-screen';
 
 const Drawer = createDrawerNavigator<NavigationScreens>();
 
@@ -39,8 +39,11 @@ export function DrawerNavigator() {
         component={LookInsideBookScreen}
       />
       <Drawer.Screen name="cartScreen" component={CartScreen} />
-      <Drawer.Screen name="deliveryScreen" component={DeliveryScreen} />
-      <Drawer.Screen name="addressScreen" component={AddressScreen} />
+      <Drawer.Screen name="addressListScreen" component={AddressListScreen} />
+      <Drawer.Screen
+        name="addressManagementScreen"
+        component={AddressManagementScreen}
+      />
       <Drawer.Screen name="profileScreen" component={ProfileScreen} />
     </Drawer.Navigator>
   );

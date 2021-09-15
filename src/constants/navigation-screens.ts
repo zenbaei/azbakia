@@ -11,11 +11,11 @@ export type NavigationScreens = {
   cartScreen: {cart: Cart[]};
   lookInsideBookScreen: {imageFolderName: string};
   drawerNavigator: {};
-  deliveryScreen: {};
   paymentScreen: {};
   unexpectedErrorScreen: {};
   registerScreen: {};
   forgetPasswordScreen: {};
-  addressScreen: {addresses?: Address[]; index?: number};
+  addressListScreen: {isDeliveryScreen: boolean; title: string};
+  addressManagementScreen: {addresses?: Address[]; index?: number};
   profileScreen: {};
 };

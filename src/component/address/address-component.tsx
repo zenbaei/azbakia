@@ -2,19 +2,25 @@ import {Address} from 'domain/address';
 import React, {useContext} from 'react';
 import {ActivityIndicator, ScrollView} from 'react-native';
 import {UserContext} from 'user-context';
-import {Button, Card, Col, Grid, Row} from 'zenbaei-js-lib/react';
-import {AddressChild} from './address-child';
+import {Button, Card, Col, Grid, Row, Text} from 'zenbaei-js-lib/react';
+import {AddressChild} from './address-child-component';
 
 export const Addresses = ({
   data = [],
   onSelectDefaultAddress,
   onPressCreateAddressScreen,
   onPressEdit,
+  onPressDelete,
+  showLoadingIndicator = false,
+  showNoAddress = false,
 }: {
   data: Address[];
   onSelectDefaultAddress: onSetDefaultAddress;
   onPressCreateAddressScreen: () => void;
   onPressEdit: onEditAddress;
+  onPressDelete: onEditAddress;
+  showLoadingIndicator?: boolean;
+  showNoAddress?: boolean;
 }): JSX.Element => {
   const {msgs, theme} = useContext(UserContext);
 
@@ -42,14 +48,24 @@ export const Addresses = ({
                         index={idx}
                         onSelectDefaultAddress={onSelectDefaultAddress}
                         onPressEdit={onPressEdit}
+                        onPressDelete={onPressDelete}
                       />
                     ))}
                   </ScrollView>
                 ) : (
-                  <ActivityIndicator
-                    animating={true}
-                    color={theme.onBackground}
-                  />
+                  <>
+                    <ActivityIndicator
+                      animating={showLoadingIndicator}
+                      color={theme.onBackground}
+                    />
+                    <Text
+                      text={msgs.noAddress}
+                      style={{
+                        color: theme.mediumEmphasis,
+                        display: showNoAddress ? 'flex' : 'none',
+                      }}
+                    />
+                  </>
                 )}
               </Col>
             </Row>

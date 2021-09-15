@@ -40,7 +40,6 @@ export interface MessagesInterface {
   noBooksAvailable: string;
   sorryInventoryChanged: string;
   noResultFound: string;
-  updated: string;
   street: string;
   phoneNo: string;
   additionalPhoneNo: string;
@@ -60,6 +59,13 @@ export interface MessagesInterface {
   changePassword: string;
   manageAddress: string;
   profile: string;
+  amountUpdated: string;
+  addressDeleted: string;
+  addressCreated: string;
+  addressUpdated: string;
+  defaultAddressUpdated: string;
+  pleaseAddAddress: string;
+  noAddress: string;
   getKeyAtRuntime: (key: string) => string;
 }
 
