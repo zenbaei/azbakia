@@ -12,7 +12,7 @@ import {
   findBook,
 } from 'view/book/book-screen-actions';
 import {Button, Card, Fab, Text} from 'zenbaei-js-lib/react';
-import {staticFileUrl, imagesNames, currency} from '../../app.config';
+import {staticFileUrl, imagesNames, currency} from '../../../app.config';
 
 /**
  *

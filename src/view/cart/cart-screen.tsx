@@ -10,14 +10,14 @@ import {
   Text,
   Picker,
   Col,
+  SnackBar,
 } from 'zenbaei-js-lib/react';
-import Snackbar from 'react-native-paper/src/components/Snackbar';
 import {FlatList} from 'react-native-gesture-handler';
 import {
   calculateSum,
   loadCartBooksVOs,
   flatenNumberToArray,
-  updateAmount,
+  updateQuantity,
 } from './cart-screen-actions';
 import {UserContext} from 'user-context';
 import {useFocusEffect} from '@react-navigation/core';
@@ -25,7 +25,7 @@ import {CartBookVO} from './cart-book-vo';
 import {findBook} from 'view/book/book-screen-actions';
 import {Book} from 'domain/book/book';
 
-import {BookComponent} from 'component/book-component';
+import {BookComponent} from 'view/book/book-component';
 import {currency} from '../../../app.config';
 
 export function CartScreen({
@@ -35,28 +35,32 @@ export function CartScreen({
   const [isSnackBarVisible, setSnackBarVisible] = useState(false);
   const {cart, setCart, msgs, theme} = useContext(UserContext);
   const [cartBooksVOs, setCartBooksVOs] = useState([] as CartBookVO[]);
+  const [total, setTotal] = useState(0);
   const styles = getStyles(theme);
 
   useFocusEffect(
     useCallback(() => {
       global.setAppBarTitle(msgs.cart);
       global.setDisplayCartBtn('none');
-      loadCartBooksVOs(cart).then((vo) => setCartBooksVOs(vo));
+      loadCartBooksVOs(cart).then((vo) => {
+        setCartBooksVOs(vo);
+        setTotal(calculateSum(vo));
+      });
     }, [cart, msgs]),
   );
 
-  const _updateAmount = async (
+  const _updateQuantity = async (
     bookId: string,
-    oldAmount: number,
-    newAmount: number,
+    oldQuantity: number,
+    newQuantity: number,
   ) => {
     const book = await findBook(bookId);
-    if (book.inventory + oldAmount < newAmount) {
+    if (book.inventory + oldQuantity < newQuantity) {
       _updateDisplayedBookInventory(book);
       Alert.alert(msgs.sorryInventoryChanged);
       return;
     }
-    updateAmount(book, cart, oldAmount, newAmount, (crt) => {
+    updateQuantity(book, cart, oldQuantity, newQuantity, (crt) => {
       setCart(crt);
       setSnackBarMsg(msgs.amountUpdated);
       setSnackBarVisible(true);
@@ -110,17 +114,19 @@ export function CartScreen({
                       <Text
                         align="center"
                         style={{...styles.bold}}
-                        text={`${msgs.amount}:`}
+                        text={`${msgs.quantity}:`}
                       />
                     </Col>
                     <Col height="100%" verticalAlign="center">
                       <Picker
                         width={'90%'}
-                        data={flatenNumberToArray(item.inventory + item.amount)}
-                        selectedValue={String(item.amount)}
+                        data={flatenNumberToArray(
+                          item.inventory + item.quantity,
+                        )}
+                        selectedValue={String(item.quantity)}
                         key={item._id}
                         onValueChange={(val) =>
-                          _updateAmount(item._id, item.amount, Number(val))
+                          _updateQuantity(item._id, item.quantity, Number(val))
                         }
                       />
                     </Col>
@@ -133,28 +139,20 @@ export function CartScreen({
       </Row>
       <Row>
         <Col>
-          <Text
-            align="right"
-            text={`${msgs.total}: ${calculateSum(cartBooksVOs)} ${currency}`}
-          />
+          <Text align="right" text={`${msgs.total}: ${total} ${currency}`} />
           <Button
             label={msgs.continue}
             onPress={() =>
-              navigation.navigate('addressListScreen', {
-                isDeliveryScreen: true,
-                title: msgs.chooseDeliveryAddress,
+              navigation.navigate('deliveryScreen', {
+                cartTotalPrice: total,
               })
             }
           />
-          <Snackbar
-            duration={2000}
-            style={{
-              backgroundColor: theme.secondary,
-            }}
+          <SnackBar
             visible={isSnackBarVisible}
-            onDismiss={() => setSnackBarVisible(false)}>
-            {snackBarMsg}
-          </Snackbar>
+            msg={snackBarMsg}
+            onDismiss={setSnackBarVisible}
+          />
         </Col>
       </Row>
     </Grid>
@@ -162,11 +160,7 @@ export function CartScreen({
     <Grid>
       <Row>
         <Col verticalAlign={'center'}>
-          <Text
-            style={{color: theme.mediumEmphasis}}
-            align="center"
-            text={msgs.emptyCart}
-          />
+          <Text mediumEmphasis align="center" text={msgs.emptyCart} />
         </Col>
       </Row>
     </Grid>

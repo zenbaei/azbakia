@@ -2,11 +2,7 @@ import {User} from 'domain/user/user';
 import {userService} from 'domain/user/user-service';
 import {email as Email} from 'zenbaei-js-lib/types';
 import {EmailHttpService} from 'zenbaei-js-lib/utils';
-import {
-  activationLinkUrl,
-  emailRestApi,
-  mongoRestApi,
-} from '../../../app.config';
+import {activationLinkUrl, emailRestApi} from '../../../app.config';
 
 const emailService = new EmailHttpService(emailRestApi);
 
@@ -22,7 +18,7 @@ export const saveUser = async (
   email: string,
   password: string,
 ): Promise<boolean> => {
-  const result = await userService.save({
+  const result = await userService.insert({
     email: email,
     password: password,
     activated: false,

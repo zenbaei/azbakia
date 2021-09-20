@@ -9,8 +9,8 @@ import {NavigationScreens} from 'constants/navigation-screens';
 import React, {useContext, useEffect, useState} from 'react';
 import {BookScreen} from '../book/book-screen';
 import {Item, Accordion} from 'react-native-paper/src/components/List/List';
-import {BookDetailsScreen} from 'view/book-details-screen';
-import {LookInsideBookScreen} from 'view/look-inside-book-screen';
+import {BookDetailsScreen} from 'view/book/book-details-screen';
+import {LookInsideBookScreen} from 'view/book/look-inside-book-screen';
 import {CartScreen} from 'view/cart/cart-screen';
 import {Genre} from 'domain/genre/genre';
 import {genreService} from 'domain/genre/genre-service';
@@ -18,6 +18,7 @@ import {UserContext} from 'user-context';
 import {AddressManagementScreen} from 'view/address/address-management-screen';
 import {ProfileScreen} from 'view/profile/profile-screen';
 import {AddressListScreen} from 'view/address/address-list-screen';
+import {DeliveryScreen} from 'view/delivery/delivery-screen';
 
 const Drawer = createDrawerNavigator<NavigationScreens>();
 
@@ -44,6 +45,7 @@ export function DrawerNavigator() {
         name="addressManagementScreen"
         component={AddressManagementScreen}
       />
+      <Drawer.Screen name="deliveryScreen" component={DeliveryScreen} />
       <Drawer.Screen name="profileScreen" component={ProfileScreen} />
     </Drawer.Navigator>
   );

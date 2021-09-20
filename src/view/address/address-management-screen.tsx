@@ -1,6 +1,5 @@
 import {useFocusEffect} from '@react-navigation/native';
 import {NavigationScreens} from 'constants/navigation-screens';
-import {City} from 'domain/city/city';
 import React, {useCallback, useContext, useState} from 'react';
 import {UserContext} from 'user-context';
 import {
@@ -13,22 +12,24 @@ import {
   Row,
   Text,
 } from 'zenbaei-js-lib/react';
-import {loadCities} from './address-actions';
+import {Address, modificationResult} from 'zenbaei-js-lib/types';
+import {isEmpty} from 'zenbaei-js-lib/utils';
+import {findCountry} from './address-actions';
 import {userService} from 'domain/user/user-service';
-import {Address} from 'domain/address';
-import {ScrollView} from 'react-native';
+import {Alert, ScrollView} from 'react-native';
 import {Snackbar} from 'react-native-paper';
+import {City, DistrictAndCharge} from 'domain/country/country';
 
 export function AddressManagementScreen({
   navigation,
   route,
 }: NavigationProps<NavigationScreens, 'addressManagementScreen'>) {
-  const addresses = route.params.addresses ? route.params.addresses : [];
+  const [addresses, setAddresses] = useState([] as Address[]);
   const editAddressAtIndex = route.params.index;
-  const [selectedArea, setSelectedArea] = useState('');
   const [cities, setCities] = useState([] as City[]);
+  const [districts, setDistricts] = useState([] as DistrictAndCharge[]);
   const [selectedCity, setSelectedCity] = useState('');
-  const [areas, setAreas] = useState([] as string[]);
+  const [selectedDistrict, setSelectedDistrict] = useState('');
   const [street, SetStreet] = useState('');
   const [apartment, setApartment] = useState('');
   const [building, setBuilding] = useState('');
@@ -40,69 +41,55 @@ export function AddressManagementScreen({
 
   useFocusEffect(
     useCallback(() => {
-      global.setAppBarTitle(msgs.createAddress);
+      global.setAppBarTitle(
+        route.params.status === 'Create'
+          ? msgs.createAddress
+          : msgs.modifyAddress,
+      );
       global.setDisplayCartBtn('none');
-    }, [msgs]),
-  );
 
-  useFocusEffect(
-    useCallback(() => {
-      loadCities().then((cty) => {
-        setCities(cty);
-        if (editAddressAtIndex === undefined) {
-          resetFieldsState(cty);
-        } else {
-          setFieldsState(cty);
-        }
+      userService
+        .findOne('_id', global.user._id)
+        .then((usr) => setAddresses(usr.addresses));
+
+      findCountry(global.user.country).then((country) => {
+        setCities(country.cities);
+        route.params.status === 'Create'
+          ? resetFieldsState(country.cities)
+          : setFieldsState(country.cities);
       });
-    }, [editAddressAtIndex]),
+    }, [msgs, route.params.status]),
   );
 
-  const setFieldsState = (city: City[]) => {
-    if (!addresses || editAddressAtIndex === undefined) {
-      return;
-    }
-    const address: Address = addresses[editAddressAtIndex];
+  const setFieldsState = (cts: City[]) => {
+    const address: Address = addresses[editAddressAtIndex as number];
     SetStreet(address.street);
     setApartment(address.apartment);
     setBuilding(address.building);
     setComment(address.comment);
     setDefaultAddress(address.default);
-    const c = city.find((ct) => ct.name === address.city);
-    setAreas(c?.areas as string[]);
+    const c = cts.find((ct) => ct.city === address.city);
+    setDistricts(c?.districtsAndCharges as DistrictAndCharge[]);
     setSelectedCity(address.city);
-    setSelectedArea(address.area);
+    setSelectedDistrict(address.district);
   };
 
-  const resetFieldsState = (city: City[]) => {
+  const resetFieldsState = (cts: City[]) => {
     SetStreet('');
     setApartment('');
     setBuilding('');
     setComment('');
     setDefaultAddress(false);
-    const c = city[0];
-    setAreas(c.areas);
-    setSelectedCity(c.name);
-    setSelectedArea(c.areas[0]);
+    const c = cts[0];
+    setSelectedCity(c.city);
+    setDistricts(c.districtsAndCharges);
+    setSelectedDistrict(c.districtsAndCharges[0].district);
   };
 
   const onCityValueChange = (item: string) => {
     setSelectedCity(item);
-    const cty = cities.find((ct) => ct.name === item);
-    setAreas(cty?.areas as string[]);
-  };
-
-  const navigateAndUpdateParams = (
-    adds: Address[],
-    index: number,
-    msg: string,
-  ) => {
-    navigation.navigate('addressManagementScreen', {
-      addresses: adds,
-      index: index,
-    });
-    setSnackBarMsg(msg);
-    setSnackBarVisible(true);
+    const cty = cities.find((ct) => ct.city === item);
+    setDistricts(cty?.districtsAndCharges as DistrictAndCharge[]);
   };
 
   const insertNewAddress = () => {
@@ -117,15 +104,7 @@ export function AddressManagementScreen({
       .updateById(global.user._id, {
         $set: {address: clonedAddresses},
       })
-      .then((mr) => {
-        if (mr.modified === 1) {
-          navigateAndUpdateParams(
-            clonedAddresses,
-            clonedAddresses.length - 1,
-            msgs.addressCreated,
-          );
-        }
-      });
+      .then((mr) => goBackOrShowError(mr));
   };
 
   const updateAddress = () => {
@@ -134,26 +113,36 @@ export function AddressManagementScreen({
     clonedAddresses.splice(editAddressAtIndex as number, 1, ad);
     userService
       .updateById(global.user._id, {$set: {address: clonedAddresses}})
-      .then((mr) => {
-        if (mr.modified === 1) {
-          navigateAndUpdateParams(
-            clonedAddresses,
-            editAddressAtIndex as number,
-            msgs.addressUpdated,
-          );
-        }
-      });
+      .then((mr) => goBackOrShowError(mr));
+  };
+
+  const goBackOrShowError = (mr: modificationResult) => {
+    if (mr.modified === 1) {
+      navigation.goBack();
+    } else {
+      setSnackBarMsg(msgs.saveError);
+      setSnackBarVisible(true);
+    }
+  };
+
+  const save = () => {
+    if (isEmpty(street) || isEmpty(apartment) || isEmpty(building)) {
+      Alert.alert(msgs.addressMandatoryFields);
+      return;
+    }
+    editAddressAtIndex === undefined ? insertNewAddress() : updateAddress();
   };
 
   const initAddress = () => {
     return {
       street: street,
       city: selectedCity,
-      area: selectedArea,
+      district: selectedDistrict,
       building: building,
       apartment: apartment,
       comment: comment,
       default: defaultAddress,
+      country: global.user.country,
     };
   };
 
@@ -164,16 +153,22 @@ export function AddressManagementScreen({
           <Picker
             selectedValue={selectedCity}
             onValueChange={onCityValueChange}
-            data={cities.map((cty) => ({label: cty.name, value: cty.name}))}
+            data={cities.map((cty) => ({
+              label: cty.city,
+              value: cty.city,
+            }))}
           />
         </Col>
       </Row>
       <Row>
         <Col>
           <Picker
-            selectedValue={selectedArea}
-            onValueChange={(item) => setSelectedArea(item)}
-            data={areas.map((ar) => ({label: ar, value: ar}))}
+            selectedValue={selectedDistrict}
+            onValueChange={(item) => setSelectedDistrict(item)}
+            data={districts.map((d) => ({
+              label: d.district,
+              value: d.district,
+            }))}
           />
         </Col>
       </Row>
@@ -237,14 +232,7 @@ export function AddressManagementScreen({
       </Row>
       <Row>
         <Col>
-          <Button
-            label={msgs.save}
-            onPress={() =>
-              editAddressAtIndex === undefined
-                ? insertNewAddress()
-                : updateAddress()
-            }
-          />
+          <Button label={msgs.save} onPress={save} />
           <Snackbar
             duration={2000}
             style={{

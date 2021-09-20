@@ -1,5 +1,4 @@
 import {useFocusEffect} from '@react-navigation/native';
-
 import React, {useCallback, useContext, useState} from 'react';
 import {UserContext} from 'user-context';
 import {
@@ -9,15 +8,19 @@ import {
   Row,
   Text,
   NavigationProps,
+  SnackBar,
+  Addresses,
 } from 'zenbaei-js-lib/react';
 import {currency} from '../../../app.config';
-import {Addresses} from '../../component/address/address-component';
+
 import {userService} from 'domain/user/user-service';
-import {Address} from 'domain/address';
-import {updateDefaultAddress} from 'view/address/address-actions';
+import {Address} from 'zenbaei-js-lib/types/address';
+import {
+  getDefaultAddressCharge,
+  updateDefaultAddress,
+} from 'view/address/address-actions';
 
 import {NavigationScreens} from 'constants/navigation-screens';
-import {SnackBar} from 'component/snack-bar-component';
 import {Alert} from 'react-native';
 
 export function AddressListScreen({
@@ -29,6 +32,7 @@ export function AddressListScreen({
   const [isSnackBarVisible, setSnackBarVisible] = useState(false);
   const [isShowLoadingIndicator, setShowLoadingIndicator] = useState(false);
   const [isShowNoAddress, setShowNoAddress] = useState(false);
+  const [deliveryCharge, setDeliveryCharge] = useState(0);
   const {msgs} = useContext(UserContext);
 
   useFocusEffect(
@@ -36,17 +40,20 @@ export function AddressListScreen({
       setShowLoadingIndicator(true);
       setShowNoAddress(false);
       userService.findOne('_id', global.user._id).then((user) => {
-        setAddresses(user.address);
+        setAddresses(user.addresses);
         setShowLoadingIndicator(false);
         setShowNoAddress(true);
+        getDefaultAddressCharge(addresses).then((charge) =>
+          setDeliveryCharge(charge),
+        );
       });
-    }, []),
+    }, [addresses]),
   );
   useFocusEffect(
     useCallback(() => {
-      global.setAppBarTitle(route.params.title);
+      global.setAppBarTitle(msgs.address);
       global.setDisplayCartBtn('none');
-    }, [route.params.title]),
+    }, [msgs]),
   );
 
   const _updateDefaultAddress = (address: Address) => {
@@ -84,9 +91,9 @@ export function AddressListScreen({
 
   const MySnack = () => (
     <SnackBar
-      show={isSnackBarVisible}
+      visible={isSnackBarVisible}
       msg={snackBarMsg}
-      onDismiss={() => setSnackBarVisible(false)}
+      onDismiss={setSnackBarVisible}
     />
   );
 
@@ -100,15 +107,14 @@ export function AddressListScreen({
             data={addresses}
             onPressCreateAddressScreen={() =>
               navigation.navigate('addressManagementScreen', {
-                addresses: addresses,
-                index: undefined,
+                status: 'Create',
               })
             }
             onSelectDefaultAddress={_updateDefaultAddress}
             onPressEdit={(idx) =>
               navigation.navigate('addressManagementScreen', {
-                addresses: addresses,
                 index: idx,
+                status: 'Modify',
               })
             }
             onPressDelete={deleteAddress}
@@ -120,7 +126,18 @@ export function AddressListScreen({
           <Col>
             <Text
               align="right"
-              text={`${msgs.deliveryCharge}: ${0} ${currency}`}
+              text={`${msgs.cart}: ${route.params.total} ${currency}`}
+            />
+            <Text
+              align="right"
+              text={`${msgs.deliveryCharge}: ${deliveryCharge} ${currency}`}
+            />
+            <Text align="right" text="---------" />
+            <Text
+              align="right"
+              text={`${msgs.total}: ${
+                (route.params.total as number) + deliveryCharge
+              } ${currency}`}
             />
             <Button label={msgs.checkout} onPress={checkout} />
             <MySnack />

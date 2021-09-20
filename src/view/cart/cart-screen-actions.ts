@@ -17,11 +17,11 @@ export const loadCartBooksVOs = async (cart: Cart[]): Promise<CartBookVO[]> => {
   const books: Book[] = await bookService.findAllByIds({$in: bookIds});
   return books.map((bk) => {
     const crt = cart.find((val) => val.bookId === bk._id);
-    const price = crt ? crt.amount * bk.price : bk.price;
+    const price = crt ? crt.quantity * bk.price : bk.price;
     return new CartBookVO(
       bk._id,
       bk.name,
-      crt ? crt.amount : 1,
+      crt ? crt.quantity : 1,
       price,
       bk.imageFolderName,
       bk.inventory,
@@ -37,19 +37,19 @@ export const flatenNumberToArray = (val: number): labelValue[] => {
   return arr;
 };
 
-export const updateAmount = async (
+export const updateQuantity = async (
   book: Book,
   cart: Cart[],
-  oldAmount: number,
-  newAmount: number,
+  oldQuantity: number,
+  newQuantity: number,
   clb: cartCallback,
 ) => {
   const invUpdated = await bookService.updateInventory(
     book._id,
-    book.inventory + oldAmount - newAmount,
+    book.inventory + oldQuantity - newQuantity,
   );
   const modifiedCart: Cart[] = cart.map((crt) =>
-    crt.bookId === book._id ? {bookId: book._id, amount: newAmount} : crt,
+    crt.bookId === book._id ? {bookId: book._id, quantity: newQuantity} : crt,
   );
   const cartUpdated = await userService.updateCart(
     global.user._id,
@@ -69,9 +69,9 @@ export const removeFromCart = async (
   const cartBk = cart.find((crt) => crt.bookId === bookId);
   const invUpdated = await bookService.updateInventory(
     bookId,
-    book.inventory + (cartBk ? cartBk.amount : 0),
+    book.inventory + (cartBk ? cartBk.quantity : 0),
   );
-  const modifiedCart = _pushOrPopCart(bookId, cart);
+  const {modifiedCart} = _pushOrPopCart(bookId, cart);
   const cartUpdated = await userService.updateCart(
     global.user._id,
     modifiedCart,

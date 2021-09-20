@@ -1,5 +1,4 @@
-import {Address} from 'domain/address';
-import {_id} from 'zenbaei-js-lib/types';
+import {_id, Address} from 'zenbaei-js-lib/types';
 
 export class User extends _id {
   email!: string;
@@ -7,12 +6,13 @@ export class User extends _id {
   favs: string[] = [];
   cart: Cart[] = [];
   activated: boolean = false;
-  address!: Address[];
+  addresses!: Address[];
   phoneNo!: string;
   additionalPhoneNo!: string;
+  country!: string;
 }
 
 export type Cart = {
   bookId: string;
-  amount: number;
+  quantity: number;
 };

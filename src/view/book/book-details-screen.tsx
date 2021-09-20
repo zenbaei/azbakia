@@ -11,7 +11,7 @@ import {
 import {View} from 'react-native';
 import {getStyles} from 'constants/styles';
 import {getMessages} from 'constants/in18/messages-interface';
-import {BookComponent} from 'component/book-component';
+import {BookComponent} from 'view/book/book-component';
 import Snackbar from 'react-native-paper/src/components/Snackbar';
 import {useFocusEffect} from '@react-navigation/native';
 import {UserContext} from 'user-context';

@@ -18,7 +18,7 @@ export interface MessagesInterface {
   removedFromCart: string;
   removeFromCart: string;
   newArrivals: string;
-  amount: string;
+  quantity: string;
   availableCopies: string;
   total: string;
   emptyCart: string;
@@ -54,6 +54,7 @@ export interface MessagesInterface {
   addAddress: string;
   chooseDeliveryAddress: string;
   createAddress: string;
+  modifyAddress: string;
   save: string;
   update: string;
   changePassword: string;
@@ -66,6 +67,17 @@ export interface MessagesInterface {
   defaultAddressUpdated: string;
   pleaseAddAddress: string;
   noAddress: string;
+  addressMandatoryFields: string;
+  charges: string;
+  saveError: string;
+  expectedDeliveryDate: string;
+  between: string;
+  paymentMethod: string;
+  cod: string;
+  credit: string;
+  cardNumber: string;
+  cvv: string;
+  and: string;
   getKeyAtRuntime: (key: string) => string;
 }
 

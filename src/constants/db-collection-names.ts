@@ -1,6 +1,7 @@
 export const DbCollectionNames = {
   users: 'users',
   books: 'books',
-  cities: 'cities',
+  countries: 'countries',
   genres: 'genres',
+  orders: 'orders',
 };

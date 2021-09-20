@@ -1,7 +1,14 @@
 import {Book} from 'domain/book/book';
 import React, {useCallback, useContext, useState} from 'react';
 import {FlatList, StyleSheet} from 'react-native';
-import {Grid, NavigationProps, Text, Row, Col} from 'zenbaei-js-lib/react';
+import {
+  Grid,
+  NavigationProps,
+  Text,
+  Row,
+  Col,
+  SearchBar,
+} from 'zenbaei-js-lib/react';
 import {NavigationScreens} from 'constants/navigation-screens';
 import Snackbar from 'react-native-paper/src/components/Snackbar';
 import {
@@ -16,8 +23,7 @@ import {UserContext} from 'user-context';
 import {useFocusEffect} from '@react-navigation/native';
 import {isEmpty} from 'zenbaei-js-lib/utils';
 import ActivityIndicator from 'react-native-paper/src/components/ActivityIndicator';
-import {SearchBar} from 'view/search-bar';
-import {BookComponent} from 'component/book-component';
+import {BookComponent} from 'view/book/book-component';
 
 export function BookScreen({
   navigation,
@@ -28,6 +34,8 @@ export function BookScreen({
   const [page, setPage] = useState(0);
   const [maxPageNumber, setMaxPageNumber] = useState(1);
   const [animating, setAnimating] = useState(false);
+  const [isShowLoadingIndicator, setShowLoadingIndicator] = useState(false);
+  const [isShowNoBooksTxt, setShowNoBooksTxt] = useState(false);
   const {cart, msgs, theme, language} = useContext(UserContext);
   const [snackBarMsg, setSnackBarMsg] = useState('');
   const [isSnackBarVisible, setSnackBarVisible] = useState(false);
@@ -37,23 +45,29 @@ export function BookScreen({
   useFocusEffect(
     useCallback(() => {
       global.setAppBarTitle(msgs.home);
+      cart.length > 0
+        ? global.setDisplayCartBtn('flex')
+        : global.setDisplayCartBtn('none');
+    }, [cart.length, msgs]),
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      setShowLoadingIndicator(true);
+      setShowNoBooksTxt(false);
       loadFirstBooksPageAndCalcTotalPagesNumber(
         subGenre?.nameEn,
         (result, totalPagesNumber) => {
           setMaxPageNumber(totalPagesNumber);
           setBooks(result);
           setPage(1);
+          if (result.length === 0) {
+            setShowNoBooksTxt(true);
+            setShowLoadingIndicator(false);
+          }
         },
       );
-    }, [subGenre, msgs]),
-  );
-
-  useFocusEffect(
-    useCallback(() => {
-      cart.length > 0
-        ? global.setDisplayCartBtn('flex')
-        : global.setDisplayCartBtn('none');
-    }, [cart.length]),
+    }, [subGenre]),
   );
 
   const loadNextPage = async () => {
@@ -151,12 +165,19 @@ export function BookScreen({
               )}
             />
           ) : (
-            <Text
-              testID={'noResultFound'}
-              text={msgs.noResultFound}
-              align="center"
-              style={{color: theme.mediumEmphasis}}
-            />
+            <>
+              <ActivityIndicator
+                animating={isShowLoadingIndicator}
+                color={theme.onBackground}
+              />
+              <Text
+                testID={'noResultFound'}
+                text={msgs.noBooksAvailable}
+                align="center"
+                display={isShowNoBooksTxt}
+                mediumEmphasis
+              />
+            </>
           )}
           <Snackbar
             duration={5000}

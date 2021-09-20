@@ -32,6 +32,7 @@ export default function LoginScreen({
     global.user = {
       _id: user._id as string,
       email: user.email,
+      country: user.country,
     };
     setCart(user.cart ? user.cart : []);
     setFavs(user.favs ? user.favs : []);

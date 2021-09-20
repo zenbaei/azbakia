@@ -22,24 +22,24 @@ export const getIconColor = (
  *
  * @param bookId
  * @param cart
- * @returns - the modified cart and the amount of 1 in case of adding to cart or the cart's amount
+ * @returns - the modified cart and the quantity of 1 in case of adding to cart or the cart's amount
  * in case of removing from cart
  *
  */
 export const _pushOrPopCart = (
   bookId: string,
   cart: Cart[],
-): {modifiedCart: Cart[]; cartAmount: number} => {
-  let amount: number = -1;
+): {modifiedCart: Cart[]; cartQuantity: number} => {
+  let quantity: number = -1;
   let cartClone = [...cart];
   const index: number = cart.findIndex((val) => val.bookId === bookId);
   if (index === -1) {
-    cartClone.push({bookId: bookId, amount: 1});
+    cartClone.push({bookId: bookId, quantity: 1});
   } else {
     const crt = cartClone.splice(index, 1);
-    amount = crt[0].amount;
+    quantity = crt[0].quantity;
   }
-  return {modifiedCart: cartClone, cartAmount: amount};
+  return {modifiedCart: cartClone, cartQuantity: quantity};
 };
 
 export const _updateCart = async (cart: Cart[]): Promise<boolean> => {
@@ -52,11 +52,11 @@ export const _updateCart = async (cart: Cart[]): Promise<boolean> => {
 
 export const _updateInventory = async (
   book: Book,
-  amount: number,
+  quantity: number,
 ): Promise<boolean> => {
   const result: modificationResult = await bookService.updateInventory(
     book._id,
-    book.inventory + amount,
+    book.inventory + quantity,
   );
   return result.modified === 1;
 };
@@ -66,8 +66,8 @@ export const addOrRmvFrmCart = async (
   cart: Cart[],
   callback: cartCallback,
 ): Promise<void> => {
-  const {modifiedCart, cartAmount} = _pushOrPopCart(book._id, cart);
-  const isCopiesUpdated: boolean = await _updateInventory(book, cartAmount);
+  const {modifiedCart, cartQuantity} = _pushOrPopCart(book._id, cart);
+  const isCopiesUpdated: boolean = await _updateInventory(book, cartQuantity);
   const isCartUpdated: boolean = await _updateCart(modifiedCart);
   if (isCartUpdated && isCopiesUpdated) {
     callback(modifiedCart);
@@ -131,9 +131,9 @@ export const loadFirstBooksPageAndCalcTotalPagesNumber = async (
   const result = isEmpty(genre)
     ? await bookService.findByNewArrivals()
     : await bookService.findByGenre(genre);
-  let resultPerPageSize =
+  let firstPageBooks =
     result.length >= pageSize ? result.slice(0, pageSize) : result;
-  clb(resultPerPageSize, Math.ceil(result.length / pageSize));
+  clb(firstPageBooks, Math.ceil(result.length / pageSize));
 };
 
 export const loadFirstSearchedBooksPageAndCalcTotalPageNumber = async (
