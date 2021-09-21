@@ -1,14 +1,16 @@
 import {useFocusEffect} from '@react-navigation/core';
 import React, {useCallback, useContext, useState} from 'react';
 import {Address} from 'zenbaei-js-lib/types';
-import {Grid, Row, Col, Text, Card} from 'zenbaei-js-lib/react';
+import {Grid, Row, Col, Text, Card, InputText} from 'zenbaei-js-lib/react';
 import {NavigationProps} from 'zenbaei-js-lib/react/types/navigation-props';
 import {NavigationScreens} from 'constants/navigation-screens';
 import {userService} from 'domain/user/user-service';
 import {UserContext} from 'user-context';
 import {getDistrictCharge} from 'view/address/address-actions';
 import {currency} from '../../../app.config';
-import {inspectDeliveryDate} from './delivery-actions';
+import {DeliveryDateRange, inspectDeliveryDate} from './delivery-actions';
+import moment from 'moment';
+import {StyleSheet} from 'react-native';
 
 export const DeliveryScreen = ({
   navigation,
@@ -17,11 +19,13 @@ export const DeliveryScreen = ({
   const [address, setAddress] = useState({} as Address);
   const [deliveryCharge, setDeliveryCharge] = useState(0);
   const [expectedDeliveryDate, setExpectedDeliveryDate] = useState(
-    {} as {from: Date; to: Date},
+    {} as DeliveryDateRange,
   );
   const [phoneNo, setPhoneNo] = useState('');
   const [additionalPhoneNo, setAdditionalPhoneNo] = useState('');
+  const [cardNumber, setCardNumber] = useState('');
   const {msgs, theme} = useContext(UserContext);
+  const dateFormat = 'ddd MM MMM YYYY';
 
   useFocusEffect(
     useCallback(() => {
@@ -33,17 +37,28 @@ export const DeliveryScreen = ({
         getDistrictCharge(ad as Address).then((charge) =>
           setDeliveryCharge(charge),
         );
-        Date;
         setExpectedDeliveryDate(inspectDeliveryDate());
       });
+      return () => {
+        setCardNumber('');
+      };
     }, []),
   );
 
   return (
     <Grid>
-      <Row proportion={9}>
+      <Row>
         <Col>
+          <Text
+            style={inlineStyle.deliveryDate}
+            text={`${msgs.expectedDeliveryDate} ${msgs.between} ${moment(
+              expectedDeliveryDate.from,
+            ).format(dateFormat)} ${msgs.and} ${moment(
+              expectedDeliveryDate.to,
+            ).format(dateFormat)}`}
+          />
           <Card width="100%">
+            <Text text={msgs.deliveryDetails} color={theme.secondary} bold />
             <Text text={msgs.address} color={theme.secondary} bold />
             <Text
               align={'left'}
@@ -53,16 +68,19 @@ export const DeliveryScreen = ({
             <Text text={phoneNo} />
             <Text text={msgs.additionalPhoneNo} color={theme.secondary} bold />
             <Text text={additionalPhoneNo} />
-            <Text
-              text={`${msgs.expectedDeliveryDate} ${msgs.between} ${expectedDeliveryDate.from} ${msgs.and} ${expectedDeliveryDate.to}`}
-            />
           </Card>
         </Col>
       </Row>
-      <Row>
+      <Row proportion={0} style={{backgroundColor: 'green'}}>
         <Col>
-          <Card>
+          <Card width="100%">
             <Text text={msgs.paymentMethod} />
+            <Text text={msgs.credit} />
+            <InputText
+              value={cardNumber}
+              placeholder={msgs.cardNumber}
+              onChangeText={(val) => setCardNumber(val)}
+            />
           </Card>
         </Col>
       </Row>
@@ -96,3 +114,9 @@ export const DeliveryScreen = ({
     </Grid>
   );
 };
+
+const inlineStyle = StyleSheet.create({
+  deliveryDate: {
+    padding: 10,
+  },
+});

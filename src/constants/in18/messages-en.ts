@@ -80,5 +80,6 @@ export const messagesEn: MessagesInterface = {
   credit: 'Credit card',
   paymentMethod: 'Payment method',
   cvv: 'cvv',
+  deliveryDetails: 'Delivery details',
   getKeyAtRuntime: (key: string) => messagesEn[key] as string,
 };

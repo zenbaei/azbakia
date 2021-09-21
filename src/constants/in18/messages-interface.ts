@@ -78,6 +78,7 @@ export interface MessagesInterface {
   cardNumber: string;
   cvv: string;
   and: string;
+  deliveryDetails: string;
   getKeyAtRuntime: (key: string) => string;
 }
 

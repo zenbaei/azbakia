@@ -1,12 +1,7 @@
 import React, {useContext, useState} from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 import {NavigationScreens} from 'constants/navigation-screens';
-import {
-  getNavigatorHeaderStyle,
-  Button,
-  Ctx,
-  ForgetPassword,
-} from 'zenbaei-js-lib/react';
+import {getNavigatorHeaderStyle, Button, Ctx} from 'zenbaei-js-lib/react';
 import IconButton from 'react-native-paper/src/components/IconButton';
 import {DrawerActions} from '@react-navigation/native';
 import LoginScreen from 'view/login/login-screen';

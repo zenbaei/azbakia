@@ -1,7 +1,9 @@
 export const inspectDeliveryDate = (): DeliveryDateRange => {
-  const d: Date = new Date();
-  const from = d.getDate() + 3;
-  const to = d.getDate() + 7;
+  const now: Date = new Date();
+  const from = new Date();
+  const to = new Date();
+  from.setDate(now.getDate() + 3);
+  to.setDate(now.getDate() + 7);
   return {from: new Date(from), to: new Date(to)};
 };
 
