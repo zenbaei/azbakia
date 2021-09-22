@@ -1,11 +1,10 @@
-import {Book} from 'domain/book/book';
 import {SubGenre} from 'domain/genre/genre';
 import {Cart} from 'domain/user/user';
 
 export type NavigationScreens = {
   loginScreen: {};
-  bookScreen: {subGenre: SubGenre};
-  bookDetailsScreen: Book;
+  bookScreen: {subGenre: SubGenre; favourite?: boolean};
+  bookDetailsScreen: {id: string};
   bookGenreScreen: {};
   cartScreen: {cart: Cart[]};
   lookInsideBookScreen: {imageFolderName: string};
@@ -17,8 +16,7 @@ export type NavigationScreens = {
   addressListScreen: {};
   deliveryScreen: {cartTotalPrice: number};
   addressManagementScreen: {
-    index?: number;
-    status: 'Create' | 'Modify';
+    id?: string;
   };
   profileScreen: {};
 };

@@ -2,7 +2,7 @@ import {getStyles} from 'constants/styles';
 import {Book} from 'domain/book/book';
 import React, {useContext} from 'react';
 import {ViewStyle} from 'react-native';
-import {Alert, Image, TouchableHighlight, View} from 'react-native';
+import {Alert, Image, TouchableHighlight} from 'react-native';
 import IconButton from 'react-native-paper/src/components/IconButton';
 import {UserContext} from 'user-context';
 import {
@@ -88,18 +88,26 @@ export const BookComponent = ({
         }}
         onPress={() => _updateFav(book._id)}
       />
-      <View style={styles.wide}>
-        <Text style={{...styles.title, ...styles.bold}} text={book.name} />
+      <Text
+        style={{...styles.title}}
+        text={book.name}
+        color={theme.secondary}
+      />
+      <Text
+        align="right"
+        style={{...styles.bold, ...styles.price}}
+        text={`${book.price} ${currency}`}
+      />
+      {book.inventory && book.inventory > 0 ? (
         <Text
-          style={{...styles.bold, ...styles.price}}
-          text={`${book.price} ${currency}`}
-        />
-        <Text
+          align="right"
           testID="copies"
           style={{...styles.bold, ...styles.price, ...cartScreenStyle}}
           text={`${msgs.availableCopies}: ${book.inventory}`}
         />
-      </View>
+      ) : (
+        <></>
+      )}
       {cart.find((car) => car.bookId === book._id) ? (
         <Button
           testID={'removeFromCartBtn'}

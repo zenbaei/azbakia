@@ -8,20 +8,24 @@ import {
   Row,
   Col,
 } from 'zenbaei-js-lib/react';
-import {View} from 'react-native';
+import {FlexAlignType, View} from 'react-native';
 import {getStyles} from 'constants/styles';
 import {getMessages} from 'constants/in18/messages-interface';
 import {BookComponent} from 'view/book/book-component';
 import Snackbar from 'react-native-paper/src/components/Snackbar';
 import {useFocusEffect} from '@react-navigation/native';
 import {UserContext} from 'user-context';
+import {bookService} from 'domain/book/book-service';
+import {Book} from 'domain/book/book';
 
 export function BookDetailsScreen({
   navigation,
   route,
 }: NavigationProps<NavigationScreens, 'bookDetailsScreen'>) {
-  const [book, setBook] = useState(route.params);
-  const viewDirection = book.language === 'ar' ? 'flex-end' : 'flex-start';
+  const [book, setBook] = useState({} as Book);
+  const [viewDirection, setViewDirection] = useState(
+    'flex-start' as FlexAlignType,
+  );
   const {theme, language, cart} = useContext(UserContext);
   const styles = getStyles(theme);
   const msgs = getMessages(language);
@@ -31,8 +35,11 @@ export function BookDetailsScreen({
   useFocusEffect(
     useCallback(() => {
       global.setAppBarTitle(msgs.bookDetails);
-      setBook(route.params);
-    }, [msgs, route.params]),
+      bookService.findOne('_id', route.params.id).then((bk) => {
+        setBook(bk);
+        setViewDirection(bk.language === 'ar' ? 'flex-end' : 'flex-start');
+      });
+    }, [msgs, route.params.id]),
   );
 
   useFocusEffect(
@@ -67,10 +74,14 @@ export function BookDetailsScreen({
             />
           </View>
 
-          <View style={{alignItems: viewDirection}}>
-            <Text style={styles.bold} text={`${msgs.description}:`} />
-            <Text text={book.description} />
-          </View>
+          <Text
+            bold
+            color={theme.secondary}
+            align="left"
+            style={styles.bold}
+            text={`${msgs.description}:`}
+          />
+          <Text align="left" text={book.description} />
 
           <Snackbar
             duration={5000}

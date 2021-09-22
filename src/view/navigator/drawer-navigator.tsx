@@ -92,6 +92,12 @@ function CustomDrawerContent(
         label={msgs.profile}
         onPress={() => props.navigation.navigate('profileScreen', {})}
       />
+      <DrawerItem
+        label={msgs.favourite}
+        onPress={() =>
+          props.navigation.navigate('bookScreen', {favourite: true})
+        }
+      />
     </DrawerContentScrollView>
   );
 }

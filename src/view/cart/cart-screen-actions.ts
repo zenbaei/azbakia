@@ -8,7 +8,7 @@ import {CartBookVO} from './cart-book-vo';
 
 export const calculateSum = (cartBooksVO: CartBookVO[]): number => {
   return cartBooksVO
-    .map((cartBk) => cartBk.price)
+    .map((cartBk) => cartBk.price * cartBk.quantity)
     .reduce((total, cur) => (total + cur) as number, 0);
 };
 
@@ -17,12 +17,11 @@ export const loadCartBooksVOs = async (cart: Cart[]): Promise<CartBookVO[]> => {
   const books: Book[] = await bookService.findAllByIds({$in: bookIds});
   return books.map((bk) => {
     const crt = cart.find((val) => val.bookId === bk._id);
-    const price = crt ? crt.quantity * bk.price : bk.price;
     return new CartBookVO(
       bk._id,
       bk.name,
-      crt ? crt.quantity : 1,
-      price,
+      crt?.quantity as number,
+      bk.price,
       bk.imageFolderName,
       bk.inventory,
     );

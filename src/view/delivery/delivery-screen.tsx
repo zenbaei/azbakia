@@ -1,7 +1,15 @@
 import {useFocusEffect} from '@react-navigation/core';
 import React, {useCallback, useContext, useState} from 'react';
 import {Address} from 'zenbaei-js-lib/types';
-import {Grid, Row, Col, Text, Card, InputText} from 'zenbaei-js-lib/react';
+import {
+  Grid,
+  Row,
+  Col,
+  Text,
+  Card,
+  InputText,
+  Button,
+} from 'zenbaei-js-lib/react';
 import {NavigationProps} from 'zenbaei-js-lib/react/types/navigation-props';
 import {NavigationScreens} from 'constants/navigation-screens';
 import {userService} from 'domain/user/user-service';
@@ -10,7 +18,9 @@ import {getDistrictCharge} from 'view/address/address-actions';
 import {currency} from '../../../app.config';
 import {DeliveryDateRange, inspectDeliveryDate} from './delivery-actions';
 import moment from 'moment';
-import {StyleSheet} from 'react-native';
+import {Alert, ScrollView, StyleSheet, View} from 'react-native';
+import {Order} from 'domain/order/order';
+import {orderService} from 'domain/order/order-service';
 
 export const DeliveryScreen = ({
   navigation,
@@ -24,12 +34,31 @@ export const DeliveryScreen = ({
   const [phoneNo, setPhoneNo] = useState('');
   const [additionalPhoneNo, setAdditionalPhoneNo] = useState('');
   const [cardNumber, setCardNumber] = useState('');
-  const {msgs, theme} = useContext(UserContext);
+  const [cvv, setCvv] = useState('');
+  const {msgs, theme, cart} = useContext(UserContext);
   const dateFormat = 'ddd MM MMM YYYY';
+  const emptyString = '     ';
+  const [
+    showManageDeliveryDetailsBtn,
+    setShowManageDeliveryDetailsBtn,
+  ] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
+      global.setAppBarTitle(msgs.delivery);
       userService.findOne('email', global.user.email).then((usr) => {
+        if (
+          !usr.addresses ||
+          usr.addresses.length < 1 ||
+          usr.phoneNo === undefined ||
+          usr.phoneNo.length < 1
+        ) {
+          setShowManageDeliveryDetailsBtn(true);
+          return;
+        } else {
+          setShowManageDeliveryDetailsBtn(false);
+        }
+
         const ad = usr.addresses.find((a) => a.default);
         setAddress(ad as Address);
         setPhoneNo(usr.phoneNo);
@@ -39,84 +68,152 @@ export const DeliveryScreen = ({
         );
         setExpectedDeliveryDate(inspectDeliveryDate());
       });
-      return () => {
-        setCardNumber('');
-      };
-    }, []),
+      return cleanup();
+    }, [msgs]),
   );
+
+  const cleanup = () => {
+    setCardNumber('');
+    setCvv('');
+  };
+
+  const checkout = () => {
+    const order: Order = {
+      expectedDeliveryDateFrom: expectedDeliveryDate.from.toDateString(),
+      expectedDeliveryDateTo: expectedDeliveryDate.to.toDateString(),
+      date: new Date().toDateString(),
+      cart: cart,
+      userEmail: global.user.email,
+      status: 'pending',
+    } as Order;
+    orderService
+      .insert(order)
+      .then((mr) =>
+        mr.modified === 1 ? Alert.alert('Send to payment gateway') : {},
+      );
+  };
 
   return (
     <Grid>
-      <Row>
-        <Col>
-          <Text
-            style={inlineStyle.deliveryDate}
-            text={`${msgs.expectedDeliveryDate} ${msgs.between} ${moment(
-              expectedDeliveryDate.from,
-            ).format(dateFormat)} ${msgs.and} ${moment(
-              expectedDeliveryDate.to,
-            ).format(dateFormat)}`}
-          />
-          <Card width="100%">
-            <Text text={msgs.deliveryDetails} color={theme.secondary} bold />
-            <Text text={msgs.address} color={theme.secondary} bold />
+      {showManageDeliveryDetailsBtn ? (
+        <Row>
+          <Col>
+            <Text text={msgs.phoneAndAddressMandatory} />
+            <Button
+              label={msgs.modifyDeliveryInfo}
+              onPress={() => navigation.navigate('profileScreen', {})}
+            />
+          </Col>
+        </Row>
+      ) : (
+        <Row proportion={1}>
+          <Col>
+            <ScrollView>
+              <Text
+                style={inlineStyle.deliveryDate}
+                text={`${msgs.expectedDeliveryDate} ${msgs.between} ${moment(
+                  expectedDeliveryDate.from,
+                ).format(dateFormat)} ${msgs.and} ${moment(
+                  expectedDeliveryDate.to,
+                ).format(dateFormat)}`}
+              />
+              <Card width="100%">
+                <Text
+                  text={msgs.deliveryDetails}
+                  color={theme.secondary}
+                  bold
+                  style={inlineStyle.deliveryDetails}
+                />
+                <View style={inlineStyle.viewRow}>
+                  <Text
+                    text={`${msgs.address}: `}
+                    color={theme.secondary}
+                    bold
+                  />
+                  <Text text={formatAddress(address)} />
+                </View>
+                <View style={inlineStyle.viewRow}>
+                  <Text
+                    text={`${msgs.phoneNo}: `}
+                    color={theme.secondary}
+                    bold
+                  />
+                  <Text text={phoneNo} />
+                </View>
+
+                <View style={inlineStyle.viewRow}>
+                  <Text
+                    text={`${msgs.additionalPhoneNo}: `}
+                    color={theme.secondary}
+                    bold
+                  />
+                  <Text text={additionalPhoneNo} />
+                </View>
+                <Button
+                  label={'Change'}
+                  style={inlineStyle.buttonChange}
+                  onPress={() => navigation.navigate('profileScreen', {})}
+                />
+              </Card>
+              <Card width="100%">
+                <Text text={msgs.paymentMethod} color={theme.secondary} bold />
+                <Text text={msgs.credit} align="left" color={theme.secondary} />
+                <InputText
+                  value={cardNumber}
+                  placeholder={msgs.cardNumber}
+                  onChangeText={(val) => setCardNumber(val)}
+                />
+                <InputText
+                  value={cvv}
+                  placeholder={msgs.cvv}
+                  onChangeText={(val) => setCvv(val)}
+                />
+              </Card>
+            </ScrollView>
+
             <Text
-              align={'left'}
-              text={`${address.street}, ${address.building}, ${address.apartment}`}
+              align={'right'}
+              text={`${msgs.cart}: ${route.params.cartTotalPrice}`}
+              color={theme.secondary}
             />
-            <Text text={msgs.phoneNo} color={theme.secondary} bold />
-            <Text text={phoneNo} />
-            <Text text={msgs.additionalPhoneNo} color={theme.secondary} bold />
-            <Text text={additionalPhoneNo} />
-          </Card>
-        </Col>
-      </Row>
-      <Row proportion={0} style={{backgroundColor: 'green'}}>
-        <Col>
-          <Card width="100%">
-            <Text text={msgs.paymentMethod} />
-            <Text text={msgs.credit} />
-            <InputText
-              value={cardNumber}
-              placeholder={msgs.cardNumber}
-              onChangeText={(val) => setCardNumber(val)}
+            <Text
+              align={'right'}
+              text={`${msgs.deliveryCharge}: ${deliveryCharge}`}
+              color={theme.secondary}
             />
-          </Card>
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <Text
-            align={'right'}
-            text={`${msgs.cart}: ${route.params.cartTotalPrice}`}
-            color={theme.secondary}
-          />
-          <Text
-            align={'right'}
-            text={`${msgs.deliveryCharge}: ${deliveryCharge}`}
-            color={theme.secondary}
-          />
-          <Text
-            align="right"
-            text="     "
-            line={'underline'}
-            color={theme.secondary}
-          />
-          <Text
-            color={theme.secondary}
-            align="right"
-            text={`${msgs.total}: ${
-              route.params.cartTotalPrice + deliveryCharge
-            } ${currency}`}
-          />
-        </Col>
-      </Row>
+            <Text
+              align="right"
+              text={emptyString}
+              line="underline"
+              color={theme.secondary}
+            />
+            <Text
+              color={theme.secondary}
+              align="right"
+              text={`${msgs.total}: ${
+                route.params.cartTotalPrice + deliveryCharge
+              } ${currency}`}
+            />
+            <Button label={msgs.checkout} onPress={checkout} />
+          </Col>
+        </Row>
+      )}
     </Grid>
   );
+};
+
+const formatAddress = (address: Address): string => {
+  return `${address.street}, ${address.building}, ${address.apartment}, ${address.district}, ${address.city}`;
 };
 
 const inlineStyle = StyleSheet.create({
   deliveryDate: {
     padding: 10,
   },
+  deliveryDetails: {paddingBottom: 10},
+  viewRow: {
+    flexDirection: 'row',
+    width: '100%',
+  },
+  buttonChange: {alignSelf: 'flex-end'},
 });

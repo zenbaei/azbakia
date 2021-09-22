@@ -1,7 +1,7 @@
 import {NavigationScreens} from 'constants/navigation-screens';
 import {getStyles} from 'constants/styles';
 import React, {useCallback, useContext, useState} from 'react';
-import {Alert} from 'react-native';
+import {Alert, StyleSheet} from 'react-native';
 import {
   Button,
   Row,
@@ -106,20 +106,18 @@ export function CartScreen({
                           setSnackBarVisible(true);
                         }}
                         onPressImg={(bk) =>
-                          navigation.navigate('bookDetailsScreen', bk)
+                          navigation.navigate('bookDetailsScreen', {id: bk._id})
                         }
                       />
                     </Col>
                     <Col height="100%" verticalAlign="center">
                       <Text
                         align="center"
-                        style={{...styles.bold}}
-                        text={`${msgs.quantity}:`}
+                        style={{...styles.bold, ...inlineStyle.textPadding}}
+                        text={`${msgs.quantity}`}
                       />
-                    </Col>
-                    <Col height="100%" verticalAlign="center">
                       <Picker
-                        width={'90%'}
+                        width={'100%'}
                         data={flatenNumberToArray(
                           item.inventory + item.quantity,
                         )}
@@ -166,3 +164,5 @@ export function CartScreen({
     </Grid>
   );
 }
+
+const inlineStyle = StyleSheet.create({textPadding: {paddingBottom: 10}});

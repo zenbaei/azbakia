@@ -79,6 +79,16 @@ export interface MessagesInterface {
   cvv: string;
   and: string;
   deliveryDetails: string;
+  change: string;
+  phoneAndAddressMandatory: string;
+  modifyDeliveryInfo: string;
+  phoneNoManadatory: string;
+  invalidPhoneNo: string;
+  invalidAdditionalPhoneNo: string;
+  mobile: string;
+  phoneNoSaved: string;
+  passwordSaved: string;
+  favourite: string;
   getKeyAtRuntime: (key: string) => string;
 }
 

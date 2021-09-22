@@ -30,4 +30,5 @@ export const getStyles = (theme: AppThemeInterface) =>
       marginTop: 5,
     },
     removeIconStyle: {alignSelf: 'flex-end', marginEnd: 30},
+    viewRow: {width: '100%', flexDirection: 'row'},
   });

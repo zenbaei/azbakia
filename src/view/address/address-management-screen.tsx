@@ -14,7 +14,12 @@ import {
 } from 'zenbaei-js-lib/react';
 import {Address, modificationResult} from 'zenbaei-js-lib/types';
 import {isEmpty} from 'zenbaei-js-lib/utils';
-import {findCountry} from './address-actions';
+import {
+  findCountry,
+  generateUUID,
+  getAddress,
+  getIndex,
+} from './address-actions';
 import {userService} from 'domain/user/user-service';
 import {Alert, ScrollView} from 'react-native';
 import {Snackbar} from 'react-native-paper';
@@ -25,7 +30,6 @@ export function AddressManagementScreen({
   route,
 }: NavigationProps<NavigationScreens, 'addressManagementScreen'>) {
   const [addresses, setAddresses] = useState([] as Address[]);
-  const editAddressAtIndex = route.params.index;
   const [cities, setCities] = useState([] as City[]);
   const [districts, setDistricts] = useState([] as DistrictAndCharge[]);
   const [selectedCity, setSelectedCity] = useState('');
@@ -38,53 +42,50 @@ export function AddressManagementScreen({
   const [isSnackBarVisible, setSnackBarVisible] = useState(false);
   const [snackBarMsg, setSnackBarMsg] = useState('');
   const {msgs, theme} = useContext(UserContext);
+  const modifiedAddressId = route.params.id;
 
-  useFocusEffect(
-    useCallback(() => {
-      global.setAppBarTitle(
-        route.params.status === 'Create'
-          ? msgs.createAddress
-          : msgs.modifyAddress,
-      );
-      global.setDisplayCartBtn('none');
-
-      userService
-        .findOne('_id', global.user._id)
-        .then((usr) => setAddresses(usr.addresses));
-
-      findCountry(global.user.country).then((country) => {
-        setCities(country.cities);
-        route.params.status === 'Create'
-          ? resetFieldsState(country.cities)
-          : setFieldsState(country.cities);
-      });
-    }, [msgs, route.params.status]),
-  );
-
-  const setFieldsState = (cts: City[]) => {
-    const address: Address = addresses[editAddressAtIndex as number];
-    SetStreet(address.street);
-    setApartment(address.apartment);
-    setBuilding(address.building);
-    setComment(address.comment);
-    setDefaultAddress(address.default);
-    const c = cts.find((ct) => ct.city === address.city);
-    setDistricts(c?.districtsAndCharges as DistrictAndCharge[]);
-    setSelectedCity(address.city);
-    setSelectedDistrict(address.district);
-  };
-
-  const resetFieldsState = (cts: City[]) => {
+  const resetFieldsState = useCallback(() => {
     SetStreet('');
     setApartment('');
     setBuilding('');
     setComment('');
     setDefaultAddress(false);
-    const c = cts[0];
-    setSelectedCity(c.city);
-    setDistricts(c.districtsAndCharges);
-    setSelectedDistrict(c.districtsAndCharges[0].district);
-  };
+    const c = cities[0];
+    //setSelectedCity(c.city);
+    //setDistricts(c.districtsAndCharges);
+    // setSelectedDistrict(c.districtsAndCharges[0].district);
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      global.setAppBarTitle(
+        modifiedAddressId === undefined
+          ? msgs.createAddress
+          : msgs.modifyAddress,
+      );
+      global.setDisplayCartBtn('none');
+
+      userService.findOne('_id', global.user._id).then((usr) => {
+        setAddresses(usr.addresses);
+        findCountry(global.user.country).then((country) => {
+          setCities(country.cities);
+          if (modifiedAddressId !== undefined) {
+            const address = getAddress(addresses, modifiedAddressId);
+            SetStreet(address.street);
+            setApartment(address.apartment);
+            setBuilding(address.building);
+            setComment(address.comment);
+            setDefaultAddress(address.default);
+            const c = country.cities.find((ct) => ct.city === address.city);
+            setDistricts(c?.districtsAndCharges as DistrictAndCharge[]);
+            setSelectedCity(address.city);
+            setSelectedDistrict(address.district);
+          }
+        });
+      });
+      return resetFieldsState();
+    }, [msgs, modifiedAddressId, resetFieldsState]),
+  );
 
   const onCityValueChange = (item: string) => {
     setSelectedCity(item);
@@ -102,7 +103,7 @@ export function AddressManagementScreen({
 
     userService
       .updateById(global.user._id, {
-        $set: {address: clonedAddresses},
+        $set: {addresses: clonedAddresses},
       })
       .then((mr) => goBackOrShowError(mr));
   };
@@ -110,9 +111,13 @@ export function AddressManagementScreen({
   const updateAddress = () => {
     const ad = initAddress();
     const clonedAddresses = [...addresses];
-    clonedAddresses.splice(editAddressAtIndex as number, 1, ad);
+    clonedAddresses.splice(
+      getIndex(addresses, modifiedAddressId as string),
+      1,
+      ad,
+    );
     userService
-      .updateById(global.user._id, {$set: {address: clonedAddresses}})
+      .updateById(global.user._id, {$set: {addresses: clonedAddresses}})
       .then((mr) => goBackOrShowError(mr));
   };
 
@@ -130,11 +135,12 @@ export function AddressManagementScreen({
       Alert.alert(msgs.addressMandatoryFields);
       return;
     }
-    editAddressAtIndex === undefined ? insertNewAddress() : updateAddress();
+    modifiedAddressId === undefined ? insertNewAddress() : updateAddress();
   };
 
   const initAddress = () => {
     return {
+      id: generateUUID(),
       street: street,
       city: selectedCity,
       district: selectedDistrict,

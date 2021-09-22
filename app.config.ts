@@ -13,3 +13,4 @@ export const imagesNames: string[] = [
 ];
 export const currency = 'EGP';
 export const pageSize = 6;
+export const mobileNoLength = 10;

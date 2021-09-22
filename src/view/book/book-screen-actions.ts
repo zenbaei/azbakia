@@ -3,7 +3,7 @@ import {bookService} from 'domain/book/book-service';
 import {Cart} from 'domain/user/user';
 import {userService} from 'domain/user/user-service';
 import {AppThemeInterface} from 'zenbaei-js-lib/constants';
-import {modificationResult} from 'zenbaei-js-lib/types';
+import {inOp, modificationResult} from 'zenbaei-js-lib/types';
 import {isEmpty} from 'zenbaei-js-lib/utils';
 import {pageSize} from '../../../app.config';
 
@@ -164,6 +164,17 @@ export const loadSearchedBooksByPage = async (
     page * pageSize,
     pageSize,
   );
+};
+
+export const findFavouriteBooks = async (
+  favs: string[],
+): Promise<Book[] | undefined> => {
+  if (!favs || favs.length === 0) {
+    return;
+  }
+  const inFavs: inOp = {$in: favs};
+  const books = await bookService.findAllByIds(inFavs);
+  return books;
 };
 
 export type cartCallback = (modifiedCart: Cart[]) => void;
