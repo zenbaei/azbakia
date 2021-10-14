@@ -32,6 +32,40 @@ export const getDistrictCharge = async (address: Address): Promise<number> => {
   return districtAndCharge?.deliveryCharge as number;
 };
 
+export const updateAddress = async (
+  modifiedAddressId: string,
+  newAddress: Address,
+  clb: (updated: boolean) => void,
+) => {
+  const usr = await userService.findOne('_id', global.user._id);
+  const clonedAddresses = [...usr.addresses];
+  clonedAddresses.splice(
+    getIndex(usr.addresses, modifiedAddressId as string),
+    1,
+    newAddress,
+  );
+  userService
+    .updateById(global.user._id, {$set: {addresses: clonedAddresses}})
+    .then((mr) => (mr.modified === 1 ? clb(true) : clb(false)));
+};
+
+export const insertAddress = async (
+  newAddress: Address,
+  clb: (inserted: boolean) => void,
+) => {
+  const usr = await userService.findOne('_id', global.user._id);
+  const clonedAddresses = [...usr.addresses];
+  if (clonedAddresses && clonedAddresses.length === 0) {
+    newAddress.default = true;
+  }
+  clonedAddresses.push(newAddress);
+  userService
+    .updateById(global.user._id, {
+      $set: {addresses: clonedAddresses},
+    })
+    .then((mr) => (mr.modified === 1 ? clb(true) : clb(false)));
+};
+
 export const generateUUID = (): string => {
   return uuidv1();
 };

@@ -1,4 +1,5 @@
 import {_id, Address} from 'zenbaei-js-lib/types';
+import {Cart} from './cart';
 
 export class User extends _id {
   email!: string;
@@ -11,8 +12,3 @@ export class User extends _id {
   additionalPhoneNo!: string;
   country!: string;
 }
-
-export type Cart = {
-  bookId: string;
-  quantity: number;
-};

@@ -20,6 +20,7 @@ export interface MessagesInterface {
   newArrivals: string;
   quantity: string;
   availableCopies: string;
+  stock: string;
   total: string;
   emptyCart: string;
   cart: string;
@@ -30,7 +31,7 @@ export interface MessagesInterface {
   register: string;
   forgetPassword: string;
   ok: string;
-  activateAcc: string;
+  emailExists: string;
   welcome: string;
   activationEmailSubject: string;
   activationEmailBody: string;
@@ -89,6 +90,16 @@ export interface MessagesInterface {
   phoneNoSaved: string;
   passwordSaved: string;
   favourite: string;
+  noFavBooks: string;
+  sendingEmailError: string;
+  userCreated: string;
+  wrongUsernameOrPassword: string;
+  requestCopy: string;
+  requestSaved: string;
+  logout: string;
+  yes: string;
+  no: string;
+  orders: string;
   getKeyAtRuntime: (key: string) => string;
 }
 

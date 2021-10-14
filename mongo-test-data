@@ -1,7 +1,0 @@
-db.createCollection('users');
-db.users.insertOne({email:'islam', password:'islam'});
-db.createCollection('books');
-db.books.insertOne({name:'bokhary', price:'100', description:'main book of hadith', imageFolderName:'bokhary.jpg', newArrivals:true});
-db.books.insertOne({name:'muslim', price:'80', description:'main book of hadith after bukhary', imageFolderName:'muslim.jpg', newArrivals:true});
-db.books.insertOne({name:'mowata', price:'60', description:'Imam Malek great book', imageFolderName:'mowata.jpg', newArrivals:true});
-db.books.insertOne({name:'ibn-katheer', price:'150', description:'Tafsir Quraan', imageFolderName:'ibnKatheer.jpg', newArrivals:true});

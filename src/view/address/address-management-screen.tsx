@@ -10,51 +10,38 @@ import {
   NavigationProps,
   Picker,
   Row,
+  SnackBar,
   Text,
 } from 'zenbaei-js-lib/react';
-import {Address, modificationResult} from 'zenbaei-js-lib/types';
+import {Address} from 'zenbaei-js-lib/types';
 import {isEmpty} from 'zenbaei-js-lib/utils';
 import {
   findCountry,
   generateUUID,
-  getAddress,
-  getIndex,
+  insertAddress,
+  updateAddress,
 } from './address-actions';
 import {userService} from 'domain/user/user-service';
 import {Alert, ScrollView} from 'react-native';
-import {Snackbar} from 'react-native-paper';
 import {City, DistrictAndCharge} from 'domain/country/country';
 
 export function AddressManagementScreen({
   navigation,
   route,
 }: NavigationProps<NavigationScreens, 'addressManagementScreen'>) {
-  const [addresses, setAddresses] = useState([] as Address[]);
   const [cities, setCities] = useState([] as City[]);
   const [districts, setDistricts] = useState([] as DistrictAndCharge[]);
   const [selectedCity, setSelectedCity] = useState('');
   const [selectedDistrict, setSelectedDistrict] = useState('');
-  const [street, SetStreet] = useState('');
+  const [street, setStreet] = useState('');
   const [apartment, setApartment] = useState('');
   const [building, setBuilding] = useState('');
   const [comment, setComment] = useState('');
   const [defaultAddress, setDefaultAddress] = useState(false);
   const [isSnackBarVisible, setSnackBarVisible] = useState(false);
   const [snackBarMsg, setSnackBarMsg] = useState('');
-  const {msgs, theme} = useContext(UserContext);
+  const {msgs, cart} = useContext(UserContext);
   const modifiedAddressId = route.params.id;
-
-  const resetFieldsState = useCallback(() => {
-    SetStreet('');
-    setApartment('');
-    setBuilding('');
-    setComment('');
-    setDefaultAddress(false);
-    const c = cities[0];
-    //setSelectedCity(c.city);
-    //setDistricts(c.districtsAndCharges);
-    // setSelectedDistrict(c.districtsAndCharges[0].district);
-  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -63,66 +50,74 @@ export function AddressManagementScreen({
           ? msgs.createAddress
           : msgs.modifyAddress,
       );
-      global.setDisplayCartBtn('none');
+      cart.length > 0
+        ? global.setDisplayCartBtn('flex')
+        : global.setDisplayCartBtn('none');
+    }, [msgs, modifiedAddressId, cart]),
+  );
 
-      userService.findOne('_id', global.user._id).then((usr) => {
-        setAddresses(usr.addresses);
-        findCountry(global.user.country).then((country) => {
-          setCities(country.cities);
-          if (modifiedAddressId !== undefined) {
-            const address = getAddress(addresses, modifiedAddressId);
-            SetStreet(address.street);
-            setApartment(address.apartment);
-            setBuilding(address.building);
-            setComment(address.comment);
-            setDefaultAddress(address.default);
-            const c = country.cities.find((ct) => ct.city === address.city);
-            setDistricts(c?.districtsAndCharges as DistrictAndCharge[]);
-            setSelectedCity(address.city);
-            setSelectedDistrict(address.district);
-          }
-        });
+  const cleanUp = useCallback(() => {
+    setStreet('');
+    setApartment('');
+    setBuilding('');
+    setComment('');
+    setDefaultAddress(false);
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      findCountry(global.user.country).then((country) => {
+        const cty = country.cities[0];
+        setCities(country.cities);
+        setDistricts(cty.districtsAndCharges);
+        setSelectedCity(cty.city);
       });
-      return resetFieldsState();
-    }, [msgs, modifiedAddressId, resetFieldsState]),
+      return cleanUp();
+    }, [cleanUp]),
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      if (modifiedAddressId === undefined || cities.length === 0) {
+        return;
+      }
+      userService.findOne('_id', global.user._id).then((usr) => {
+        const ad = usr.addresses.find(
+          (d) => d.id === modifiedAddressId,
+        ) as Address;
+        setStreet(ad.street);
+        setBuilding(ad.building);
+        setApartment(ad.apartment);
+        setComment(ad.comment);
+        setDefaultAddress(ad.default);
+        const cty = cities.find((c) => c.city === ad.city) as City;
+        setDistricts(cty.districtsAndCharges);
+        setSelectedCity(ad.city);
+        setSelectedDistrict(ad.district);
+      });
+    }, [cities, modifiedAddressId]),
   );
 
   const onCityValueChange = (item: string) => {
     setSelectedCity(item);
-    const cty = cities.find((ct) => ct.city === item);
-    setDistricts(cty?.districtsAndCharges as DistrictAndCharge[]);
+    const cty = cities.find((ct) => ct.city === item) as City;
+    setDistricts(cty.districtsAndCharges);
+    setSelectedDistrict(cty.districtsAndCharges[0].district);
   };
 
   const insertNewAddress = () => {
     const ad: Address = initAddress();
-    const clonedAddresses = [...addresses];
-    if (clonedAddresses && clonedAddresses.length === 0) {
-      ad.default = true;
-    }
-    clonedAddresses.push(ad);
-
-    userService
-      .updateById(global.user._id, {
-        $set: {addresses: clonedAddresses},
-      })
-      .then((mr) => goBackOrShowError(mr));
+    insertAddress(ad, (inserted) => goBackOrShowSnackbar(inserted));
   };
 
-  const updateAddress = () => {
-    const ad = initAddress();
-    const clonedAddresses = [...addresses];
-    clonedAddresses.splice(
-      getIndex(addresses, modifiedAddressId as string),
-      1,
-      ad,
+  const _updateAddress = () => {
+    updateAddress(modifiedAddressId as string, initAddress(), (updated) =>
+      goBackOrShowSnackbar(updated),
     );
-    userService
-      .updateById(global.user._id, {$set: {addresses: clonedAddresses}})
-      .then((mr) => goBackOrShowError(mr));
   };
 
-  const goBackOrShowError = (mr: modificationResult) => {
-    if (mr.modified === 1) {
+  const goBackOrShowSnackbar = (updated: boolean) => {
+    if (updated) {
       navigation.goBack();
     } else {
       setSnackBarMsg(msgs.saveError);
@@ -135,7 +130,7 @@ export function AddressManagementScreen({
       Alert.alert(msgs.addressMandatoryFields);
       return;
     }
-    modifiedAddressId === undefined ? insertNewAddress() : updateAddress();
+    modifiedAddressId === undefined ? insertNewAddress() : _updateAddress();
   };
 
   const initAddress = () => {
@@ -153,103 +148,101 @@ export function AddressManagementScreen({
   };
 
   return (
-    <Grid>
-      <Row>
-        <Col verticalAlign={'flex-start'}>
-          <Picker
-            selectedValue={selectedCity}
-            onValueChange={onCityValueChange}
-            data={cities.map((cty) => ({
-              label: cty.city,
-              value: cty.city,
-            }))}
-          />
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <Picker
-            selectedValue={selectedDistrict}
-            onValueChange={(item) => setSelectedDistrict(item)}
-            data={districts.map((d) => ({
-              label: d.district,
-              value: d.district,
-            }))}
-          />
-        </Col>
-      </Row>
-      <Row proportion={1}>
-        <Col>
-          <ScrollView>
-            <Row>
-              <Col>
-                <Text align={'left'} text={msgs.street} />
-              </Col>
-            </Row>
-            <Row>
-              <Col>
-                <InputText
-                  onChangeText={(tx) => SetStreet(tx)}
-                  value={street}
-                />
-              </Col>
-            </Row>
-            <Row>
-              <Col>
-                <Text align={'left'} text={msgs.building} />
-              </Col>
-            </Row>
-            <Row>
-              <Col>
-                <InputText
-                  onChangeText={(tx) => setBuilding(tx)}
-                  value={building}
-                />
-              </Col>
-            </Row>
-            <Row>
-              <Col>
-                <Text align={'left'} text={msgs.apartment} />
-              </Col>
-            </Row>
-            <Row>
-              <Col>
-                <InputText
-                  onChangeText={(tx) => setApartment(tx)}
-                  value={apartment}
-                />
-              </Col>
-            </Row>
-            <Row>
-              <Col>
-                <Text align="left" text={msgs.comment} />
-              </Col>
-            </Row>
-            <Row>
-              <Col>
-                <InputText
-                  onChangeText={(tx) => setComment(tx)}
-                  value={comment}
-                />
-              </Col>
-            </Row>
-          </ScrollView>
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <Button label={msgs.save} onPress={save} />
-          <Snackbar
-            duration={2000}
-            style={{
-              backgroundColor: theme.secondary,
-            }}
-            visible={isSnackBarVisible}
-            onDismiss={() => setSnackBarVisible(false)}>
-            {snackBarMsg}
-          </Snackbar>
-        </Col>
-      </Row>
-    </Grid>
+    <>
+      <Grid>
+        <Row>
+          <Col verticalAlign={'flex-start'}>
+            <Picker
+              selectedValue={selectedCity}
+              onValueChange={onCityValueChange}
+              data={cities.map((cty) => ({
+                label: cty.city,
+                value: cty.city,
+              }))}
+            />
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <Picker
+              selectedValue={selectedDistrict}
+              onValueChange={(item) => setSelectedDistrict(item)}
+              data={districts.map((d) => ({
+                label: d.district,
+                value: d.district,
+              }))}
+            />
+          </Col>
+        </Row>
+        <Row proportion={1}>
+          <Col>
+            <ScrollView>
+              <Row>
+                <Col>
+                  <Text align={'left'} text={msgs.street} />
+                </Col>
+              </Row>
+              <Row>
+                <Col>
+                  <InputText
+                    onChangeText={(tx) => setStreet(tx)}
+                    value={street}
+                  />
+                </Col>
+              </Row>
+              <Row>
+                <Col>
+                  <Text align={'left'} text={msgs.building} />
+                </Col>
+              </Row>
+              <Row>
+                <Col>
+                  <InputText
+                    onChangeText={(tx) => setBuilding(tx)}
+                    value={building}
+                  />
+                </Col>
+              </Row>
+              <Row>
+                <Col>
+                  <Text align={'left'} text={msgs.apartment} />
+                </Col>
+              </Row>
+              <Row>
+                <Col>
+                  <InputText
+                    onChangeText={(tx) => setApartment(tx)}
+                    value={apartment}
+                  />
+                </Col>
+              </Row>
+              <Row>
+                <Col>
+                  <Text align="left" text={msgs.comment} />
+                </Col>
+              </Row>
+              <Row>
+                <Col>
+                  <InputText
+                    onChangeText={(tx) => setComment(tx)}
+                    value={comment}
+                  />
+                </Col>
+              </Row>
+            </ScrollView>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <Button label={msgs.save} onPress={save} width="100%" />
+          </Col>
+        </Row>
+      </Grid>
+      <SnackBar
+        visible={isSnackBarVisible}
+        onDismiss={() => setSnackBarVisible(false)}
+        msg={snackBarMsg}
+      />
+    </>
   );
 }

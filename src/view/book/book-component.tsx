@@ -1,7 +1,7 @@
-import {getStyles} from 'constants/styles';
+import {bookCardWidth, bookCardWidthBig} from 'constants/styles';
 import {Book} from 'domain/book/book';
 import React, {useContext} from 'react';
-import {ViewStyle} from 'react-native';
+import {AlertButton, ViewStyle} from 'react-native';
 import {Alert, Image, TouchableHighlight} from 'react-native';
 import IconButton from 'react-native-paper/src/components/IconButton';
 import {UserContext} from 'user-context';
@@ -10,9 +10,12 @@ import {
   updateFav,
   getIconColor,
   findBook,
+  getCartIconColor,
+  isInCart,
+  requestBook,
 } from 'view/book/book-screen-actions';
-import {Button, Card, Fab, Text} from 'zenbaei-js-lib/react';
-import {staticFileUrl, imagesNames, currency} from '../../../app.config';
+import {Card, Fab, Text} from 'zenbaei-js-lib/react';
+import {staticFileUrl} from '../../../app.config';
 
 /**
  *
@@ -25,18 +28,29 @@ export const BookComponent = ({
   updateDisplayedBook,
   showSnackBar,
   cartScreen = false,
+  centerCard = false,
 }: {
   book: Book;
   onPressImg?: (book: Book) => void;
   updateDisplayedBook: (book: Book) => void;
   showSnackBar: (msg: string) => void;
   cartScreen?: boolean;
+  centerCard?: boolean;
 }) => {
-  const {cart, setCart, favs, setFavs, msgs, theme} = useContext(UserContext);
-  const styles = getStyles(theme);
-  const cartScreenStyle: ViewStyle = {
-    display: cartScreen ? 'none' : 'flex',
-  };
+  const {
+    cart,
+    setCart,
+    favs,
+    setFavs,
+    msgs,
+    theme,
+    styles,
+    imgFileNames,
+    currency,
+  } = useContext(UserContext);
+  const cartScreenVisibilty: ViewStyle = cartScreen
+    ? styles.hidden
+    : styles.visible;
 
   const _updateFav = async (bookId: string) => {
     updateFav(bookId, favs, (modifiedFavs, isAdded) => {
@@ -49,7 +63,7 @@ export const BookComponent = ({
     const bk = await findBook(id);
     if (addOrRmv === 1 && bk.inventory < 1) {
       // stale data
-      Alert.alert(msgs.sorryBookNotAvailable);
+      Alert.alert('', msgs.sorryBookNotAvailable, alertBtns(bk._id));
       updateDisplayedBook(bk);
       return;
     }
@@ -64,10 +78,22 @@ export const BookComponent = ({
     });
   };
 
+  const _requestBook = (id: string) => {
+    requestBook(id).then(() => showSnackBar(msgs.requestSaved));
+  };
+
+  const alertBtns = (bookId: string): AlertButton[] => {
+    return [
+      {text: msgs.yes, onPress: () => _requestBook(bookId)},
+      {text: msgs.no},
+    ];
+  };
+
   return (
-    <Card>
+    <Card
+      width={cartScreen ? bookCardWidthBig : bookCardWidth}
+      style={centerCard ? styles.flexCenter : styles.flexStart}>
       <TouchableHighlight
-        disabled={false}
         testID="touchable"
         key={book.name + 'toh'}
         onPress={() => {
@@ -75,9 +101,9 @@ export const BookComponent = ({
         }}>
         <Image
           source={{
-            uri: `${staticFileUrl}/${book.imageFolderName}/${imagesNames[0]}`,
+            uri: `${staticFileUrl}/${book.imgFolderName}/${imgFileNames[0]}`,
           }}
-          style={[styles.image]}
+          style={styles.image}
         />
       </TouchableHighlight>
       <Fab
@@ -88,46 +114,34 @@ export const BookComponent = ({
         }}
         onPress={() => _updateFav(book._id)}
       />
-      <Text
-        style={{...styles.title}}
-        text={book.name}
-        color={theme.secondary}
-      />
+      <Text style={styles.title} text={book.name} color={theme.secondary} />
       <Text
         align="right"
         style={{...styles.bold, ...styles.price}}
         text={`${book.price} ${currency}`}
       />
-      {book.inventory && book.inventory > 0 ? (
-        <Text
-          align="right"
-          testID="copies"
-          style={{...styles.bold, ...styles.price, ...cartScreenStyle}}
-          text={`${msgs.availableCopies}: ${book.inventory}`}
-        />
-      ) : (
-        <></>
-      )}
-      {cart.find((car) => car.bookId === book._id) ? (
-        <Button
-          testID={'removeFromCartBtn'}
-          style={{...styles.addToCartBtn, ...cartScreenStyle}}
-          label={msgs.removeFromCart}
-          onPress={() => _addOrRmvFrmCart(book._id, -1)}
-        />
-      ) : (
-        <Button
-          disabled={book.inventory > 0 ? false : true}
-          testID={'addToCartBtn'}
-          style={{...styles.addToCartBtn, ...cartScreenStyle}}
-          label={msgs.addToCart}
-          onPress={() => _addOrRmvFrmCart(book._id, 1)}
-        />
-      )}
+      <Text
+        visible={book.inventory !== undefined && book.inventory > 0}
+        align="right"
+        testID="copies"
+        style={{...styles.bold, ...styles.price, ...cartScreenVisibilty}}
+        text={`${msgs.stock}: ${book.inventory}`}
+      />
       <IconButton
-        style={
-          (styles.removeIconStyle, {display: cartScreen ? 'flex' : 'none'})
+        testID={'removeFromCartBtn'}
+        icon="cart-outline"
+        color={isInCart(book._id, cart) ? theme.primary : theme.onBackground}
+        style={[
+          cartScreenVisibilty,
+          styles.flexEnd,
+          {backgroundColor: getCartIconColor(book._id, cart, theme)},
+        ]}
+        onPress={() =>
+          _addOrRmvFrmCart(book._id, isInCart(book._id, cart) ? -1 : 1)
         }
+      />
+      <IconButton
+        style={[styles.flexEnd, cartScreen ? styles.visible : styles.hidden]}
         icon={'delete'}
         color={theme.secondary}
         onPress={() => _addOrRmvFrmCart(book._id, -1)}

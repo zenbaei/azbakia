@@ -1,56 +1,41 @@
-import {imagesNames, staticFileUrl} from '../../../app.config';
+import {staticFileUrl} from '../../../app.config';
 import {NavigationScreens} from 'constants/navigation-screens';
 import React, {useCallback, useContext} from 'react';
-import {FlatList, Image, View} from 'react-native';
+import {FlatList, Image, StyleSheet, View} from 'react-native';
 import {NavigationProps} from 'zenbaei-js-lib/react';
-import {IconButton} from 'react-native-paper';
 import {useFocusEffect} from '@react-navigation/native';
 import {UserContext} from 'user-context';
+import IconButton from 'react-native-paper/src/components/IconButton';
 
 export function LookInsideBookScreen({
   navigation,
   route,
 }: NavigationProps<NavigationScreens, 'lookInsideBookScreen'>) {
   const imageFolderName = route.params.imageFolderName;
-  const {theme, msgs} = useContext(UserContext);
+  const {theme, msgs, styles, cart, imgFileNames} = useContext(UserContext);
 
   useFocusEffect(
     useCallback(() => {
       global.setAppBarTitle(msgs.lookInside);
-    }, [msgs]),
+      cart.length > 0
+        ? global.setDisplayCartBtn('flex')
+        : global.setDisplayCartBtn('none');
+    }, [msgs, cart]),
   );
 
-  const BookInside = ({item}: {item: string}) => {
+  const InsideBook = ({item}: {item: string}) => {
     return (
-      <View
-        style={{
-          borderRadius: 10,
-          borderColor: theme.secondary,
-          borderWidth: 2,
-          margin: 5,
-          padding: 5,
-        }}>
+      <View style={styles.lookInsideImgFrame}>
         <IconButton
           color={theme.primary}
-          icon={'close'}
+          icon="close"
           onPress={() => {
             navigation.goBack();
           }}
-          style={{
-            position: 'absolute',
-            backgroundColor: theme.secondary,
-            alignSelf: 'flex-end',
-            top: 20,
-            right: 20,
-            zIndex: 100,
-          }}
+          style={styles.closeImgIcon}
         />
         <Image
-          style={{
-            height: '100%',
-            resizeMode: 'stretch',
-            aspectRatio: 1 / 2,
-          }}
+          style={styles.lookInsideImg}
           source={{uri: `${staticFileUrl}/${imageFolderName}/${item}`}}
         />
       </View>
@@ -58,13 +43,17 @@ export function LookInsideBookScreen({
   };
 
   return (
-    <View style={{alignSelf: 'center'}}>
+    <View style={inlineStyles.view}>
       <FlatList
-        data={imagesNames}
+        data={imgFileNames}
         keyExtractor={(item) => item}
         horizontal
-        renderItem={({item}) => <BookInside item={item} />}
+        renderItem={({item}) => <InsideBook item={item} />}
       />
     </View>
   );
 }
+
+const inlineStyles = StyleSheet.create({
+  view: {alignSelf: 'center'},
+});

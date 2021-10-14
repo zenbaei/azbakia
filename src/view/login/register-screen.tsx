@@ -3,7 +3,6 @@ import {NavigationScreens} from 'constants/navigation-screens';
 import React, {useCallback, useContext} from 'react';
 import {Alert} from 'react-native';
 import {UserContext} from 'user-context';
-import {unexpectedError} from 'view/common-actions';
 import {
   emailShouldNotExist,
   saveUser,
@@ -17,34 +16,38 @@ export const RegisterScreen = ({
   const {msgs} = useContext(UserContext);
 
   useFocusEffect(
-    useCallback(() => global.setAppBarTitle(msgs.register), [msgs.register]),
+    useCallback(() => global.setAppBarTitle(msgs.register), [msgs]),
   );
 
   const alert = () =>
-    Alert.alert(msgs.welcome, msgs.activateAcc, [
+    Alert.alert(msgs.welcome, msgs.userCreated, [
       {text: msgs.ok, onPress: () => navigation.navigate('loginScreen', {})},
     ]);
 
   const onPress = async (
     email: string,
     password: string,
+    setErrorMsg: (errMsg: string) => void,
   ): Promise<boolean | void> => {
-    const result: boolean = await emailShouldNotExist(email);
-    if (!result) {
-      return false;
+    if (!(await emailShouldNotExist(email))) {
+      setErrorMsg(msgs.emailExists);
+      return;
+    }
+    if (!(await saveUser(email, password))) {
+      setErrorMsg(msgs.saveError);
+      return;
     }
     if (
-      (await saveUser(email, password)) &&
-      (await sendActivationEmail(
+      !(await sendActivationEmail(
         email,
         msgs.activationEmailSubject,
         msgs.activationEmailBody,
       ))
     ) {
-      alert();
-    } else {
-      unexpectedError(navigation);
+      setErrorMsg(msgs.sendingEmailError);
+      return;
     }
+    alert();
   };
   return <Register onPress={onPress} />;
 };

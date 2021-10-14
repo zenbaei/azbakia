@@ -4,4 +4,5 @@ export const DbCollectionNames = {
   countries: 'countries',
   genres: 'genres',
   orders: 'orders',
+  config: 'config',
 };

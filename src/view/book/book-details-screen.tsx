@@ -7,12 +7,12 @@ import {
   Link,
   Row,
   Col,
+  SnackBar,
 } from 'zenbaei-js-lib/react';
-import {FlexAlignType, View} from 'react-native';
+import {View} from 'react-native';
 import {getStyles} from 'constants/styles';
 import {getMessages} from 'constants/in18/messages-interface';
 import {BookComponent} from 'view/book/book-component';
-import Snackbar from 'react-native-paper/src/components/Snackbar';
 import {useFocusEffect} from '@react-navigation/native';
 import {UserContext} from 'user-context';
 import {bookService} from 'domain/book/book-service';
@@ -23,9 +23,6 @@ export function BookDetailsScreen({
   route,
 }: NavigationProps<NavigationScreens, 'bookDetailsScreen'>) {
   const [book, setBook] = useState({} as Book);
-  const [viewDirection, setViewDirection] = useState(
-    'flex-start' as FlexAlignType,
-  );
   const {theme, language, cart} = useContext(UserContext);
   const styles = getStyles(theme);
   const msgs = getMessages(language);
@@ -35,10 +32,7 @@ export function BookDetailsScreen({
   useFocusEffect(
     useCallback(() => {
       global.setAppBarTitle(msgs.bookDetails);
-      bookService.findOne('_id', route.params.id).then((bk) => {
-        setBook(bk);
-        setViewDirection(bk.language === 'ar' ? 'flex-end' : 'flex-start');
-      });
+      bookService.findOne('_id', route.params.id).then((bk) => setBook(bk));
     }, [msgs, route.params.id]),
   );
 
@@ -50,47 +44,53 @@ export function BookDetailsScreen({
     }, [cart.length]),
   );
 
+  const textDirection = (): 'left' | 'right' => {
+    return book.language === 'ar' ? 'right' : 'left';
+  };
+
   return (
-    <Grid>
-      <Row>
-        <Col>
-          <BookComponent
-            book={book}
-            showSnackBar={(msg) => {
-              setSnackBarVisible(true);
-              setSnackBarMsg(msg);
-            }}
-            updateDisplayedBook={(bk) => setBook(bk)}
-          />
-          <View style={styles.wide}>
-            <Link
-              align="center"
-              label={msgs.lookInside}
-              onPress={() =>
-                navigation.navigate('lookInsideBookScreen', {
-                  imageFolderName: book.imageFolderName,
-                })
-              }
+    <>
+      <Grid>
+        <Row>
+          <Col>
+            <BookComponent
+              centerCard
+              book={book}
+              showSnackBar={(msg) => {
+                setSnackBarVisible(true);
+                setSnackBarMsg(msg);
+              }}
+              updateDisplayedBook={(bk) => setBook(bk)}
             />
-          </View>
+            <View style={styles.wide}>
+              <Link
+                align="center"
+                label={msgs.lookInside}
+                onPress={() =>
+                  navigation.navigate('lookInsideBookScreen', {
+                    imageFolderName: book.imgFolderName,
+                  })
+                }
+              />
+            </View>
 
-          <Text
-            bold
-            color={theme.secondary}
-            align="left"
-            style={styles.bold}
-            text={`${msgs.description}:`}
-          />
-          <Text align="left" text={book.description} />
+            <Text
+              bold
+              color={theme.secondary}
+              align={textDirection()}
+              style={styles.bold}
+              text={`${msgs.description}:`}
+            />
+            <Text align={textDirection()} text={book.description} />
+          </Col>
+        </Row>
+      </Grid>
 
-          <Snackbar
-            duration={5000}
-            visible={isSnackBarVisible}
-            onDismiss={() => setSnackBarVisible(false)}>
-            {snackBarMsg}
-          </Snackbar>
-        </Col>
-      </Row>
-    </Grid>
+      <SnackBar
+        visible={isSnackBarVisible}
+        onDismiss={setSnackBarVisible}
+        msg={snackBarMsg}
+      />
+    </>
   );
 }

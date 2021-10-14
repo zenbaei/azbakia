@@ -19,7 +19,10 @@ import {AddressManagementScreen} from 'view/address/address-management-screen';
 import {ProfileScreen} from 'view/profile/profile-screen';
 import {AddressListScreen} from 'view/address/address-list-screen';
 import {DeliveryScreen} from 'view/delivery/delivery-screen';
+import {FavouriteScreen} from 'view/book/favourite-screen';
+import {CommonActions} from '@react-navigation/routers';
 
+const tab = ' ';
 const Drawer = createDrawerNavigator<NavigationScreens>();
 
 export function DrawerNavigator() {
@@ -47,6 +50,7 @@ export function DrawerNavigator() {
       />
       <Drawer.Screen name="deliveryScreen" component={DeliveryScreen} />
       <Drawer.Screen name="profileScreen" component={ProfileScreen} />
+      <Drawer.Screen name="favouriteScreen" component={FavouriteScreen} />
     </Drawer.Navigator>
   );
 }
@@ -56,6 +60,7 @@ function CustomDrawerContent(
 ) {
   const {msgs, language} = useContext(UserContext);
   const [genres, setGenres] = useState([] as Genre[]);
+  const {theme, styles} = useContext(UserContext);
 
   useEffect(() => {
     genreService.findAll().then((grs) => setGenres(grs));
@@ -64,6 +69,7 @@ function CustomDrawerContent(
   return (
     <DrawerContentScrollView {...props}>
       <DrawerItem
+        labelStyle={{color: theme.secondary, ...styles.drawerItemLabel}}
         label={msgs.home}
         onPress={() =>
           props.navigation.navigate('bookScreen', {
@@ -73,12 +79,15 @@ function CustomDrawerContent(
       />
       {genres.map((genre) => (
         <Accordion
+          titleStyle={{color: theme.secondary, ...styles.drawerItemLabel}}
           key={genre.nameEn}
           title={language === 'en' ? genre.nameEn : genre.nameAr}>
           {genre.subGenre.map((sub) => (
             <Item
+              rippleColor={theme.secondary}
+              titleStyle={styles.drawerItemLabel}
               key={sub.nameEn}
-              title={language === 'en' ? sub.nameEn : sub.nameAr}
+              title={`${tab} ${language === 'en' ? sub.nameEn : sub.nameAr}`}
               onPress={() => {
                 props.navigation.navigate('bookScreen', {
                   subGenre: sub,
@@ -89,14 +98,28 @@ function CustomDrawerContent(
         </Accordion>
       ))}
       <DrawerItem
+        labelStyle={{color: theme.secondary, ...styles.drawerItemLabel}}
+        label={msgs.orders}
+        onPress={() => props.navigation.navigate('orderScreen', {})}
+      />
+      <DrawerItem
+        labelStyle={{color: theme.secondary, ...styles.drawerItemLabel}}
+        label={msgs.favourite}
+        onPress={() => props.navigation.navigate('favouriteScreen', {})}
+      />
+      <DrawerItem
+        labelStyle={{color: theme.secondary, ...styles.drawerItemLabel}}
         label={msgs.profile}
         onPress={() => props.navigation.navigate('profileScreen', {})}
       />
       <DrawerItem
-        label={msgs.favourite}
-        onPress={() =>
-          props.navigation.navigate('bookScreen', {favourite: true})
-        }
+        labelStyle={{color: theme.secondary, ...styles.drawerItemLabel}}
+        label={msgs.logout}
+        onPress={() => {
+          props.navigation.dispatch(
+            CommonActions.reset({index: 0, routes: [{name: 'loginScreen'}]}),
+          );
+        }}
       />
     </DrawerContentScrollView>
   );

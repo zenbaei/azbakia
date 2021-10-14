@@ -22,7 +22,7 @@ export function AddressListScreen({
   const [isSnackBarVisible, setSnackBarVisible] = useState(false);
   const [isShowLoadingIndicator, setShowLoadingIndicator] = useState(false);
   const [isShowNoAddress, setShowNoAddress] = useState(false);
-  const {msgs} = useContext(UserContext);
+  const {msgs, cart} = useContext(UserContext);
 
   useFocusEffect(
     useCallback(() => {
@@ -35,11 +35,14 @@ export function AddressListScreen({
       });
     }, []),
   );
+
   useFocusEffect(
     useCallback(() => {
       global.setAppBarTitle(msgs.address);
-      global.setDisplayCartBtn('none');
-    }, [msgs]),
+      cart.length > 0
+        ? global.setDisplayCartBtn('flex')
+        : global.setDisplayCartBtn('none');
+    }, [msgs, cart]),
   );
 
   const _updateDefaultAddress = (id: string) => {
@@ -77,31 +80,29 @@ export function AddressListScreen({
   );
 
   return (
-    <Grid>
-      <Row proportion={1}>
-        <Col>
-          <Addresses
-            showLoadingIndicator={isShowLoadingIndicator}
-            showNoAddress={isShowNoAddress}
-            data={addresses}
-            onPressCreateAddressScreen={() =>
-              navigation.navigate('addressManagementScreen', {})
-            }
-            onSelectDefaultAddress={_updateDefaultAddress}
-            onPressEdit={(id) =>
-              navigation.navigate('addressManagementScreen', {
-                id: id,
-              })
-            }
-            onPressDelete={deleteAddress}
-          />
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <MySnack />
-        </Col>
-      </Row>
-    </Grid>
+    <>
+      <Grid>
+        <Row proportion={1}>
+          <Col>
+            <Addresses
+              showLoadingIndicator={isShowLoadingIndicator}
+              showNoAddress={isShowNoAddress}
+              data={addresses}
+              onPressCreate={() =>
+                navigation.navigate('addressManagementScreen', {id: undefined})
+              }
+              onSelectDefaultAddress={_updateDefaultAddress}
+              onPressEdit={(id) =>
+                navigation.navigate('addressManagementScreen', {
+                  id: id,
+                })
+              }
+              onPressDelete={deleteAddress}
+            />
+          </Col>
+        </Row>
+      </Grid>
+      <MySnack />
+    </>
   );
 }

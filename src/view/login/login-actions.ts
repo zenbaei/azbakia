@@ -1,6 +1,6 @@
 import {User} from 'domain/user/user';
 import {userService} from 'domain/user/user-service';
-import {email as Email} from 'zenbaei-js-lib/types';
+import {Email} from 'zenbaei-js-lib/types';
 import {EmailHttpService} from 'zenbaei-js-lib/utils';
 import {activationLinkUrl, emailRestApi} from '../../../app.config';
 
@@ -8,7 +8,7 @@ const emailService = new EmailHttpService(emailRestApi);
 
 export const emailShouldNotExist = async (email: string): Promise<boolean> => {
   const user = await userService.findOne('email', email);
-  if (user) {
+  if (user.email) {
     return false;
   }
   return true;
@@ -43,5 +43,11 @@ export const sendActivationEmail = async (
     body: mailBody,
   };
 
-  return emailService.sendEmail(mail);
+  try {
+    await emailService.send(mail);
+  } catch (error) {
+    return false;
+  }
+
+  return true;
 };

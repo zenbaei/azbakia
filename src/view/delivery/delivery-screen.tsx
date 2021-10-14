@@ -15,12 +15,15 @@ import {NavigationScreens} from 'constants/navigation-screens';
 import {userService} from 'domain/user/user-service';
 import {UserContext} from 'user-context';
 import {getDistrictCharge} from 'view/address/address-actions';
-import {currency} from '../../../app.config';
-import {DeliveryDateRange, inspectDeliveryDate} from './delivery-actions';
-import moment from 'moment';
+import {
+  createOrder,
+  DeliveryDateRange,
+  formatDate,
+  inspectDeliveryDate,
+} from './delivery-actions';
+
 import {Alert, ScrollView, StyleSheet, View} from 'react-native';
-import {Order} from 'domain/order/order';
-import {orderService} from 'domain/order/order-service';
+import {loadCartBooksVOs} from 'view/cart/cart-screen-actions';
 
 export const DeliveryScreen = ({
   navigation,
@@ -35,13 +38,11 @@ export const DeliveryScreen = ({
   const [additionalPhoneNo, setAdditionalPhoneNo] = useState('');
   const [cardNumber, setCardNumber] = useState('');
   const [cvv, setCvv] = useState('');
-  const {msgs, theme, cart} = useContext(UserContext);
-  const dateFormat = 'ddd MM MMM YYYY';
+  const {msgs, theme, cart, currency} = useContext(UserContext);
+
   const emptyString = '     ';
-  const [
-    showManageDeliveryDetailsBtn,
-    setShowManageDeliveryDetailsBtn,
-  ] = useState(false);
+  const [showManageDeliveryDetailsBtn, setShowManageDeliveryDetailsBtn] =
+    useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -77,20 +78,9 @@ export const DeliveryScreen = ({
     setCvv('');
   };
 
-  const checkout = () => {
-    const order: Order = {
-      expectedDeliveryDateFrom: expectedDeliveryDate.from.toDateString(),
-      expectedDeliveryDateTo: expectedDeliveryDate.to.toDateString(),
-      date: new Date().toDateString(),
-      cart: cart,
-      userEmail: global.user.email,
-      status: 'pending',
-    } as Order;
-    orderService
-      .insert(order)
-      .then((mr) =>
-        mr.modified === 1 ? Alert.alert('Send to payment gateway') : {},
-      );
+  const checkout = async () => {
+    await createOrder(loadCartBooksVOs(cart), expectedDeliveryDate);
+    Alert.alert('Payment Gate');
   };
 
   return (
@@ -111,11 +101,11 @@ export const DeliveryScreen = ({
             <ScrollView>
               <Text
                 style={inlineStyle.deliveryDate}
-                text={`${msgs.expectedDeliveryDate} ${msgs.between} ${moment(
-                  expectedDeliveryDate.from,
-                ).format(dateFormat)} ${msgs.and} ${moment(
-                  expectedDeliveryDate.to,
-                ).format(dateFormat)}`}
+                text={`${msgs.expectedDeliveryDate} ${
+                  msgs.between
+                } ${formatDate(expectedDeliveryDate.from)} ${
+                  msgs.and
+                } ${formatDate(expectedDeliveryDate.to)}`}
               />
               <Card width="100%">
                 <Text
@@ -150,6 +140,7 @@ export const DeliveryScreen = ({
                   <Text text={additionalPhoneNo} />
                 </View>
                 <Button
+                  align="flex-end"
                   label={'Change'}
                   style={inlineStyle.buttonChange}
                   onPress={() => navigation.navigate('profileScreen', {})}
@@ -194,7 +185,7 @@ export const DeliveryScreen = ({
                 route.params.cartTotalPrice + deliveryCharge
               } ${currency}`}
             />
-            <Button label={msgs.checkout} onPress={checkout} />
+            <Button width="100%" label={msgs.checkout} onPress={checkout} />
           </Col>
         </Row>
       )}

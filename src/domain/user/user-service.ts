@@ -1,8 +1,9 @@
 import {mongoRestApi} from '../../../app.config';
 import {DbCollectionNames} from 'constants/db-collection-names';
 import {MongoHttpService} from 'zenbaei-js-lib/utils';
-import {Cart, User} from './user';
+import {User} from './user';
 import {modificationResult} from 'zenbaei-js-lib/types';
+import {Cart} from './cart';
 
 class UserService extends MongoHttpService<User> {
   constructor() {

@@ -21,12 +21,10 @@ import {isValidNumber} from 'zenbaei-js-lib/utils';
 import {Address, modificationResult} from 'zenbaei-js-lib/types';
 import {isEmpty} from 'zenbaei-js-lib/utils';
 
-import {mobileNoLength} from '../../../app.config';
-
 export const ProfileScreen = ({
   navigation,
 }: NavigationProps<NavigationScreens, 'profileScreen'>) => {
-  const {msgs, styles, theme} = useContext(UserContext);
+  const {msgs, styles, theme, cart, mobileNoLength} = useContext(UserContext);
   const zenbaeiCtx = useContext(Ctx);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -39,7 +37,10 @@ export const ProfileScreen = ({
   useFocusEffect(
     useCallback(() => {
       global.setAppBarTitle(msgs.profile);
-    }, [msgs]),
+      cart.length > 0
+        ? global.setDisplayCartBtn('flex')
+        : global.setDisplayCartBtn('none');
+    }, [msgs, cart]),
   );
 
   useFocusEffect(
@@ -55,116 +56,6 @@ export const ProfileScreen = ({
       });
     }, []),
   );
-
-  const DefaultAddress = () => {
-    return (
-      <>
-        <View style={styles.viewRow}>
-          <Text
-            bold
-            color={theme.secondary}
-            style={inlineStyle.address}
-            text={msgs.street}
-          />
-          <Text style={inlineStyle.inputText} text={address.street} />
-        </View>
-
-        <View style={styles.viewRow}>
-          <Text
-            bold
-            color={theme.secondary}
-            style={inlineStyle.address}
-            text={msgs.building}
-          />
-          <Text style={inlineStyle.inputText} text={address.building} />
-        </View>
-
-        <View style={styles.viewRow}>
-          <Text
-            bold
-            color={theme.secondary}
-            style={inlineStyle.address}
-            text={msgs.apartment}
-          />
-          <Text style={inlineStyle.inputText} text={address.apartment} />
-        </View>
-        <Text
-          align="left"
-          bold
-          color={theme.secondary}
-          text={`${address.district}, ${address.city}`}
-        />
-      </>
-    );
-  };
-
-  const PhoneNo = () => {
-    return (
-      <>
-        <View style={styles.viewRow}>
-          <Text
-            bold
-            color={theme.secondary}
-            style={inlineStyle.text}
-            text={msgs.phoneNo}
-          />
-          <InputText
-            style={inlineStyle.inputText}
-            value={phoneNo}
-            onChangeText={(val) => setPhoneNo(val.trim())}
-          />
-        </View>
-        <View style={styles.viewRow}>
-          <Text
-            bold
-            color={theme.secondary}
-            style={inlineStyle.text}
-            text={msgs.additionalPhoneNo}
-          />
-          <InputText
-            style={inlineStyle.inputText}
-            value={additionalPhoneNo}
-            onChangeText={(val) => setAdditionalPhoneNo(val.trim())}
-          />
-        </View>
-      </>
-    );
-  };
-
-  const Password = () => {
-    return (
-      <>
-        <View style={styles.viewRow}>
-          <Text
-            bold
-            color={theme.secondary}
-            style={inlineStyle.text}
-            text={zenbaeiCtx.msgs.password}
-          />
-          <InputText
-            style={inlineStyle.inputText}
-            value={password}
-            password
-            onChangeText={(val) => setPassword(val.trim())}
-          />
-        </View>
-        <View style={styles.viewRow}>
-          <Text
-            bold
-            color={theme.secondary}
-            style={inlineStyle.text}
-            text={zenbaeiCtx.msgs.confirmPassword}
-          />
-          <InputText
-            style={inlineStyle.inputText}
-            value={confirmPassword}
-            password
-            onChangeText={(val) => setConfirmPassword(val.trim())}
-          />
-        </View>
-      </>
-    );
-  };
 
   const savePhoneNo = () => {
     if (isEmpty(phoneNo)) {
@@ -216,46 +107,149 @@ export const ProfileScreen = ({
   };
 
   return (
-    <Grid>
-      <Row>
-        <Col>
-          <ScrollView>
-            <Card width="100%">
-              <Text text={msgs.defaultAddress} color={theme.secondary} />
-              {address.id ? <DefaultAddress /> : <></>}
-              <Button
-                style={inlineStyle.button}
-                label={msgs.manageAddress}
-                onPress={() => navigation.navigate('addressListScreen', {})}
-              />
-            </Card>
+    <>
+      <Grid>
+        <Row>
+          <Col>
+            <ScrollView>
+              <Card width="100%">
+                <Text text={msgs.defaultAddress} color={theme.secondary} />
+                <View
+                  style={[
+                    inlineStyle.view,
+                    address.id ? inlineStyle.show : inlineStyle.hide,
+                  ]}>
+                  <View style={styles.viewRow}>
+                    <Text
+                      bold
+                      color={theme.secondary}
+                      style={inlineStyle.address}
+                      text={msgs.street}
+                    />
+                    <Text style={inlineStyle.inputText} text={address.street} />
+                  </View>
 
-            <Card width="100%">
-              <PhoneNo />
-              <Button
-                label={msgs.save}
-                onPress={savePhoneNo}
-                style={inlineStyle.button}
-              />
-            </Card>
+                  <View style={styles.viewRow}>
+                    <Text
+                      bold
+                      color={theme.secondary}
+                      style={inlineStyle.address}
+                      text={msgs.building}
+                    />
+                    <Text
+                      style={inlineStyle.inputText}
+                      text={address.building}
+                    />
+                  </View>
 
-            <Card width="100%">
-              <Password />
-              <Button
-                label={msgs.changePassword}
-                onPress={changePassword}
-                style={inlineStyle.button}
-              />
-            </Card>
-          </ScrollView>
-          <SnackBar
-            msg={snackBarMsg}
-            visible={showSnackBar}
-            onDismiss={setShowSnackBar}
-          />
-        </Col>
-      </Row>
-    </Grid>
+                  <View style={styles.viewRow}>
+                    <Text
+                      bold
+                      color={theme.secondary}
+                      style={inlineStyle.address}
+                      text={msgs.apartment}
+                    />
+                    <Text
+                      style={inlineStyle.inputText}
+                      text={address.apartment}
+                    />
+                  </View>
+                  <Text
+                    align="left"
+                    bold
+                    color={theme.secondary}
+                    text={`${address.district}, ${address.city}`}
+                  />
+                </View>
+                <Button
+                  align="flex-end"
+                  style={inlineStyle.button}
+                  label={msgs.manageAddress}
+                  onPress={() => navigation.navigate('addressListScreen', {})}
+                />
+              </Card>
+
+              <Card width="100%">
+                <View style={styles.viewRow}>
+                  <Text
+                    bold
+                    color={theme.secondary}
+                    style={inlineStyle.text}
+                    text={msgs.phoneNo}
+                  />
+                  <InputText
+                    style={inlineStyle.inputText}
+                    value={phoneNo}
+                    onChangeText={(val) => setPhoneNo(val)}
+                  />
+                </View>
+                <View style={styles.viewRow}>
+                  <Text
+                    bold
+                    color={theme.secondary}
+                    style={inlineStyle.text}
+                    text={msgs.additionalPhoneNo}
+                  />
+                  <InputText
+                    style={inlineStyle.inputText}
+                    value={additionalPhoneNo}
+                    onChangeText={(val) => setAdditionalPhoneNo(val.trim())}
+                  />
+                </View>
+                <Button
+                  align="flex-end"
+                  label={msgs.save}
+                  onPress={savePhoneNo}
+                  style={inlineStyle.button}
+                />
+              </Card>
+
+              <Card width="100%">
+                <View style={styles.viewRow}>
+                  <Text
+                    bold
+                    color={theme.secondary}
+                    style={inlineStyle.text}
+                    text={zenbaeiCtx.msgs.password}
+                  />
+                  <InputText
+                    style={inlineStyle.inputText}
+                    value={password}
+                    password
+                    onChangeText={(val) => setPassword(val.trim())}
+                  />
+                </View>
+                <View style={styles.viewRow}>
+                  <Text
+                    bold
+                    color={theme.secondary}
+                    style={inlineStyle.text}
+                    text={zenbaeiCtx.msgs.confirmPassword}
+                  />
+                  <InputText
+                    style={inlineStyle.inputText}
+                    value={confirmPassword}
+                    password
+                    onChangeText={(val) => setConfirmPassword(val.trim())}
+                  />
+                </View>
+                <Button
+                  align="flex-end"
+                  label={msgs.changePassword}
+                  onPress={changePassword}
+                  style={inlineStyle.button}
+                />
+              </Card>
+            </ScrollView>
+          </Col>
+        </Row>
+      </Grid>
+      <SnackBar
+        msg={snackBarMsg}
+        visible={showSnackBar}
+        onDismiss={setShowSnackBar}
+      />
+    </>
   );
 };
 
@@ -264,4 +258,7 @@ const inlineStyle = StyleSheet.create({
   address: {width: 90},
   inputText: {width: '50%'},
   button: {alignSelf: 'flex-end', width: 140},
+  view: {width: '100%'},
+  show: {display: 'flex'},
+  hide: {display: 'none'},
 });

@@ -9,7 +9,8 @@
     "test": "jest",
     "lint": "eslint .",
     "clean": ".scripts/clean.sh",
-    "install-zenbaei": "rm -rf node_modules/zenbaei-js-lib; git clone git@github.com:zenbaei/zenbaei-js-lib.git node_modules/zenbaei-js-lib; rm -rf node_modules/@types/zenbaei-js-lib; git clone git@github.com:zenbaei/zenbaei-js-lib-types.git node_modules/@types/zenbaei-js-lib"
+    "install-zenbaei-types": "rm -rf node_modules/@types/zenbaei-js-lib; git clone git@github.com:zenbaei/zenbaei-js-lib-types.git node_modules/@types/zenbaei-js-lib",
+    "install-zenbaei": "npm i github:zenbaei/zenbaei-js-lib#"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.32",
@@ -33,7 +34,7 @@
     "react-native-screens": "^2.12.0",
     "react-native-svg": "^12.1.0",
     "react-native-vector-icons": "^7.1.0",
-    "zenbaei-js-lib": "github:zenbaei/zenbaei-js-lib"
+    "zenbaei-js-lib": "github:zenbaei/zenbaei-js-lib#94d1f1285344b1e111073fac35305c376c1b0dfd"
   },
   "devDependencies": {
     "@babel/core": "^7.8.4",
@@ -46,6 +47,7 @@
     "@types/react": "^16.9.51",
     "@types/react-native": "^0.63.25",
     "@types/react-test-renderer": "^16.9.3",
+    "@types/uuid": "^8.3.1",
     "babel-jest": "^25.1.0",
     "babel-plugin-module-resolver": "^4.0.0",
     "eslint": "^6.5.1",

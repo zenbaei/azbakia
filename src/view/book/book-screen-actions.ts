@@ -1,11 +1,10 @@
-import {Book} from 'domain/book/book';
+import {Book, request} from 'domain/book/book';
 import {bookService} from 'domain/book/book-service';
-import {Cart} from 'domain/user/user';
+import {Cart} from 'domain/user/cart';
 import {userService} from 'domain/user/user-service';
 import {AppThemeInterface} from 'zenbaei-js-lib/constants';
 import {inOp, modificationResult} from 'zenbaei-js-lib/types';
 import {isEmpty} from 'zenbaei-js-lib/utils';
-import {pageSize} from '../../../app.config';
 
 export const getIconColor = (
   id: string,
@@ -18,6 +17,22 @@ export const getIconColor = (
   return theme.primary;
 };
 
+export const getCartIconColor = (
+  bookId: string,
+  cart: Cart[],
+  theme: AppThemeInterface,
+): string => {
+  if (isInCart(bookId, cart)) {
+    return theme.secondary;
+  }
+  return theme.primary;
+};
+
+export const isInCart = (bookId: string, cart: Cart[]): boolean => {
+  const cr = cart.find((c) => c.bookId === bookId);
+  return cr ? true : false;
+};
+
 /**
  *
  * @param bookId
@@ -27,14 +42,14 @@ export const getIconColor = (
  *
  */
 export const _pushOrPopCart = (
-  bookId: string,
+  book: Book,
   cart: Cart[],
 ): {modifiedCart: Cart[]; cartQuantity: number} => {
   let quantity: number = -1;
   let cartClone = [...cart];
-  const index: number = cart.findIndex((val) => val.bookId === bookId);
+  const index: number = cart.findIndex((val) => val.bookId === book._id);
   if (index === -1) {
-    cartClone.push({bookId: bookId, quantity: 1});
+    cartClone.push({bookId: book._id, quantity: 1});
   } else {
     const crt = cartClone.splice(index, 1);
     quantity = crt[0].quantity;
@@ -66,7 +81,7 @@ export const addOrRmvFrmCart = async (
   cart: Cart[],
   callback: cartCallback,
 ): Promise<void> => {
-  const {modifiedCart, cartQuantity} = _pushOrPopCart(book._id, cart);
+  const {modifiedCart, cartQuantity} = _pushOrPopCart(book, cart);
   const isCopiesUpdated: boolean = await _updateInventory(book, cartQuantity);
   const isCartUpdated: boolean = await _updateCart(modifiedCart);
   if (isCartUpdated && isCopiesUpdated) {
@@ -105,74 +120,78 @@ export const updateFav = async (
 };
 
 /**
- *
- * @param subGenre
  * @param page - starts from zero
- * @returns
  */
-export const loadBooksByPage = (
+export const findBooksByPage = async (
+  cart: Cart[],
   genre: string,
   page: number,
+  pageSize: number,
 ): Promise<Book[]> => {
+  const bookNames = await findCartBookNames(cart);
   return isEmpty(genre)
-    ? bookService.findByNewArrivals(page * pageSize, pageSize)
-    : bookService.findByGenre(genre, page * pageSize, pageSize);
+    ? bookService.findByNewArrivals(bookNames, page * pageSize, pageSize)
+    : bookService.findByGenre(bookNames, genre, page * pageSize, pageSize);
 };
 
 /**
- * Loads books respecting the page size
- * @param genre
- * @param clb
+ * Finds books by genere or newArrivals and return items for 1st page.
  */
-export const loadFirstBooksPageAndCalcTotalPagesNumber = async (
+export const find1stBooksPageAndPageSize = async (
+  cart: Cart[],
   genre: string,
-  clb: (result: Book[], totalPagesNumber: number) => void,
+  pageSize: number,
+  clb: searchResultCallback,
 ): Promise<void> => {
+  const bookNames = await findCartBookNames(cart);
   const result = isEmpty(genre)
-    ? await bookService.findByNewArrivals()
-    : await bookService.findByGenre(genre);
+    ? await bookService.findByNewArrivals(bookNames)
+    : await bookService.findByGenre(bookNames, genre);
   let firstPageBooks =
     result.length >= pageSize ? result.slice(0, pageSize) : result;
   clb(firstPageBooks, Math.ceil(result.length / pageSize));
 };
 
-export const loadFirstSearchedBooksPageAndCalcTotalPageNumber = async (
+/**
+ * Finds books by search token and return items for 1st page.
+ * @param searchToken
+ * @param clb
+ */
+export const find1stSearchedBooksPageAndPageSize = async (
   searchToken: string,
-  clb: (result: Book[], totalPagesNumber: number) => void,
+  pageSize: number,
+  clb: searchResultCallback,
 ): Promise<void> => {
-  const result = await bookService.findAllLike('name', searchToken, true);
+  const result = await bookService.findBySearchToken(searchToken);
   let resultPerPageSize =
     result.length >= pageSize ? result.slice(0, pageSize) : result;
   clb(resultPerPageSize, Math.ceil(result.length / pageSize));
 };
 
-export const searchBooksProjected = async (name: string): Promise<Book[]> => {
-  return bookService.findAllLike('name', name, true, {
+export const findSearchedBooksProjected = async (
+  name: string,
+): Promise<Book[]> => {
+  return bookService.findBySearchToken(name, {
     projection: {_id: 1, name: 1},
   });
 };
 
-export const loadSearchedBooksByPage = async (
+export const findSearchedBooksByPage = async (
   name: string,
   page: number,
+  pageSize: number,
 ): Promise<Book[]> => {
-  return bookService.findAllLike(
-    'name',
+  return bookService.findBySearchToken(
     name,
-    true,
     undefined,
     page * pageSize,
     pageSize,
   );
 };
 
-export const findFavouriteBooks = async (
-  favs: string[],
-): Promise<Book[] | undefined> => {
-  if (!favs || favs.length === 0) {
-    return;
-  }
+export const findFavouriteBooks = async (favs: string[]): Promise<Book[]> => {
   const inFavs: inOp = {$in: favs};
+  console.log(favs);
   const books = await bookService.findAllByIds(inFavs);
   return books;
 };
@@ -182,3 +201,23 @@ type favCallback = (modifiedFavs: string[], isAdded: boolean) => void;
 
 export const findBook = (id: string): Promise<Book> =>
   bookService.findOne('_id', id);
+
+export const requestBook = async (id: string): Promise<void> => {
+  const br: request = {
+    email: global.user.email,
+    date: new Date().toDateString(),
+  };
+  bookService.updateRequest(id, br);
+};
+
+/**
+ * @param result - first page books
+ * @param totalPagesNumber - the number of search books divided by items per page
+ */
+type searchResultCallback = (result: Book[], totalPagesNumber: number) => void;
+
+const findCartBookNames = async (cart: Cart[]): Promise<string[]> => {
+  const bookIds = cart.map((car) => car.bookId);
+  const books: Book[] = await bookService.findAllByIds({$in: bookIds});
+  return books.map((b) => b.name);
+};

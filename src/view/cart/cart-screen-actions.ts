@@ -1,6 +1,6 @@
 import {Book} from 'domain/book/book';
 import {bookService} from 'domain/book/book-service';
-import {Cart} from 'domain/user/user';
+import {Cart} from 'domain/user/cart';
 import {userService} from 'domain/user/user-service';
 import {cartCallback} from 'view/book/book-screen-actions';
 import {_pushOrPopCart} from '../book/book-screen-actions';
@@ -22,7 +22,7 @@ export const loadCartBooksVOs = async (cart: Cart[]): Promise<CartBookVO[]> => {
       bk.name,
       crt?.quantity as number,
       bk.price,
-      bk.imageFolderName,
+      bk.imgFolderName,
       bk.inventory,
     );
   });
@@ -48,7 +48,9 @@ export const updateQuantity = async (
     book.inventory + oldQuantity - newQuantity,
   );
   const modifiedCart: Cart[] = cart.map((crt) =>
-    crt.bookId === book._id ? {bookId: book._id, quantity: newQuantity} : crt,
+    crt.bookId === book._id
+      ? {bookId: book._id, quantity: newQuantity, bookName: book.name}
+      : crt,
   );
   const cartUpdated = await userService.updateCart(
     global.user._id,
@@ -70,7 +72,7 @@ export const removeFromCart = async (
     bookId,
     book.inventory + (cartBk ? cartBk.quantity : 0),
   );
-  const {modifiedCart} = _pushOrPopCart(bookId, cart);
+  const {modifiedCart} = _pushOrPopCart(book, cart);
   const cartUpdated = await userService.updateCart(
     global.user._id,
     modifiedCart,
