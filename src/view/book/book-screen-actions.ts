@@ -205,7 +205,7 @@ export const findBook = (id: string): Promise<Book> =>
 export const requestBook = async (id: string): Promise<void> => {
   const br: request = {
     email: global.user.email,
-    date: new Date().toDateString(),
+    date: new Date(),
   };
   bookService.updateRequest(id, br);
 };

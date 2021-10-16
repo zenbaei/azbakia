@@ -24,6 +24,7 @@ import {useFocusEffect} from '@react-navigation/native';
 import {isEmpty} from 'zenbaei-js-lib/utils';
 import ActivityIndicator from 'react-native-paper/src/components/ActivityIndicator';
 import {BookComponent} from 'view/book/book-component';
+import {Loading} from 'view/loading-component';
 
 export function BookScreen({
   navigation,
@@ -36,7 +37,6 @@ export function BookScreen({
   const {cart, msgs, theme, language, pageSize} = useContext(UserContext);
   const [animating, setAnimating] = useState(false);
   const [isShowLoadingIndicator, setShowLoadingIndicator] = useState(false);
-  const [isShowNoBooksTxt, setShowNoBooksTxt] = useState(false);
   const [snackBarMsg, setSnackBarMsg] = useState('');
   const [isSnackBarVisible, setSnackBarVisible] = useState(false);
   const [searchToken, setSearchToken] = useState('');
@@ -45,13 +45,12 @@ export function BookScreen({
   useFocusEffect(
     useCallback(() => {
       global.setAppBarTitle(msgs.home);
-      cart.length > 0
-        ? global.setDisplayCartBtn('flex')
-        : global.setDisplayCartBtn('none');
-    }, [cart.length, msgs]),
+      global.setDisplayCartBtn(cart);
+    }, [msgs, cart]),
   );
 
   const findFirstPageBooks = useCallback(() => {
+    setShowLoadingIndicator(true);
     find1stBooksPageAndPageSize(
       cart,
       subGenre?.nameEn,
@@ -60,18 +59,12 @@ export function BookScreen({
         setMaxPageNumber(totalPagesNumber);
         setBooks(result);
         setPage(1);
-        if (result.length === 0) {
-          setShowNoBooksTxt(true);
-          setShowLoadingIndicator(false);
-        }
       },
     );
   }, [cart, subGenre, pageSize]);
 
   useFocusEffect(
     useCallback(() => {
-      setShowLoadingIndicator(true);
-      setShowNoBooksTxt(false);
       findFirstPageBooks();
     }, [findFirstPageBooks]),
   );
@@ -95,16 +88,11 @@ export function BookScreen({
 
   const onBlurSearch = async (text: string) => {
     setShowLoadingIndicator(true);
-    setShowNoBooksTxt(false);
     setSearchToken(text);
     find1stSearchedBooksPageAndPageSize(
       text,
       pageSize,
       (result, totalPagesNumber) => {
-        setShowLoadingIndicator(false);
-        result && result.length > 0
-          ? setShowNoBooksTxt(false)
-          : setShowNoBooksTxt(true);
         setBooks(result);
         setMaxPageNumber(totalPagesNumber);
         setPage(1);
@@ -153,47 +141,36 @@ export function BookScreen({
               }
               align="center"
             />
-            {books?.length > 0 ? (
-              <FlatList
-                testID="flatList"
-                scrollEnabled
-                numColumns={2}
-                data={books}
-                keyExtractor={(item) => item._id}
-                onEndReached={loadNextPage}
-                onEndReachedThreshold={0.1}
-                ListFooterComponent={renderFooter}
-                renderItem={({item}) => (
-                  <BookComponent
-                    book={item}
-                    onPressImg={() =>
-                      navigation.navigate('bookDetailsScreen', {id: item._id})
-                    }
-                    updateDisplayedBook={(book: Book) => {
-                      _updateDisplayedBook(book);
-                    }}
-                    showSnackBar={(msg) => {
-                      setSnackBarVisible(true);
-                      setSnackBarMsg(msg);
-                    }}
-                  />
-                )}
-              />
-            ) : (
-              <>
-                <ActivityIndicator
-                  animating={isShowLoadingIndicator}
-                  color={theme.secondary}
+            <Loading
+              visible={books?.length < 1}
+              showLoading={isShowLoadingIndicator}
+              text={msgs.noBooksAvailable}
+            />
+            <FlatList
+              testID="flatList"
+              scrollEnabled
+              numColumns={2}
+              data={books}
+              keyExtractor={(item) => item._id}
+              onEndReached={loadNextPage}
+              onEndReachedThreshold={0.1}
+              ListFooterComponent={renderFooter}
+              renderItem={({item}) => (
+                <BookComponent
+                  book={item}
+                  onPressImg={() =>
+                    navigation.navigate('bookDetailsScreen', {id: item._id})
+                  }
+                  updateDisplayedBook={(book: Book) => {
+                    _updateDisplayedBook(book);
+                  }}
+                  showSnackBar={(msg) => {
+                    setSnackBarVisible(true);
+                    setSnackBarMsg(msg);
+                  }}
                 />
-                <Text
-                  testID={'noResultFound'}
-                  text={msgs.noBooksAvailable}
-                  align="center"
-                  visible={isShowNoBooksTxt}
-                  mediumEmphasis
-                />
-              </>
-            )}
+              )}
+            />
           </Col>
         </Row>
       </Grid>

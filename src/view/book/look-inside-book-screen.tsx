@@ -17,9 +17,7 @@ export function LookInsideBookScreen({
   useFocusEffect(
     useCallback(() => {
       global.setAppBarTitle(msgs.lookInside);
-      cart.length > 0
-        ? global.setDisplayCartBtn('flex')
-        : global.setDisplayCartBtn('none');
+      global.setDisplayCartBtn(cart);
     }, [msgs, cart]),
   );
 

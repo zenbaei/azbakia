@@ -22,7 +22,6 @@ export const loadCartBooksVOs = async (cart: Cart[]): Promise<CartBookVO[]> => {
       bk.name,
       crt?.quantity as number,
       bk.price,
-      bk.imgFolderName,
       bk.inventory,
     );
   });

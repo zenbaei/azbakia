@@ -38,10 +38,8 @@ export function BookDetailsScreen({
 
   useFocusEffect(
     useCallback(() => {
-      cart.length > 0
-        ? global.setDisplayCartBtn('flex')
-        : global.setDisplayCartBtn('none');
-    }, [cart.length]),
+      global.setDisplayCartBtn(cart);
+    }, [cart]),
   );
 
   const textDirection = (): 'left' | 'right' => {
@@ -68,7 +66,7 @@ export function BookDetailsScreen({
                 label={msgs.lookInside}
                 onPress={() =>
                   navigation.navigate('lookInsideBookScreen', {
-                    imageFolderName: book.imgFolderName,
+                    imageFolderName: book._id,
                   })
                 }
               />

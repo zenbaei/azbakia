@@ -17,7 +17,7 @@ export default function LoginScreen({
 
   useFocusEffect(() => {
     global.setAppBarTitle(msgs.login);
-    global.setDisplayCartBtn('none');
+    global.setDisplayCartBtn(undefined);
   });
 
   const login = async (

@@ -50,9 +50,7 @@ export function AddressManagementScreen({
           ? msgs.createAddress
           : msgs.modifyAddress,
       );
-      cart.length > 0
-        ? global.setDisplayCartBtn('flex')
-        : global.setDisplayCartBtn('none');
+      global.setDisplayCartBtn(cart);
     }, [msgs, modifiedAddressId, cart]),
   );
 

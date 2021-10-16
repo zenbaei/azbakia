@@ -40,7 +40,7 @@ export function CartScreen({
   useFocusEffect(
     useCallback(() => {
       global.setAppBarTitle(msgs.cart);
-      global.setDisplayCartBtn('none');
+      global.setDisplayCartBtn(undefined);
       setShowLoadingIndicator(true);
       loadCartBooksVOs(cart).then((vo) => {
         setCartBooksVOs(vo);
@@ -99,7 +99,6 @@ export function CartScreen({
                               _id: item._id,
                               name: item.name,
                               price: item.price,
-                              imgFolderName: item.imgFolderName,
                             } as Book
                           }
                           updateDisplayedBook={() => {}}

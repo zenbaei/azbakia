@@ -17,12 +17,14 @@ const Stack = createStackNavigator<NavigationScreens>();
 export function StackNavigator() {
   const [label, setLabel] = useState('');
   const [appBarTitle, setAppBarTitle] = useState('');
-  const [displayCartBtn, setDisplayCartBtn] = useState(
-    'none' as 'none' | 'flex' | undefined,
-  );
+  const [displayCartBtn, setDisplayCartBtn] = useState(false);
   global.setRightHeaderLabel = setLabel;
   global.setAppBarTitle = setAppBarTitle;
-  global.setDisplayCartBtn = setDisplayCartBtn;
+  global.setDisplayCartBtn = (cart?: any[]) => {
+    cart && cart?.length > 0
+      ? setDisplayCartBtn(true)
+      : setDisplayCartBtn(false);
+  };
   const {theme, language} = useContext(Ctx);
 
   const _displayMenuIcon = (routeName: string): ViewStyle => {
@@ -52,7 +54,7 @@ export function StackNavigator() {
         headerRight: () => {
           return (
             <Button
-              style={{display: displayCartBtn}}
+              visible={displayCartBtn}
               label={label ? label : getMessages(language).cart}
               onPress={() => navigation.navigate('cartScreen')}
             />

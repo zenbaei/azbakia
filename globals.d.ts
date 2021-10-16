@@ -5,4 +5,4 @@ declare var user: {
   country: string;
 };
 declare function setAppBarTitle(title: string): void;
-declare function setDisplayCartBtn(val: 'none' | 'flex' | undefined): void;
+declare function setDisplayCartBtn(cart?: any[]): void;

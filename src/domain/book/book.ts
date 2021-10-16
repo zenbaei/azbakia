@@ -6,7 +6,6 @@ export class Book extends _id {
   genre!: string;
   newArrivals: boolean = true;
   price!: number;
-  imgFolderName!: string;
   description!: string;
   language: Language = 'ar';
   inventory: number = 1;

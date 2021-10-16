@@ -37,9 +37,7 @@ export const ProfileScreen = ({
   useFocusEffect(
     useCallback(() => {
       global.setAppBarTitle(msgs.profile);
-      cart.length > 0
-        ? global.setDisplayCartBtn('flex')
-        : global.setDisplayCartBtn('none');
+      global.setDisplayCartBtn(cart);
     }, [msgs, cart]),
   );
 

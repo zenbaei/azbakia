@@ -1,6 +1,5 @@
 import {Item, Order} from 'domain/order/order';
 import {orderService} from 'domain/order/order-service';
-import {userService} from 'domain/user/user-service';
 import moment from 'moment';
 import {CartBookVO} from 'view/cart/cart-book-vo';
 
@@ -25,7 +24,6 @@ export const createOrder = async (
     quantity: c.quantity,
     price: c.price,
     status: 'pending',
-    imgFolderName: c.imgFolderName,
   }));
   const order: Order = {
     deliveryDate: {

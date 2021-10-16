@@ -4,7 +4,6 @@ export class CartBookVO {
     public name: string,
     public quantity: number,
     public price: number,
-    public imgFolderName: string,
     public inventory: number,
   ) {}
 }

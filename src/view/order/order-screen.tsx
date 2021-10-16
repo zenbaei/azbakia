@@ -8,6 +8,7 @@ import {UserContext} from 'user-context';
 import {Alert} from 'view/alert-component';
 import {formatDate} from 'view/delivery/delivery-actions';
 import {LabelValue} from 'view/label-value-component';
+import {Loading} from 'view/loading-component';
 import {
   Button,
   Card,
@@ -23,6 +24,7 @@ export const OrderScreen = () => {
   const [orders, setOrders] = useState([] as Order[]);
   const {styles, imgFileNames, msgs} = useContext(UserContext);
   const [showSnackBar, setShowSnackBar] = useState(false);
+  const [showLoading, setShowLoading] = useState(false);
   const SPACE = '                 ';
 
   useFocusEffect(
@@ -32,9 +34,13 @@ export const OrderScreen = () => {
   );
 
   const findOrders = () => {
+    setShowLoading(true);
     orderService
       .findAll({email: global.user.email}, {sort: {date: -1}})
-      .then((o) => setOrders(o));
+      .then((o) => {
+        setOrders(o);
+        setShowLoading(false);
+      });
   };
 
   const cancel = (id: string, item: Item) => {
@@ -54,6 +60,11 @@ export const OrderScreen = () => {
 
   return (
     <>
+      <Loading
+        showLoading={showLoading}
+        text={msgs.noOrders}
+        visible={orders.length < 1}
+      />
       <Grid>
         <Row>
           <Col>
@@ -71,7 +82,7 @@ export const OrderScreen = () => {
                         <Card width={bookCardWidth}>
                           <Image
                             source={{
-                              uri: `${staticFileUrl}/${i.imgFolderName}/${imgFileNames[0]}`,
+                              uri: `${staticFileUrl}/${i.bookId}/${imgFileNames[0]}`,
                             }}
                             style={styles.image}
                           />
@@ -105,7 +116,7 @@ export const OrderScreen = () => {
                         </View>
                       </View>
                       <Text
-                        key={i.bookId + i.imgFolderName}
+                        key={i.bookId + i.bookId}
                         text={SPACE}
                         line="line-through"
                         mediumEmphasis

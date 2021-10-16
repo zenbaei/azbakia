@@ -13,6 +13,5 @@ export type Item = {
   price: number;
   quantity: number;
   status: OrderStatus;
-  imgFolderName: string;
 };
 export type DeliveryDate = {from: Date; to: Date};

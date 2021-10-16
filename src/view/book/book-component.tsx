@@ -101,7 +101,7 @@ export const BookComponent = ({
         }}>
         <Image
           source={{
-            uri: `${staticFileUrl}/${book.imgFolderName}/${imgFileNames[0]}`,
+            uri: `${staticFileUrl}/${book._id}/${imgFileNames[0]}`,
           }}
           style={styles.image}
         />
