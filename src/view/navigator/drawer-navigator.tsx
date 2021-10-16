@@ -21,6 +21,7 @@ import {AddressListScreen} from 'view/address/address-list-screen';
 import {DeliveryScreen} from 'view/delivery/delivery-screen';
 import {FavouriteScreen} from 'view/book/favourite-screen';
 import {CommonActions} from '@react-navigation/routers';
+import {OrderScreen} from 'view/order/order-screen';
 
 const tab = ' ';
 const Drawer = createDrawerNavigator<NavigationScreens>();
@@ -49,6 +50,7 @@ export function DrawerNavigator() {
         component={AddressManagementScreen}
       />
       <Drawer.Screen name="deliveryScreen" component={DeliveryScreen} />
+      <Drawer.Screen name="orderScreen" component={OrderScreen} />
       <Drawer.Screen name="profileScreen" component={ProfileScreen} />
       <Drawer.Screen name="favouriteScreen" component={FavouriteScreen} />
     </Drawer.Navigator>

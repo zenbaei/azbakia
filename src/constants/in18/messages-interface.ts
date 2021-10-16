@@ -100,6 +100,13 @@ export interface MessagesInterface {
   yes: string;
   no: string;
   orders: string;
+  orderRef: string;
+  orderDate: string;
+  status: string;
+  cancel: string;
+  cancelConfirmation: string;
+  cannotCancel: string;
+  itemCanceled: string;
   getKeyAtRuntime: (key: string) => string;
 }
 

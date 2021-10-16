@@ -103,5 +103,12 @@ export const messagesEn: MessagesInterface = {
   yes: 'Yes',
   no: 'No',
   orders: 'My Orders',
+  orderDate: 'Order Date',
+  orderRef: 'Order ref',
+  cancel: 'Cancel',
+  status: 'Status',
+  cancelConfirmation: 'Are you sure you want to cancel your item?',
+  cannotCancel: `Order can only be canceled during 'pending' or 'processing' status`,
+  itemCanceled: 'Item canceled',
   getKeyAtRuntime: (key: string) => messagesEn[key] as string,
 };

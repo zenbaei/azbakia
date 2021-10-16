@@ -78,9 +78,11 @@ export const DeliveryScreen = ({
     setCvv('');
   };
 
-  const checkout = async () => {
-    await createOrder(loadCartBooksVOs(cart), expectedDeliveryDate);
-    Alert.alert('Payment Gate');
+  const checkout = () => {
+    createOrder(loadCartBooksVOs(cart), expectedDeliveryDate, () => {
+      userService.deleteCart(global.user._id);
+      Alert.alert('Payment Gate');
+    });
   };
 
   return (

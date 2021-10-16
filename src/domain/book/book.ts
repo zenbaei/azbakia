@@ -13,4 +13,4 @@ export class Book extends _id {
   requests!: request[];
 }
 
-export type request = {email: string; date: string};
+export type request = {email: string; date: Date};

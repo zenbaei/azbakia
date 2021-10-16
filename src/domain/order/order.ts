@@ -1,9 +1,9 @@
 import {_id} from 'zenbaei-js-lib/types';
 
 export class Order extends _id {
-  date!: string;
+  date!: Date;
   deliveryDate!: DeliveryDate;
-  item!: Item;
+  items!: Item[];
   email!: string;
 }
 
@@ -13,5 +13,6 @@ export type Item = {
   price: number;
   quantity: number;
   status: OrderStatus;
+  imgFolderName: string;
 };
-export type DeliveryDate = {from: string; to: string};
+export type DeliveryDate = {from: Date; to: Date};

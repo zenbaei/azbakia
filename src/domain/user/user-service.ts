@@ -32,6 +32,10 @@ class UserService extends MongoHttpService<User> {
   updateCart = (id: string, cart: Cart[]): Promise<modificationResult> => {
     return this.updateById(id, {$set: {cart: cart}});
   };
+
+  deleteCart = (id: string): Promise<modificationResult> => {
+    return this.updateCart(id, []);
+  };
 }
 
 export const userService = new UserService();

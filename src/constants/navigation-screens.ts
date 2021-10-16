@@ -19,4 +19,5 @@ export type NavigationScreens = {
     id?: string;
   };
   profileScreen: {};
+  orderScreen: {};
 };

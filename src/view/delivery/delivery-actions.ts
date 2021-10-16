@@ -1,5 +1,6 @@
-import {Order} from 'domain/order/order';
+import {Item, Order} from 'domain/order/order';
 import {orderService} from 'domain/order/order-service';
+import {userService} from 'domain/user/user-service';
 import moment from 'moment';
 import {CartBookVO} from 'view/cart/cart-book-vo';
 
@@ -16,25 +17,26 @@ export const inspectDeliveryDate = (): DeliveryDateRange => {
 
 export const createOrder = async (
   cartVO: Promise<CartBookVO[]>,
-  date: DeliveryDateRange,
+  deliveryDate: DeliveryDateRange,
+  clb: () => void,
 ): Promise<void> => {
-  const orders: Order[] = (await cartVO).map((c) => {
-    return {
-      date: new Date().toDateString(),
-      item: {
-        bookId: c._id,
-        quantity: c.quantity,
-        price: c.price as number,
-        status: 'pending',
-      },
-      deliveryDate: {
-        from: date.from.toDateString(),
-        to: date.to.toDateString(),
-      },
-      email: global.user.email,
-    } as Order;
-  });
-  orders.forEach((o) => orderService.insert(o));
+  const items: Item[] = (await cartVO).map((c) => ({
+    bookId: c._id,
+    quantity: c.quantity,
+    price: c.price,
+    status: 'pending',
+    imgFolderName: c.imgFolderName,
+  }));
+  const order: Order = {
+    deliveryDate: {
+      from: deliveryDate.from,
+      to: deliveryDate.to,
+    },
+    email: global.user.email,
+    date: new Date(),
+    items: items,
+  } as Order;
+  orderService.insert(order).then((r) => (r.modified > 0 ? clb() : {}));
 };
 
 export type DeliveryDateRange = {from: Date; to: Date};

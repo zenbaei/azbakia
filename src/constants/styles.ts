@@ -63,4 +63,7 @@ export const getStyles = (theme: AppThemeInterface) =>
     flexEnd: {alignSelf: 'flex-end'},
     drawerItemLabel: {fontSize: 14},
     loginLoading: {position: 'absolute', top: '45%', right: '50%'},
+    widthAuto: {width: 'auto'},
+    labelViewContainer: {width: '50%'},
+    columnCenterChildren: {alignItems: 'center'},
   });
