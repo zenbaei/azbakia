@@ -14,7 +14,7 @@ export const calculateSum = (cartBooksVO: CartBookVO[]): number => {
 
 export const loadCartBooksVOs = async (cart: Cart[]): Promise<CartBookVO[]> => {
   const bookIds = cart.map((car) => car.bookId);
-  const books: Book[] = await bookService.findAllByIds({$in: bookIds});
+  const books: Book[] = await bookService.findAllByBookIds(bookIds);
   return books.map((bk) => {
     const crt = cart.find((val) => val.bookId === bk._id);
     return new CartBookVO(

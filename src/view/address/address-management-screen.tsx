@@ -40,7 +40,7 @@ export function AddressManagementScreen({
   const [defaultAddress, setDefaultAddress] = useState(false);
   const [isSnackBarVisible, setSnackBarVisible] = useState(false);
   const [snackBarMsg, setSnackBarMsg] = useState('');
-  const {msgs, cart} = useContext(UserContext);
+  const {msgs, cart, theme} = useContext(UserContext);
   const modifiedAddressId = route.params.id;
 
   useFocusEffect(
@@ -177,7 +177,11 @@ export function AddressManagementScreen({
             <ScrollView>
               <Row>
                 <Col>
-                  <Text align={'left'} text={msgs.street} />
+                  <Text
+                    align={'left'}
+                    text={msgs.street}
+                    color={theme.secondary}
+                  />
                 </Col>
               </Row>
               <Row>
@@ -190,7 +194,11 @@ export function AddressManagementScreen({
               </Row>
               <Row>
                 <Col>
-                  <Text align={'left'} text={msgs.building} />
+                  <Text
+                    align={'left'}
+                    text={msgs.building}
+                    color={theme.secondary}
+                  />
                 </Col>
               </Row>
               <Row>
@@ -203,7 +211,11 @@ export function AddressManagementScreen({
               </Row>
               <Row>
                 <Col>
-                  <Text align={'left'} text={msgs.apartment} />
+                  <Text
+                    align={'left'}
+                    text={msgs.apartment}
+                    color={theme.secondary}
+                  />
                 </Col>
               </Row>
               <Row>
@@ -216,7 +228,11 @@ export function AddressManagementScreen({
               </Row>
               <Row>
                 <Col>
-                  <Text align="left" text={msgs.comment} />
+                  <Text
+                    align="left"
+                    text={msgs.comment}
+                    color={theme.secondary}
+                  />
                 </Col>
               </Row>
               <Row>

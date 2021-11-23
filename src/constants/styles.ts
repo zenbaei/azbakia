@@ -66,4 +66,5 @@ export const getStyles = (theme: AppThemeInterface) =>
     widthAuto: {width: 'auto'},
     labelViewContainer: {width: '50%'},
     columnCenterChildren: {alignItems: 'center'},
+    marginBottom: {marginBottom: 10},
   });

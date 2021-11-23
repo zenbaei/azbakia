@@ -1,11 +1,10 @@
 import {NavigationScreens} from 'constants/navigation-screens';
 import React, {useContext, useState} from 'react';
-import {User} from 'domain/user/user';
 import {userService} from 'domain/user/user-service';
 import {Login, NavigationProps} from 'zenbaei-js-lib/react';
 import {UserContext} from 'user-context';
 import {useFocusEffect} from '@react-navigation/native';
-import {ActivityIndicator} from 'react-native';
+import {ActivityIndicator, Alert} from 'react-native';
 import {configService} from 'domain/config/config-service';
 
 export default function LoginScreen({
@@ -26,27 +25,30 @@ export default function LoginScreen({
     setErrorMsg: (msg: string) => void,
   ) => {
     setShowLoading(true);
-    const user: User | undefined = await userService.findByEmailAndPass(
-      email,
-      password,
-    );
-    setShowLoading(false);
+    userService
+      .logins(email, password)
+      .then((user) => {
+        setShowLoading(false);
+        if (!user.activated) {
+          Alert.alert(msgs.activateAcc);
+          return;
+        }
+        global.user = {
+          _id: user._id,
+          email: user.email,
+          country: user.country,
+        };
+        global.token = user.token;
+        setCart(user.cart ? user.cart : []);
+        setFavs(user.favs ? user.favs : []);
+        configService.findAll().then((cfgs) => setConfigs(cfgs));
 
-    if (!user) {
-      setErrorMsg(msgs.wrongUsernameOrPassword);
-      return;
-    }
-
-    global.user = {
-      _id: user._id as string,
-      email: user.email,
-      country: user.country,
-    };
-    setCart(user.cart ? user.cart : []);
-    setFavs(user.favs ? user.favs : []);
-    configService.findAll().then((cfgs) => setConfigs(cfgs));
-
-    navigation.navigate('drawerNavigator', {});
+        navigation.navigate('drawerNavigator', {});
+      })
+      .catch((_reason) => {
+        setShowLoading(false);
+        setErrorMsg(msgs.wrongUsernameOrPassword);
+      });
   };
 
   return (

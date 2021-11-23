@@ -1,12 +1,12 @@
 import {DbCollectionNames} from 'constants/db-collection-names';
 import {modificationResult} from 'zenbaei-js-lib/types';
 import {MongoHttpService} from 'zenbaei-js-lib/utils';
-import {mongoRestApi} from '../../../app.config';
+import {APP_API} from '../../../app-config';
 import {Item, Order} from './order';
 
 class OrderService extends MongoHttpService<Order> {
   constructor() {
-    super(mongoRestApi, DbCollectionNames.orders);
+    super(APP_API, DbCollectionNames.orders);
   }
   cancelItem = async (
     id: string,

@@ -14,6 +14,7 @@ export const updateDefaultAddress = async (
   clb: (updatedAdds: Address[]) => void,
 ) => {
   const updatedAdds = addresses.map((ad) => {
+    console.debug(ad.id);
     ad.id === id ? (ad.default = true) : (ad.default = false);
     return ad;
   });
@@ -54,6 +55,7 @@ export const insertAddress = async (
   clb: (inserted: boolean) => void,
 ) => {
   const usr = await userService.findOne('_id', global.user._id);
+  usr.addresses = usr.addresses ? usr.addresses : [];
   const clonedAddresses = [...usr.addresses];
   if (clonedAddresses && clonedAddresses.length === 0) {
     newAddress.default = true;

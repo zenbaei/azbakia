@@ -1,11 +1,11 @@
 import {DbCollectionNames} from 'constants/db-collection-names';
 import {MongoHttpService} from 'zenbaei-js-lib/utils';
-import {mongoRestApi} from '../../../app.config';
+import {APP_API} from '../../../app-config';
 import {Country} from './country';
 
 class CountryService extends MongoHttpService<Country> {
   constructor() {
-    super(mongoRestApi, DbCollectionNames.countries);
+    super(APP_API, DbCollectionNames.countries);
   }
 }
 

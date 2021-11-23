@@ -1,4 +1,4 @@
-import {mongoRestApi} from '../../../app.config';
+import {APP_API} from '../../../app-config';
 import {DbCollectionNames} from 'constants/db-collection-names';
 
 import {MongoHttpService} from 'zenbaei-js-lib/utils';
@@ -7,7 +7,7 @@ import {modificationResult, queryOptions} from 'zenbaei-js-lib/types';
 
 class BookService extends MongoHttpService<Book> {
   constructor() {
-    super(mongoRestApi, DbCollectionNames.books);
+    super(APP_API, DbCollectionNames.books);
   }
 
   findByNewArrivals = (
@@ -58,12 +58,22 @@ class BookService extends MongoHttpService<Book> {
     return this.updateById(id, {$set: book});
   };
 
+  restoreInventory = async (id: string, quantity: number) => {
+    const book: Book = await this.findOne('_id', id);
+    book.inventory += quantity;
+    this.updateInventory(id, book.inventory);
+  };
+
   updateRequest = async (id: string, rqst: request) => {
     const bk = await bookService.findOne('_id', id);
     const req: request | undefined = bk.requests.find(
       (r) => r.email === global.user.email,
     );
     req ? {} : this.updateById(id, {$push: {requests: [rqst]}});
+  };
+
+  findAllByBookIds = async (bookIds: string[]): Promise<Book[]> => {
+    return this.findAll({$in: bookIds}, undefined, undefined, undefined, true);
   };
 }
 

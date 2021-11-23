@@ -3,7 +3,7 @@ import {bookService} from 'domain/book/book-service';
 import {Cart} from 'domain/user/cart';
 import {userService} from 'domain/user/user-service';
 import {AppThemeInterface} from 'zenbaei-js-lib/constants';
-import {inOp, modificationResult} from 'zenbaei-js-lib/types';
+import {modificationResult} from 'zenbaei-js-lib/types';
 import {isEmpty} from 'zenbaei-js-lib/utils';
 
 export const getIconColor = (
@@ -189,13 +189,6 @@ export const findSearchedBooksByPage = async (
   );
 };
 
-export const findFavouriteBooks = async (favs: string[]): Promise<Book[]> => {
-  const inFavs: inOp = {$in: favs};
-  console.log(favs);
-  const books = await bookService.findAllByIds(inFavs);
-  return books;
-};
-
 export type cartCallback = (modifiedCart: Cart[]) => void;
 type favCallback = (modifiedFavs: string[], isAdded: boolean) => void;
 
@@ -218,6 +211,6 @@ type searchResultCallback = (result: Book[], totalPagesNumber: number) => void;
 
 const findCartBookNames = async (cart: Cart[]): Promise<string[]> => {
   const bookIds = cart.map((car) => car.bookId);
-  const books: Book[] = await bookService.findAllByIds({$in: bookIds});
+  const books: Book[] = await bookService.findAllByBookIds(bookIds);
   return books.map((b) => b.name);
 };

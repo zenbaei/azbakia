@@ -118,6 +118,7 @@ function CustomDrawerContent(
         labelStyle={{color: theme.secondary, ...styles.drawerItemLabel}}
         label={msgs.logout}
         onPress={() => {
+          global.token = '';
           props.navigation.dispatch(
             CommonActions.reset({index: 0, routes: [{name: 'loginScreen'}]}),
           );

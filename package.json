@@ -10,7 +10,9 @@
     "lint": "eslint .",
     "clean": ".scripts/clean.sh",
     "install-zenbaei-types": "rm -rf node_modules/@types/zenbaei-js-lib; git clone git@github.com:zenbaei/zenbaei-js-lib-types.git node_modules/@types/zenbaei-js-lib",
-    "install-zenbaei": "npm i github:zenbaei/zenbaei-js-lib#"
+    "install-zenbaei": "npm i github:zenbaei/zenbaei-js-lib#",
+    "build-android": "./android/gradlew assembleRelease",
+    "upload-apk": "curl -k -F 'myFile=@android/app/build/outputs/apk/release/app-release.apk' https://zenbaei.ddns.net:3500/api/file"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.32",
@@ -21,8 +23,6 @@
     "@react-native-picker/picker": "^1.9.11",
     "@react-navigation/drawer": "^5.11.4",
     "@react-navigation/native": "^5.8.4",
-    "@types/bluebird": "^3.5.36",
-    "bluebird": "^0.9.3-0",
     "moment": "^2.29.1",
     "react": "16.13.1",
     "react-native": "0.63.3",
@@ -34,7 +34,7 @@
     "react-native-screens": "^2.12.0",
     "react-native-svg": "^12.1.0",
     "react-native-vector-icons": "^7.1.0",
-    "zenbaei-js-lib": "github:zenbaei/zenbaei-js-lib#94d1f1285344b1e111073fac35305c376c1b0dfd"
+    "zenbaei-js-lib": "github:zenbaei/zenbaei-js-lib#bdb96c8bf5c31eb02a198f28c871fc13cefa3f76"
   },
   "devDependencies": {
     "@babel/core": "^7.8.4",

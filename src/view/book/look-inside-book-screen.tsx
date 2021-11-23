@@ -1,4 +1,4 @@
-import {staticFileUrl} from '../../../app.config';
+import {STATIC_FILES_URL} from '../../../app-config';
 import {NavigationScreens} from 'constants/navigation-screens';
 import React, {useCallback, useContext} from 'react';
 import {FlatList, Image, StyleSheet, View} from 'react-native';
@@ -34,7 +34,7 @@ export function LookInsideBookScreen({
         />
         <Image
           style={styles.lookInsideImg}
-          source={{uri: `${staticFileUrl}/${imageFolderName}/${item}`}}
+          source={{uri: `${STATIC_FILES_URL}/${imageFolderName}/${item}`}}
         />
       </View>
     );

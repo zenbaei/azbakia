@@ -108,6 +108,7 @@ export interface MessagesInterface {
   cannotCancel: string;
   itemCanceled: string;
   noOrders: string;
+  activateAcc: string;
   getKeyAtRuntime: (key: string) => string;
 }
 

@@ -20,6 +20,7 @@ import {
 import {isValidNumber} from 'zenbaei-js-lib/utils';
 import {Address, modificationResult} from 'zenbaei-js-lib/types';
 import {isEmpty} from 'zenbaei-js-lib/utils';
+import {Loading} from 'view/loading-component';
 
 export const ProfileScreen = ({
   navigation,
@@ -33,6 +34,8 @@ export const ProfileScreen = ({
   const [address, setAddress] = useState({} as Address);
   const [snackBarMsg, setSnackBarMsg] = useState('');
   const [showSnackBar, setShowSnackBar] = useState(false);
+  const [isVisible, setVisible] = useState(true);
+  const [isLoading, setLoading] = useState(true);
 
   useFocusEffect(
     useCallback(() => {
@@ -51,6 +54,8 @@ export const ProfileScreen = ({
         usr.addresses && usr.addresses.length > 0
           ? setAddress(getDefaultAddress(usr.addresses))
           : setAddress({} as Address);
+        setVisible(false);
+        setLoading(false);
       });
     }, []),
   );
@@ -106,52 +111,54 @@ export const ProfileScreen = ({
 
   return (
     <>
-      <Grid>
+      <Loading visible={isVisible} showLoading={isLoading} />
+      <Grid style={isVisible ? styles.hidden : styles.visible}>
         <Row>
           <Col>
             <ScrollView>
               <Card width="100%">
-                <Text text={msgs.defaultAddress} color={theme.secondary} />
+                <Text bold text={msgs.defaultAddress} color={theme.secondary} />
                 <View
                   style={[
                     inlineStyle.view,
                     address.id ? inlineStyle.show : inlineStyle.hide,
                   ]}>
-                  <View style={styles.viewRow}>
-                    <Text
-                      bold
-                      color={theme.secondary}
-                      style={inlineStyle.address}
-                      text={msgs.street}
-                    />
-                    <Text style={inlineStyle.inputText} text={address.street} />
-                  </View>
+                  <Text
+                    bold
+                    color={theme.secondary}
+                    text={msgs.street}
+                    align={'left'}
+                  />
+                  <Text
+                    text={address.street}
+                    italic
+                    style={inlineStyle.paddedText}
+                  />
 
-                  <View style={styles.viewRow}>
-                    <Text
-                      bold
-                      color={theme.secondary}
-                      style={inlineStyle.address}
-                      text={msgs.building}
-                    />
-                    <Text
-                      style={inlineStyle.inputText}
-                      text={address.building}
-                    />
-                  </View>
+                  <Text
+                    bold
+                    color={theme.secondary}
+                    text={msgs.building}
+                    align="left"
+                  />
+                  <Text
+                    italic
+                    style={inlineStyle.paddedText}
+                    text={address.building}
+                  />
 
-                  <View style={styles.viewRow}>
-                    <Text
-                      bold
-                      color={theme.secondary}
-                      style={inlineStyle.address}
-                      text={msgs.apartment}
-                    />
-                    <Text
-                      style={inlineStyle.inputText}
-                      text={address.apartment}
-                    />
-                  </View>
+                  <Text
+                    bold
+                    color={theme.secondary}
+                    text={msgs.apartment}
+                    align="left"
+                  />
+                  <Text
+                    italic
+                    style={inlineStyle.paddedText}
+                    text={address.apartment}
+                  />
+
                   <Text
                     align="left"
                     bold
@@ -254,6 +261,7 @@ export const ProfileScreen = ({
 const inlineStyle = StyleSheet.create({
   text: {width: 150},
   address: {width: 90},
+  paddedText: {width: '100%', padding: 5},
   inputText: {width: '50%'},
   button: {alignSelf: 'flex-end', width: 140},
   view: {width: '100%'},

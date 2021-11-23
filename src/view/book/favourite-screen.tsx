@@ -1,13 +1,13 @@
 import {useFocusEffect} from '@react-navigation/core';
 import {NavigationScreens} from 'constants/navigation-screens';
 import {Book} from 'domain/book/book';
+import {bookService} from 'domain/book/book-service';
 import React, {useCallback, useContext, useState} from 'react';
 import {FlatList} from 'react-native';
 import {UserContext} from 'user-context';
 import {Loading} from 'view/loading-component';
 import {Col, Grid, NavigationProps, Row, SnackBar} from 'zenbaei-js-lib/react';
 import {BookComponent} from './book-component';
-import {findFavouriteBooks} from './book-screen-actions';
 
 export function FavouriteScreen({
   navigation,
@@ -25,7 +25,7 @@ export function FavouriteScreen({
       global.setDisplayCartBtn(cart);
       if (favs?.length > 0) {
         setShowLoadingIndicator(true);
-        findFavouriteBooks(favs).then((bks) => {
+        bookService.findAllByBookIds(favs).then((bks) => {
           setBooks(bks);
           setShowLoadingIndicator(false);
         });

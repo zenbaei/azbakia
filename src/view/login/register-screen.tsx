@@ -1,13 +1,10 @@
 import {useFocusEffect} from '@react-navigation/core';
 import {NavigationScreens} from 'constants/navigation-screens';
+import {userService} from 'domain/user/user-service';
 import React, {useCallback, useContext} from 'react';
 import {Alert} from 'react-native';
 import {UserContext} from 'user-context';
-import {
-  emailShouldNotExist,
-  saveUser,
-  sendActivationEmail,
-} from 'view/login/login-actions';
+import {sendActivationEmail} from 'view/login/login-actions';
 import {NavigationProps, Register} from 'zenbaei-js-lib/react';
 
 export const RegisterScreen = ({
@@ -29,25 +26,18 @@ export const RegisterScreen = ({
     password: string,
     setErrorMsg: (errMsg: string) => void,
   ): Promise<boolean | void> => {
-    if (!(await emailShouldNotExist(email))) {
+    const user = await userService.registers(email, password);
+    if (!user || !user._id) {
       setErrorMsg(msgs.emailExists);
       return;
     }
-    if (!(await saveUser(email, password))) {
-      setErrorMsg(msgs.saveError);
-      return;
-    }
-    if (
-      !(await sendActivationEmail(
-        email,
-        msgs.activationEmailSubject,
-        msgs.activationEmailBody,
-      ))
-    ) {
-      setErrorMsg(msgs.sendingEmailError);
-      return;
-    }
-    alert();
+    !(await sendActivationEmail(
+      user,
+      msgs.activationEmailSubject,
+      msgs.activationEmailBody,
+    ))
+      ? userService.updateById(user._id, {$set: {activated: true}})
+      : alert();
   };
   return <Register onPress={onPress} />;
 };

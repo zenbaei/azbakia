@@ -1,44 +1,20 @@
 import {User} from 'domain/user/user';
-import {userService} from 'domain/user/user-service';
+import {uploadLogFile} from 'email-service';
 import {Email} from 'zenbaei-js-lib/types';
-import {EmailHttpService} from 'zenbaei-js-lib/utils';
-import {activationLinkUrl, emailRestApi} from '../../../app.config';
+import {EmailHttpService, Logger} from 'zenbaei-js-lib/utils';
+import {ACTIVATION_API, APP_NAME, EMAIL_API} from '../../../app-config';
 
-const emailService = new EmailHttpService(emailRestApi);
-
-export const emailShouldNotExist = async (email: string): Promise<boolean> => {
-  const user = await userService.findOne('email', email);
-  if (user.email) {
-    return false;
-  }
-  return true;
-};
-
-export const saveUser = async (
-  email: string,
-  password: string,
-): Promise<boolean> => {
-  const result = await userService.insert({
-    email: email,
-    password: password,
-    activated: false,
-  } as User);
-  return result.modified === 1 ? true : false;
-};
+const emailService = new EmailHttpService(EMAIL_API);
 
 export const sendActivationEmail = async (
-  email: string,
+  user: User,
   subject: string,
   body: string,
 ): Promise<boolean> => {
-  const user = await userService.findOne('email', email);
-  if (!user) {
-    return false;
-  }
-  const mailBody = `${body}\n ${activationLinkUrl}/${user._id}`;
+  const mailBody = `${body}\n ${ACTIVATION_API}/${user._id}`;
   const mail: Email = {
-    sender: 'islam zenbaei',
-    receiver: email,
+    sender: APP_NAME,
+    receiver: user.email,
     subject: subject,
     body: mailBody,
   };
@@ -46,6 +22,8 @@ export const sendActivationEmail = async (
   try {
     await emailService.send(mail);
   } catch (error) {
+    Logger.error('login-actions', 'sendActivationEmail', error);
+    uploadLogFile();
     return false;
   }
 
