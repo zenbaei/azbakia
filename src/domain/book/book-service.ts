@@ -1,4 +1,4 @@
-import {APP_API} from '../../../app-config';
+import {APP_REST_API} from '../../../app-config';
 import {DbCollectionNames} from 'constants/db-collection-names';
 
 import {MongoHttpService} from 'zenbaei-js-lib/utils';
@@ -7,7 +7,7 @@ import {modificationResult, queryOptions} from 'zenbaei-js-lib/types';
 
 class BookService extends MongoHttpService<Book> {
   constructor() {
-    super(APP_API, DbCollectionNames.books);
+    super(APP_REST_API, DbCollectionNames.books);
   }
 
   findByNewArrivals = (

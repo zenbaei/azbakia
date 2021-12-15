@@ -11,4 +11,5 @@ export class User extends _id {
   phoneNo!: string;
   additionalPhoneNo!: string;
   country!: string;
+  token!: string;
 }

@@ -32,7 +32,6 @@ export interface MessagesInterface {
   forgetPassword: string;
   ok: string;
   emailExists: string;
-  welcome: string;
   activationEmailSubject: string;
   activationEmailBody: string;
   searchPlaceholder: string;
@@ -92,7 +91,6 @@ export interface MessagesInterface {
   favourite: string;
   noFavBooks: string;
   sendingEmailError: string;
-  userCreated: string;
   wrongUsernameOrPassword: string;
   requestCopy: string;
   requestSaved: string;

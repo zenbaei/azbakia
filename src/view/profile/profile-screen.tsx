@@ -160,6 +160,7 @@ export const ProfileScreen = ({
                   />
 
                   <Text
+                    italic
                     align="left"
                     bold
                     color={theme.secondary}

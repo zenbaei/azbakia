@@ -31,7 +31,6 @@ export const messagesEn: MessagesInterface = {
   forgetPassword: 'Forget Password',
   ok: 'Ok',
   activateAcc: 'Please check your email to activate your account',
-  welcome: 'Welcome',
   activationEmailBody:
     'Please activate your account by clicking the following link:',
   activationEmailSubject: 'Activate your account on azbakia',
@@ -94,7 +93,6 @@ export const messagesEn: MessagesInterface = {
   favourite: 'Favourite',
   noFavBooks: 'No favourite books',
   emailExists: 'Email already exists',
-  userCreated: 'We have sent you an activation email',
   sendingEmailError: 'Problem sending activation email, we will retry again',
   wrongUsernameOrPassword: 'Wrong username or password',
   requestCopy: 'Request a copy',
