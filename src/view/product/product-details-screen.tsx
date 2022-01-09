@@ -12,17 +12,17 @@ import {
 import {View} from 'react-native';
 import {getStyles} from 'constants/styles';
 import {getMessages} from 'constants/in18/messages-interface';
-import {BookComponent} from 'view/book/book-component';
+import {ProductComponent} from 'view/product/product-component';
 import {useFocusEffect} from '@react-navigation/native';
 import {UserContext} from 'user-context';
-import {bookService} from 'domain/book/book-service';
-import {Book} from 'domain/book/book';
+import {productService} from 'domain/product/product-service';
+import {Product} from 'domain/product/product';
 
-export function BookDetailsScreen({
+export function ProductDetailsScreen({
   navigation,
   route,
-}: NavigationProps<NavigationScreens, 'bookDetailsScreen'>) {
-  const [book, setBook] = useState({} as Book);
+}: NavigationProps<NavigationScreens, 'productDetailsScreen'>) {
+  const [book, setBook] = useState({} as Product);
   const {theme, language, cart} = useContext(UserContext);
   const styles = getStyles(theme);
   const msgs = getMessages(language);
@@ -32,7 +32,7 @@ export function BookDetailsScreen({
   useFocusEffect(
     useCallback(() => {
       global.setAppBarTitle(msgs.bookDetails);
-      bookService.findOne('_id', route.params.id).then((bk) => setBook(bk));
+      productService.findOne('_id', route.params.id).then((bk) => setBook(bk));
     }, [msgs, route.params.id]),
   );
 
@@ -51,21 +51,21 @@ export function BookDetailsScreen({
       <Grid>
         <Row>
           <Col>
-            <BookComponent
+            <ProductComponent
               centerCard
-              book={book}
+              product={book}
               showSnackBar={(msg) => {
                 setSnackBarVisible(true);
                 setSnackBarMsg(msg);
               }}
-              updateDisplayedBook={(bk) => setBook(bk)}
+              updateDisplayedProduct={(bk) => setBook(bk)}
             />
             <View style={styles.wide}>
               <Link
                 align="center"
                 label={msgs.lookInside}
                 onPress={() =>
-                  navigation.navigate('lookInsideBookScreen', {
+                  navigation.navigate('lookInsideProductScreen', {
                     imageFolderName: book._id,
                   })
                 }

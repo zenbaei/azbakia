@@ -1,6 +1,6 @@
 import {_id} from 'zenbaei-js-lib/types';
 
-export class Book extends _id {
+export class Product extends _id {
   name!: string;
   author!: string;
   genre!: string;

@@ -22,9 +22,9 @@ import {
 import {UserContext} from 'user-context';
 import {useFocusEffect} from '@react-navigation/core';
 import {CartBookVO} from './cart-book-vo';
-import {findBook} from 'view/book/book-screen-actions';
-import {Book} from 'domain/book/book';
-import {BookComponent} from 'view/book/book-component';
+import {findBook} from 'view/product/product-screen-actions';
+import {Product} from 'domain/product/product';
+import {ProductComponent} from 'view/product/product-component';
 
 export function CartScreen({
   navigation,
@@ -68,7 +68,7 @@ export function CartScreen({
     });
   };
 
-  const _updateDisplayedBookInventory = (book: Book) => {
+  const _updateDisplayedBookInventory = (book: Product) => {
     const cartVOs = cartBooksVOs.map((vo) => {
       if (vo._id === book._id) {
         vo.inventory = book.inventory;
@@ -92,22 +92,22 @@ export function CartScreen({
                   <Grid>
                     <Row>
                       <Col proportion={2}>
-                        <BookComponent
+                        <ProductComponent
                           cartScreen
-                          book={
+                          product={
                             {
                               _id: item._id,
                               name: item.name,
                               price: item.price,
-                            } as Book
+                            } as Product
                           }
-                          updateDisplayedBook={() => {}}
+                          updateDisplayedProduct={() => {}}
                           showSnackBar={(msg) => {
                             setSnackBarMsg(msg);
                             setSnackBarVisible(true);
                           }}
                           onPressImg={(bk) =>
-                            navigation.navigate('bookDetailsScreen', {
+                            navigation.navigate('productDetailsScreen', {
                               id: bk._id,
                             })
                           }

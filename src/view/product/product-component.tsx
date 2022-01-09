@@ -1,5 +1,5 @@
-import {bookCardWidth, bookCardWidthBig} from 'constants/styles';
-import {Book} from 'domain/book/book';
+import {productCardWidth, productCardWidthBig} from 'constants/styles';
+import {Product} from 'domain/product/product';
 import React, {useContext} from 'react';
 import {AlertButton, ViewStyle} from 'react-native';
 import {Alert, Image, TouchableHighlight} from 'react-native';
@@ -13,7 +13,7 @@ import {
   getCartIconColor,
   isInCart,
   requestBook,
-} from 'view/book/book-screen-actions';
+} from 'view/product/product-screen-actions';
 import {Card, Fab, Text} from 'zenbaei-js-lib/react';
 import {STATIC_FILES_URL} from '../../app-config';
 
@@ -22,17 +22,17 @@ import {STATIC_FILES_URL} from '../../app-config';
  * @param updateDisplayedBook - Replaces displayed book with the most recent
  * from db after update or in case of stale data.
  */
-export const BookComponent = ({
-  book,
+export const ProductComponent = ({
+  product: book,
   onPressImg,
-  updateDisplayedBook,
+  updateDisplayedProduct: updateDisplayedBook,
   showSnackBar,
   cartScreen = false,
   centerCard = false,
 }: {
-  book: Book;
-  onPressImg?: (book: Book) => void;
-  updateDisplayedBook: (book: Book) => void;
+  product: Product;
+  onPressImg?: (product: Product) => void;
+  updateDisplayedProduct: (product: Product) => void;
   showSnackBar: (msg: string) => void;
   cartScreen?: boolean;
   centerCard?: boolean;
@@ -91,7 +91,7 @@ export const BookComponent = ({
 
   return (
     <Card
-      width={cartScreen ? bookCardWidthBig : bookCardWidth}
+      width={cartScreen ? productCardWidthBig : productCardWidth}
       style={centerCard ? styles.flexCenter : styles.flexStart}>
       <TouchableHighlight
         testID="touchable"

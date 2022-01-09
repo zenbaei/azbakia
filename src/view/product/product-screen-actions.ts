@@ -1,5 +1,5 @@
-import {Book, request} from 'domain/book/book';
-import {bookService} from 'domain/book/book-service';
+import {Product, request} from 'domain/product/product';
+import {productService} from 'domain/product/product-service';
 import {Cart} from 'domain/user/cart';
 import {userService} from 'domain/user/user-service';
 import {AppThemeInterface} from 'zenbaei-js-lib/constants';
@@ -29,7 +29,7 @@ export const getCartIconColor = (
 };
 
 export const isInCart = (bookId: string, cart: Cart[]): boolean => {
-  const cr = cart.find((c) => c.bookId === bookId);
+  const cr = cart.find((c) => c.productId === bookId);
   return cr ? true : false;
 };
 
@@ -42,14 +42,14 @@ export const isInCart = (bookId: string, cart: Cart[]): boolean => {
  *
  */
 export const _pushOrPopCart = (
-  book: Book,
+  book: Product,
   cart: Cart[],
 ): {modifiedCart: Cart[]; cartQuantity: number} => {
   let quantity: number = -1;
   let cartClone = [...cart];
-  const index: number = cart.findIndex((val) => val.bookId === book._id);
+  const index: number = cart.findIndex((val) => val.productId === book._id);
   if (index === -1) {
-    cartClone.push({bookId: book._id, quantity: 1});
+    cartClone.push({productId: book._id, quantity: 1});
   } else {
     const crt = cartClone.splice(index, 1);
     quantity = crt[0].quantity;
@@ -66,10 +66,10 @@ export const _updateCart = async (cart: Cart[]): Promise<boolean> => {
 };
 
 export const _updateInventory = async (
-  book: Book,
+  book: Product,
   quantity: number,
 ): Promise<boolean> => {
-  const result: modificationResult = await bookService.updateInventory(
+  const result: modificationResult = await productService.updateInventory(
     book._id,
     book.inventory + quantity,
   );
@@ -77,7 +77,7 @@ export const _updateInventory = async (
 };
 
 export const addOrRmvFrmCart = async (
-  book: Book,
+  book: Product,
   cart: Cart[],
   callback: cartCallback,
 ): Promise<void> => {
@@ -122,31 +122,31 @@ export const updateFav = async (
 /**
  * @param page - starts from zero
  */
-export const findBooksByPage = async (
+export const findProductsByPage = async (
   cart: Cart[],
   genre: string,
   page: number,
   pageSize: number,
-): Promise<Book[]> => {
-  const bookNames = await findCartBookNames(cart);
+): Promise<Product[]> => {
+  const bookNames = await findCartProductNames(cart);
   return isEmpty(genre)
-    ? bookService.findByNewArrivals(bookNames, page * pageSize, pageSize)
-    : bookService.findByGenre(bookNames, genre, page * pageSize, pageSize);
+    ? productService.findByNewArrivals(bookNames, page * pageSize, pageSize)
+    : productService.findByGenre(bookNames, genre, page * pageSize, pageSize);
 };
 
 /**
  * Finds books by genere or newArrivals and return items for 1st page.
  */
-export const find1stBooksPageAndPageSize = async (
+export const find1stProductsPageAndPageSize = async (
   cart: Cart[],
   genre: string,
   pageSize: number,
   clb: searchResultCallback,
 ): Promise<void> => {
-  const bookNames = await findCartBookNames(cart);
+  const bookNames = await findCartProductNames(cart);
   const result = isEmpty(genre)
-    ? await bookService.findByNewArrivals(bookNames)
-    : await bookService.findByGenre(bookNames, genre);
+    ? await productService.findByNewArrivals(bookNames)
+    : await productService.findByGenre(bookNames, genre);
   let firstPageBooks =
     result.length >= pageSize ? result.slice(0, pageSize) : result;
   clb(firstPageBooks, Math.ceil(result.length / pageSize));
@@ -157,31 +157,31 @@ export const find1stBooksPageAndPageSize = async (
  * @param searchToken
  * @param clb
  */
-export const find1stSearchedBooksPageAndPageSize = async (
+export const find1stSearchedProductsPageAndPageSize = async (
   searchToken: string,
   pageSize: number,
   clb: searchResultCallback,
 ): Promise<void> => {
-  const result = await bookService.findBySearchToken(searchToken);
+  const result = await productService.findBySearchToken(searchToken);
   let resultPerPageSize =
     result.length >= pageSize ? result.slice(0, pageSize) : result;
   clb(resultPerPageSize, Math.ceil(result.length / pageSize));
 };
 
-export const findSearchedBooksProjected = async (
+export const findSearchedProductsProjected = async (
   name: string,
-): Promise<Book[]> => {
-  return bookService.findBySearchToken(name, {
+): Promise<Product[]> => {
+  return productService.findBySearchToken(name, {
     projection: {_id: 1, name: 1},
   });
 };
 
-export const findSearchedBooksByPage = async (
+export const findSearchedProductsByPage = async (
   name: string,
   page: number,
   pageSize: number,
-): Promise<Book[]> => {
-  return bookService.findBySearchToken(
+): Promise<Product[]> => {
+  return productService.findBySearchToken(
     name,
     undefined,
     page * pageSize,
@@ -192,25 +192,30 @@ export const findSearchedBooksByPage = async (
 export type cartCallback = (modifiedCart: Cart[]) => void;
 type favCallback = (modifiedFavs: string[], isAdded: boolean) => void;
 
-export const findBook = (id: string): Promise<Book> =>
-  bookService.findOne('_id', id);
+export const findBook = (id: string): Promise<Product> =>
+  productService.findOne('_id', id);
 
 export const requestBook = async (id: string): Promise<void> => {
   const br: request = {
     email: global.user.email,
     date: new Date(),
   };
-  bookService.updateRequest(id, br);
+  productService.updateRequest(id, br);
 };
 
 /**
  * @param result - first page books
  * @param totalPagesNumber - the number of search books divided by items per page
  */
-type searchResultCallback = (result: Book[], totalPagesNumber: number) => void;
+type searchResultCallback = (
+  result: Product[],
+  totalPagesNumber: number,
+) => void;
 
-const findCartBookNames = async (cart: Cart[]): Promise<string[]> => {
-  const bookIds = cart.map((car) => car.bookId);
-  const books: Book[] = await bookService.findAllByBookIds(bookIds);
-  return books.map((b) => b.name);
+const findCartProductNames = async (cart: Cart[]): Promise<string[]> => {
+  const productsIds = cart.map((car) => car.productId);
+  const products: Product[] = await productService.findAllByProductIds(
+    productsIds,
+  );
+  return products.map((b) => b.name);
 };

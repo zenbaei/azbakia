@@ -3,11 +3,11 @@ import {Cart} from 'domain/user/cart';
 
 export type NavigationScreens = {
   loginScreen: {};
-  bookScreen: {subGenre: SubGenre};
-  bookDetailsScreen: {id: string};
+  productScreen: {subGenre: SubGenre};
+  productDetailsScreen: {id: string};
   favouriteScreen: {};
   cartScreen: {cart: Cart[]};
-  lookInsideBookScreen: {imageFolderName: string};
+  lookInsideProductScreen: {imageFolderName: string};
   drawerNavigator: {};
   paymentScreen: {};
   unexpectedErrorScreen: {};

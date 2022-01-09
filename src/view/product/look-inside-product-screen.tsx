@@ -7,10 +7,10 @@ import {useFocusEffect} from '@react-navigation/native';
 import {UserContext} from 'user-context';
 import IconButton from 'react-native-paper/src/components/IconButton';
 
-export function LookInsideBookScreen({
+export function LookInsideProductScreen({
   navigation,
   route,
-}: NavigationProps<NavigationScreens, 'lookInsideBookScreen'>) {
+}: NavigationProps<NavigationScreens, 'lookInsideProductScreen'>) {
   const imageFolderName = route.params.imageFolderName;
   const {theme, msgs, styles, cart, imgFileNames} = useContext(UserContext);
 

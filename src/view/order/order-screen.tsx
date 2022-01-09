@@ -1,6 +1,6 @@
 import {useFocusEffect} from '@react-navigation/core';
-import {bookCardWidth} from 'constants/styles';
-import {bookService} from 'domain/book/book-service';
+import {productCardWidth} from 'constants/styles';
+import {productService} from 'domain/product/product-service';
 import {Item, Order} from 'domain/order/order';
 import {orderService} from 'domain/order/order-service';
 import React, {useCallback, useContext, useState} from 'react';
@@ -52,7 +52,7 @@ export const OrderScreen = () => {
           if (r.modified === 1) {
             _findOrders();
             setShowSnackBar(true);
-            bookService.restoreInventory(item.bookId, item.quantity);
+            productService.restoreInventory(item.bookId, item.quantity);
           }
         }),
       );
@@ -83,7 +83,7 @@ export const OrderScreen = () => {
                   {o.items.map((i) => (
                     <>
                       <View key={i.bookId} style={styles.viewRow}>
-                        <Card width={bookCardWidth}>
+                        <Card width={productCardWidth}>
                           <Image
                             source={{
                               uri: `${STATIC_FILES_URL}/${i.bookId}/${imgFileNames[0]}`,

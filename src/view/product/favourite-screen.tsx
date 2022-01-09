@@ -1,31 +1,31 @@
 import {useFocusEffect} from '@react-navigation/core';
 import {NavigationScreens} from 'constants/navigation-screens';
-import {Book} from 'domain/book/book';
-import {bookService} from 'domain/book/book-service';
+import {Product} from 'domain/product/product';
+import {productService} from 'domain/product/product-service';
 import React, {useCallback, useContext, useState} from 'react';
 import {FlatList} from 'react-native';
 import {UserContext} from 'user-context';
 import {Loading} from 'view/loading-component';
 import {Col, Grid, NavigationProps, Row, SnackBar} from 'zenbaei-js-lib/react';
-import {BookComponent} from './book-component';
+import {ProductComponent} from './product-component';
 
 export function FavouriteScreen({
   navigation,
 }: NavigationProps<NavigationScreens, 'favouriteScreen'>) {
   const {favs, msgs, cart} = useContext(UserContext);
-  const [books, setBooks] = useState([] as Book[]);
+  const [books, setBooks] = useState([] as Product[]);
   const [isShowLoadingIndicator, setShowLoadingIndicator] = useState(false);
   const [snackBarMsg, setSnackBarMsg] = useState('');
   const [isSnackBarVisible, setSnackBarVisible] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
-      setBooks([] as Book[]);
+      setBooks([] as Product[]);
       global.setAppBarTitle(msgs.favourite);
       global.setDisplayCartBtn(cart);
       if (favs?.length > 0) {
         setShowLoadingIndicator(true);
-        bookService.findAllByBookIds(favs).then((bks) => {
+        productService.findAllByProductIds(favs).then((bks) => {
           setBooks(bks);
           setShowLoadingIndicator(false);
         });
@@ -50,12 +50,12 @@ export function FavouriteScreen({
               data={books}
               keyExtractor={(item) => item._id}
               renderItem={({item}) => (
-                <BookComponent
-                  book={item}
+                <ProductComponent
+                  product={item}
                   onPressImg={() =>
-                    navigation.navigate('bookDetailsScreen', {id: item._id})
+                    navigation.navigate('productDetailsScreen', {id: item._id})
                   }
-                  updateDisplayedBook={() => {}}
+                  updateDisplayedProduct={() => {}}
                   showSnackBar={(msg) => {
                     setSnackBarVisible(true);
                     setSnackBarMsg(msg);

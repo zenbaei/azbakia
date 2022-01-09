@@ -1,4 +1,4 @@
-import {Book} from 'domain/book/book';
+import {Product} from 'domain/product/product';
 import React, {useCallback, useContext, useState} from 'react';
 import {FlatList} from 'react-native';
 import {
@@ -13,24 +13,24 @@ import {
 import {NavigationScreens} from 'constants/navigation-screens';
 import {
   findBook,
-  findBooksByPage,
-  findSearchedBooksByPage,
-  find1stSearchedBooksPageAndPageSize,
-  findSearchedBooksProjected,
-  find1stBooksPageAndPageSize,
-} from './book-screen-actions';
+  findProductsByPage,
+  findSearchedProductsByPage,
+  find1stSearchedProductsPageAndPageSize,
+  findSearchedProductsProjected,
+  find1stProductsPageAndPageSize,
+} from './product-screen-actions';
 import {UserContext} from 'user-context';
 import {useFocusEffect} from '@react-navigation/native';
 import {isEmpty} from 'zenbaei-js-lib/utils';
 import ActivityIndicator from 'react-native-paper/src/components/ActivityIndicator';
-import {BookComponent} from 'view/book/book-component';
+import {ProductComponent} from 'view/product/product-component';
 import {Loading} from 'view/loading-component';
 
-export function BookScreen({
+export function ProductScreen({
   navigation,
   route,
-}: NavigationProps<NavigationScreens, 'bookScreen'>) {
-  const [books, setBooks] = useState([] as Book[]);
+}: NavigationProps<NavigationScreens, 'productScreen'>) {
+  const [books, setBooks] = useState([] as Product[]);
   const subGenre = route.params?.subGenre;
   const [page, setPage] = useState(0);
   const [maxPageNumber, setMaxPageNumber] = useState(1);
@@ -49,11 +49,11 @@ export function BookScreen({
     }, [msgs, cart]),
   );
 
-  const findFirstPageBooks = useCallback(() => {
+  const findFirstPageProducts = useCallback(() => {
     setShowLoadingIndicator(true);
-    find1stBooksPageAndPageSize(
+    find1stProductsPageAndPageSize(
       cart,
-      subGenre?.nameEn,
+      subGenre?.enName,
       pageSize,
       (result, totalPagesNumber) => {
         setMaxPageNumber(totalPagesNumber);
@@ -65,20 +65,25 @@ export function BookScreen({
 
   useFocusEffect(
     useCallback(() => {
-      findFirstPageBooks();
-    }, [findFirstPageBooks]),
+      findFirstPageProducts();
+    }, [findFirstPageProducts]),
   );
 
   const loadNextPage = async () => {
-    let result: Book[];
+    let result: Product[];
     if (page === maxPageNumber) {
       return;
     }
     setAnimating(true);
     if (searchToken.length > 0) {
-      result = await findSearchedBooksByPage(searchToken, page, pageSize);
+      result = await findSearchedProductsByPage(searchToken, page, pageSize);
     } else {
-      const bks = await findBooksByPage(cart, subGenre?.nameEn, page, pageSize);
+      const bks = await findProductsByPage(
+        cart,
+        subGenre?.enName,
+        page,
+        pageSize,
+      );
       result = [...books, ...bks];
     }
     setBooks(result);
@@ -89,7 +94,7 @@ export function BookScreen({
   const onBlurSearch = async (text: string) => {
     setShowLoadingIndicator(true);
     setSearchToken(text);
-    find1stSearchedBooksPageAndPageSize(
+    find1stSearchedProductsPageAndPageSize(
       text,
       pageSize,
       (result, totalPagesNumber) => {
@@ -101,11 +106,11 @@ export function BookScreen({
   };
 
   const search = async (text: string) => {
-    const result = await findSearchedBooksProjected(text);
+    const result = await findSearchedProductsProjected(text);
     return result.map((bk) => ({value: bk._id, label: bk.name}));
   };
 
-  const _updateDisplayedBook = (book: Book) => {
+  const _updateDisplayedProduct = (book: Product) => {
     const bks = books.map((bk) => (bk._id === book._id ? book : bk));
     setBooks(bks);
   };
@@ -127,17 +132,17 @@ export function BookScreen({
                 setBooks([book]);
               }}
               onBlur={onBlurSearch}
-              onClear={findFirstPageBooks}
+              onClear={findFirstPageProducts}
             />
             <Text
               bold
               color={theme.secondary}
               text={
-                isEmpty(subGenre?.nameEn)
+                isEmpty(subGenre?.enName)
                   ? msgs.newArrivals
                   : language === 'en'
-                  ? subGenre.nameEn
-                  : subGenre.nameAr
+                  ? subGenre.enName
+                  : subGenre.arName
               }
               align="center"
             />
@@ -156,13 +161,13 @@ export function BookScreen({
               onEndReachedThreshold={0.1}
               ListFooterComponent={renderFooter}
               renderItem={({item}) => (
-                <BookComponent
-                  book={item}
+                <ProductComponent
+                  product={item}
                   onPressImg={() =>
-                    navigation.navigate('bookDetailsScreen', {id: item._id})
+                    navigation.navigate('productDetailsScreen', {id: item._id})
                   }
-                  updateDisplayedBook={(book: Book) => {
-                    _updateDisplayedBook(book);
+                  updateDisplayedProduct={(book: Product) => {
+                    _updateDisplayedProduct(book);
                   }}
                   showSnackBar={(msg) => {
                     setSnackBarVisible(true);

@@ -7,10 +7,10 @@ import {
 } from '@react-navigation/drawer';
 import {NavigationScreens} from 'constants/navigation-screens';
 import React, {useContext, useEffect, useState} from 'react';
-import {BookScreen} from '../book/book-screen';
+import {ProductScreen} from '../product/product-screen';
 import {Item, Accordion} from 'react-native-paper/src/components/List/List';
-import {BookDetailsScreen} from 'view/book/book-details-screen';
-import {LookInsideBookScreen} from 'view/book/look-inside-book-screen';
+import {ProductDetailsScreen} from 'view/product/product-details-screen';
+import {LookInsideProductScreen} from 'view/product/look-inside-product-screen';
 import {CartScreen} from 'view/cart/cart-screen';
 import {Genre} from 'domain/genre/genre';
 import {genreService} from 'domain/genre/genre-service';
@@ -19,7 +19,7 @@ import {AddressManagementScreen} from 'view/address/address-management-screen';
 import {ProfileScreen} from 'view/profile/profile-screen';
 import {AddressListScreen} from 'view/address/address-list-screen';
 import {DeliveryScreen} from 'view/delivery/delivery-screen';
-import {FavouriteScreen} from 'view/book/favourite-screen';
+import {FavouriteScreen} from 'view/product/favourite-screen';
 import {CommonActions} from '@react-navigation/routers';
 import {OrderScreen} from 'view/order/order-screen';
 
@@ -29,19 +29,22 @@ const Drawer = createDrawerNavigator<NavigationScreens>();
 export function DrawerNavigator() {
   return (
     <Drawer.Navigator
-      initialRouteName={'bookScreen'}
+      initialRouteName={'productScreen'}
       drawerContent={(props) => <CustomDrawerContent {...props} />}>
       <Drawer.Screen
-        name="bookScreen"
-        component={BookScreen}
+        name="productScreen"
+        component={ProductScreen}
         initialParams={{
           subGenre: undefined,
         }}
       />
-      <Drawer.Screen name="bookDetailsScreen" component={BookDetailsScreen} />
       <Drawer.Screen
-        name="lookInsideBookScreen"
-        component={LookInsideBookScreen}
+        name="productDetailsScreen"
+        component={ProductDetailsScreen}
+      />
+      <Drawer.Screen
+        name="lookInsideProductScreen"
+        component={LookInsideProductScreen}
       />
       <Drawer.Screen name="cartScreen" component={CartScreen} />
       <Drawer.Screen name="addressListScreen" component={AddressListScreen} />
