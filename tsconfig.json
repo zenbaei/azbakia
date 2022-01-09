@@ -7,17 +7,21 @@
     "jsx": "react-native",
     "lib": ["es6"],
     "moduleResolution": "node",
-    "noEmit": true,
+    "noEmit": false,
     "strict": true,
     "target": "esnext",
     "baseUrl": "./src",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "declaration": true,
+    "outDir": "./dist"
   },
   "exclude": [
     "node_modules",
     "babel.config.js",
     "metro.config.js",
     "jest.config.js",
-    "__tests__"
-  ]
+    "__tests__",
+    "dist"
+  ],
+"include": ["src/**/*"]
 }

@@ -1,4 +1,4 @@
-import {STATIC_FILES_URL} from '../../../app-config';
+import {STATIC_FILES_URL} from '../../app-config';
 import {NavigationScreens} from 'constants/navigation-screens';
 import React, {useCallback, useContext} from 'react';
 import {FlatList, Image, StyleSheet, View} from 'react-native';

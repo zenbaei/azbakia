@@ -15,7 +15,7 @@ import {
   requestBook,
 } from 'view/book/book-screen-actions';
 import {Card, Fab, Text} from 'zenbaei-js-lib/react';
-import {STATIC_FILES_URL} from '../../../app-config';
+import {STATIC_FILES_URL} from '../../app-config';
 
 /**
  *

@@ -34,7 +34,7 @@
     "react-native-screens": "^2.12.0",
     "react-native-svg": "^12.1.0",
     "react-native-vector-icons": "^7.1.0",
-    "zenbaei-js-lib": "github:zenbaei/zenbaei-js-lib#a59b6392d68b84a6228ba523aeb574425de65859"
+    "zenbaei-js-lib": "github:zenbaei/zenbaei-js-lib#8c4ed64fbf48f84eae652da4aa5691aacec6a817"
   },
   "devDependencies": {
     "@babel/core": "^7.8.4",

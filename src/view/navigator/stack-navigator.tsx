@@ -68,7 +68,7 @@ export function StackNavigator() {
         ...getNavigatorHeaderStyle(theme),
       })}>
       <Stack.Screen name="loginScreen" component={LoginScreen} />
-      <Stack.Screen name="registerScreen" component={RegisterScreen} />
+      <Stack.Screen name="registerScreen" component={Register} />
       <Stack.Screen name="forgetPasswordScreen" component={ForgetPassword} />
       <Stack.Screen name="drawerNavigator" component={DrawerNavigator} />
       <Stack.Screen
@@ -78,7 +78,3 @@ export function StackNavigator() {
     </Stack.Navigator>
   );
 }
-
-const RegisterScreen = ({navigation}: {navigation: any}) => (
-  <Register onSuccess={() => navigation.navigate('loginScreen', {})} />
-);

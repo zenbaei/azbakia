@@ -19,7 +19,7 @@ import {
   SnackBar,
   Text,
 } from 'zenbaei-js-lib/react';
-import {STATIC_FILES_URL} from '../../../app-config';
+import {STATIC_FILES_URL} from '../../app-config';
 
 export const OrderScreen = () => {
   const [orders, setOrders] = useState([] as Order[]);

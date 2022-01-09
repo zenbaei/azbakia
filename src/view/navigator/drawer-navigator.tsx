@@ -82,14 +82,14 @@ function CustomDrawerContent(
       {genres.map((genre) => (
         <Accordion
           titleStyle={{color: theme.secondary, ...styles.drawerItemLabel}}
-          key={genre.nameEn}
-          title={language === 'en' ? genre.nameEn : genre.nameAr}>
-          {genre.subGenre.map((sub) => (
+          key={genre.enName}
+          title={language === 'en' ? genre.enName : genre.arName}>
+          {genre.subGenres.map((sub) => (
             <Item
               rippleColor={theme.secondary}
               titleStyle={styles.drawerItemLabel}
-              key={sub.nameEn}
-              title={`${tab} ${language === 'en' ? sub.nameEn : sub.nameAr}`}
+              key={sub.enName}
+              title={`${tab} ${language === 'en' ? sub.enName : sub.arName}`}
               onPress={() => {
                 props.navigation.navigate('bookScreen', {
                   subGenre: sub,

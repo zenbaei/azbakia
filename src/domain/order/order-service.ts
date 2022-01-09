@@ -1,7 +1,7 @@
 import {DbCollectionNames} from 'constants/db-collection-names';
 import {modificationResult} from 'zenbaei-js-lib/types';
 import {MongoHttpService} from 'zenbaei-js-lib/utils';
-import {APP_REST_API} from '../../../app-config';
+import {APP_REST_API} from '../../app-config';
 import {Item, Order} from './order';
 
 class OrderService extends MongoHttpService<Order> {
