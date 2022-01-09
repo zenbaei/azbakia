@@ -3,7 +3,7 @@ import {Book} from '../../../src/domain/book/book';
 import {bookService} from '../../../src/domain/book/book-service';
 import {userService} from '../../../src/domain/user/user-service';
 import {Cart} from '../../../src/domain/user/user';
-import * as actions from '../../../src/view/book/book-screen-actions';
+import * as actions from '../../../src/view/product/product-screen-actions';
 
 const arr: string[] = ['islam', 'ali', 'hassan'];
 let global: any;

@@ -4,20 +4,22 @@ import {Cart} from 'domain/user/cart';
 import {userService} from 'domain/user/user-service';
 import {cartCallback} from 'view/product/product-screen-actions';
 import {_pushOrPopCart} from '../product/product-screen-actions';
-import {CartBookVO} from './cart-book-vo';
+import {CartProductVO as CartProductVO} from './cart-product-vo';
 
-export const calculateSum = (cartBooksVO: CartBookVO[]): number => {
+export const calculateSum = (cartBooksVO: CartProductVO[]): number => {
   return cartBooksVO
     .map((cartBk) => cartBk.price * cartBk.quantity)
     .reduce((total, cur) => (total + cur) as number, 0);
 };
 
-export const loadCartBooksVOs = async (cart: Cart[]): Promise<CartBookVO[]> => {
+export const loadCartProductsVOs = async (
+  cart: Cart[],
+): Promise<CartProductVO[]> => {
   const bookIds = cart.map((car) => car.productId);
   const books: Product[] = await productService.findAllByProductIds(bookIds);
   return books.map((bk) => {
     const crt = cart.find((val) => val.productId === bk._id);
-    return new CartBookVO(
+    return new CartProductVO(
       bk._id,
       bk.name,
       crt?.quantity as number,
@@ -36,19 +38,19 @@ export const flatenNumberToArray = (val: number): labelValue[] => {
 };
 
 export const updateQuantity = async (
-  book: Product,
+  product: Product,
   cart: Cart[],
   oldQuantity: number,
   newQuantity: number,
   clb: cartCallback,
 ) => {
   const invUpdated = await productService.updateInventory(
-    book._id,
-    book.inventory + oldQuantity - newQuantity,
+    product._id,
+    product.inventory + oldQuantity - newQuantity,
   );
   const modifiedCart: Cart[] = cart.map((crt) =>
-    crt.productId === book._id
-      ? {productId: book._id, quantity: newQuantity, bookName: book.name}
+    crt.productId === product._id
+      ? {productId: product._id, quantity: newQuantity, date: new Date()}
       : crt,
   );
   const cartUpdated = await userService.updateCart(
@@ -61,17 +63,17 @@ export const updateQuantity = async (
 };
 
 export const removeFromCart = async (
-  bookId: string,
+  productId: string,
   cart: Cart[],
   clb: cartCallback,
 ) => {
-  const book = await productService.findOne('_id', bookId);
-  const cartBk = cart.find((crt) => crt.productId === bookId);
+  const product = await productService.findOne('_id', productId);
+  const cartPd = cart.find((crt) => crt.productId === productId);
   const invUpdated = await productService.updateInventory(
-    bookId,
-    book.inventory + (cartBk ? cartBk.quantity : 0),
+    productId,
+    product.inventory + (cartPd ? cartPd.quantity : 0),
   );
-  const {modifiedCart} = _pushOrPopCart(book, cart);
+  const {modifiedCart} = _pushOrPopCart(product, cart);
   const cartUpdated = await userService.updateCart(
     global.user._id,
     modifiedCart,

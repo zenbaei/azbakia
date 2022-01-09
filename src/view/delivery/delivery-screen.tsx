@@ -23,7 +23,7 @@ import {
 } from './delivery-actions';
 
 import {Alert, ScrollView, StyleSheet, View} from 'react-native';
-import {loadCartBooksVOs} from 'view/cart/cart-screen-actions';
+import {loadCartProductsVOs} from 'view/cart/cart-screen-actions';
 
 export const DeliveryScreen = ({
   navigation,
@@ -79,7 +79,7 @@ export const DeliveryScreen = ({
   };
 
   const checkout = () => {
-    createOrder(loadCartBooksVOs(cart), expectedDeliveryDate, () => {
+    createOrder(loadCartProductsVOs(cart), expectedDeliveryDate, () => {
       userService.deleteCart(global.user._id);
       Alert.alert('Payment Gate');
     });

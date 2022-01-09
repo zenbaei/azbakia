@@ -13,7 +13,7 @@ class OrderService extends MongoHttpService<Order> {
     bookId: string,
   ): Promise<modificationResult> => {
     const order = await this.findOne('_id', id);
-    const item = order.items.find((i) => i.bookId === bookId) as Item;
+    const item = order.items.find((i) => i.productId === bookId) as Item;
     item.status = 'canceled';
     return this.updateById(id, {$set: {items: order.items}});
   };

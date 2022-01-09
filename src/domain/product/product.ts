@@ -5,6 +5,7 @@ export class Product extends _id {
   author!: string;
   genre!: string;
   newArrivals: boolean = true;
+  date!: Date;
   price!: number;
   description!: string;
   language: Language = 'ar';

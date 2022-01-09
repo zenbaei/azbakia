@@ -48,11 +48,11 @@ export const OrderScreen = () => {
   const cancel = (id: string, item: Item) => {
     if (item.status === 'pending' || item.status === 'processing') {
       Alert('', msgs.cancelConfirmation, msgs, () =>
-        orderService.cancelItem(id, item.bookId).then((r) => {
+        orderService.cancelItem(id, item.productId).then((r) => {
           if (r.modified === 1) {
             _findOrders();
             setShowSnackBar(true);
-            productService.restoreInventory(item.bookId, item.quantity);
+            productService.restoreInventory(item.productId, item.quantity);
           }
         }),
       );
@@ -82,11 +82,11 @@ export const OrderScreen = () => {
                   />
                   {o.items.map((i) => (
                     <>
-                      <View key={i.bookId} style={styles.viewRow}>
+                      <View key={i.productId} style={styles.viewRow}>
                         <Card width={productCardWidth}>
                           <Image
                             source={{
-                              uri: `${STATIC_FILES_URL}/${i.bookId}/${imgFileNames[0]}`,
+                              uri: `${STATIC_FILES_URL}/${i.productId}/${imgFileNames[0]}`,
                             }}
                             style={styles.image}
                           />
@@ -120,7 +120,7 @@ export const OrderScreen = () => {
                         </View>
                       </View>
                       <Text
-                        key={i.bookId + i.bookId}
+                        key={i.productId + i.productId}
                         text={SPACE}
                         line="line-through"
                         mediumEmphasis

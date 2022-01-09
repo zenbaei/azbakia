@@ -1,4 +1,4 @@
-export class CartBookVO {
+export class CartProductVO {
   constructor(
     public _id: string,
     public name: string,

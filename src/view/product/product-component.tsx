@@ -12,7 +12,7 @@ import {
   findBook,
   getCartIconColor,
   isInCart,
-  requestBook,
+  requestProduct,
 } from 'view/product/product-screen-actions';
 import {Card, Fab, Text} from 'zenbaei-js-lib/react';
 import {STATIC_FILES_URL} from '../../app-config';
@@ -79,7 +79,7 @@ export const ProductComponent = ({
   };
 
   const _requestBook = (id: string) => {
-    requestBook(id).then(() => showSnackBar(msgs.requestSaved));
+    requestProduct(id).then(() => showSnackBar(msgs.requestSaved));
   };
 
   const alertBtns = (bookId: string): AlertButton[] => {

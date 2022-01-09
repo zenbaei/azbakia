@@ -15,14 +15,14 @@ import {
 import {FlatList} from 'react-native-gesture-handler';
 import {
   calculateSum,
-  loadCartBooksVOs,
+  loadCartProductsVOs,
   flatenNumberToArray,
   updateQuantity,
 } from './cart-screen-actions';
 import {UserContext} from 'user-context';
 import {useFocusEffect} from '@react-navigation/core';
-import {CartBookVO} from './cart-book-vo';
-import {findBook} from 'view/product/product-screen-actions';
+import {CartProductVO} from './cart-product-vo';
+import {findBook as findProduct} from 'view/product/product-screen-actions';
 import {Product} from 'domain/product/product';
 import {ProductComponent} from 'view/product/product-component';
 
@@ -32,7 +32,7 @@ export function CartScreen({
   const [snackBarMsg, setSnackBarMsg] = useState('');
   const [isSnackBarVisible, setSnackBarVisible] = useState(false);
   const {cart, setCart, msgs, theme, currency} = useContext(UserContext);
-  const [cartBooksVOs, setCartBooksVOs] = useState([] as CartBookVO[]);
+  const [cartBooksVOs, setCartProductsVOs] = useState([] as CartProductVO[]);
   const [total, setTotal] = useState(0);
   const [showLoadingIndicator, setShowLoadingIndicator] = useState(false);
   const styles = getStyles(theme);
@@ -42,8 +42,8 @@ export function CartScreen({
       global.setAppBarTitle(msgs.cart);
       global.setDisplayCartBtn(undefined);
       setShowLoadingIndicator(true);
-      loadCartBooksVOs(cart).then((vo) => {
-        setCartBooksVOs(vo);
+      loadCartProductsVOs(cart).then((vo) => {
+        setCartProductsVOs(vo);
         setTotal(calculateSum(vo));
         setShowLoadingIndicator(false);
       });
@@ -51,31 +51,31 @@ export function CartScreen({
   );
 
   const _updateQuantity = async (
-    bookId: string,
+    productId: string,
     oldQuantity: number,
     newQuantity: number,
   ) => {
-    const book = await findBook(bookId);
-    if (book.inventory + oldQuantity < newQuantity) {
-      _updateDisplayedBookInventory(book);
+    const product = await findProduct(productId);
+    if (product.inventory + oldQuantity < newQuantity) {
+      _updateDisplayedProductInventory(product);
       Alert.alert(msgs.sorryInventoryChanged);
       return;
     }
-    updateQuantity(book, cart, oldQuantity, newQuantity, (crt) => {
+    updateQuantity(product, cart, oldQuantity, newQuantity, (crt) => {
       setCart(crt);
       setSnackBarMsg(msgs.amountUpdated);
       setSnackBarVisible(true);
     });
   };
 
-  const _updateDisplayedBookInventory = (book: Product) => {
+  const _updateDisplayedProductInventory = (product: Product) => {
     const cartVOs = cartBooksVOs.map((vo) => {
-      if (vo._id === book._id) {
-        vo.inventory = book.inventory;
+      if (vo._id === product._id) {
+        vo.inventory = product.inventory;
       }
       return vo;
     });
-    setCartBooksVOs(cartVOs);
+    setCartProductsVOs(cartVOs);
   };
 
   return cart.length > 0 ? (

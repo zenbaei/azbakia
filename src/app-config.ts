@@ -6,3 +6,4 @@ const BASE_REST_API = `http://${SERVER}:${SERVER_PORT}`;
 export const APP_REST_API = `${BASE_REST_API}/api/azbakia`;
 export const EMAIL_REST_API = `${BASE_REST_API}/api/email`;
 export const STATIC_FILES_URL = `${BASE_REST_API}/tmp/images`;
+export const DATE_FORMAT = 'ddd MM MMM YYYY';

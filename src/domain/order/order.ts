@@ -9,7 +9,7 @@ export class Order extends _id {
 
 export type OrderStatus = 'pending' | 'processing' | 'delivered' | 'canceled';
 export type Item = {
-  bookId: string;
+  productId: string;
   price: number;
   quantity: number;
   status: OrderStatus;

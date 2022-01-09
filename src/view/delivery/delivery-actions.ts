@@ -1,7 +1,7 @@
 import {Item, Order} from 'domain/order/order';
 import {orderService} from 'domain/order/order-service';
 import moment from 'moment';
-import {CartBookVO} from 'view/cart/cart-book-vo';
+import {CartProductVO} from 'view/cart/cart-product-vo';
 
 const dateFormat = 'ddd MM MMM YYYY';
 
@@ -15,12 +15,12 @@ export const inspectDeliveryDate = (): DeliveryDateRange => {
 };
 
 export const createOrder = async (
-  cartVO: Promise<CartBookVO[]>,
+  cartVO: Promise<CartProductVO[]>,
   deliveryDate: DeliveryDateRange,
   clb: () => void,
 ): Promise<void> => {
   const items: Item[] = (await cartVO).map((c) => ({
-    bookId: c._id,
+    productId: c._id,
     quantity: c.quantity,
     price: c.price,
     status: 'pending',

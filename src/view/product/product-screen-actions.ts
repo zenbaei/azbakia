@@ -42,14 +42,14 @@ export const isInCart = (bookId: string, cart: Cart[]): boolean => {
  *
  */
 export const _pushOrPopCart = (
-  book: Product,
+  product: Product,
   cart: Cart[],
 ): {modifiedCart: Cart[]; cartQuantity: number} => {
   let quantity: number = -1;
   let cartClone = [...cart];
-  const index: number = cart.findIndex((val) => val.productId === book._id);
+  const index: number = cart.findIndex((val) => val.productId === product._id);
   if (index === -1) {
-    cartClone.push({productId: book._id, quantity: 1});
+    cartClone.push({productId: product._id, quantity: 1, date: new Date()});
   } else {
     const crt = cartClone.splice(index, 1);
     quantity = crt[0].quantity;
@@ -195,7 +195,7 @@ type favCallback = (modifiedFavs: string[], isAdded: boolean) => void;
 export const findBook = (id: string): Promise<Product> =>
   productService.findOne('_id', id);
 
-export const requestBook = async (id: string): Promise<void> => {
+export const requestProduct = async (id: string): Promise<void> => {
   const br: request = {
     email: global.user.email,
     date: new Date(),
