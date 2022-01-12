@@ -192,7 +192,7 @@ export const findSearchedProductsByPage = async (
 export type cartCallback = (modifiedCart: Cart[]) => void;
 type favCallback = (modifiedFavs: string[], isAdded: boolean) => void;
 
-export const findBook = (id: string): Promise<Product> =>
+export const findProduct = (id: string): Promise<Product> =>
   productService.findOne('_id', id);
 
 export const requestProduct = async (id: string): Promise<void> => {

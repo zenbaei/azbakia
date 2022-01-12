@@ -22,7 +22,7 @@ import {
 import {UserContext} from 'user-context';
 import {useFocusEffect} from '@react-navigation/core';
 import {CartProductVO} from './cart-product-vo';
-import {findBook as findProduct} from 'view/product/product-screen-actions';
+import {findProduct as findProduct} from 'view/product/product-screen-actions';
 import {Product} from 'domain/product/product';
 import {ProductComponent} from 'view/product/product-component';
 

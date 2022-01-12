@@ -9,7 +9,7 @@ import {
   addOrRmvFrmCart,
   updateFav,
   getIconColor,
-  findBook,
+  findProduct,
   getCartIconColor,
   isInCart,
   requestProduct,
@@ -19,13 +19,13 @@ import {STATIC_FILES_URL} from '../../app-config';
 
 /**
  *
- * @param updateDisplayedBook - Replaces displayed book with the most recent
+ * @param updateDisplayedproduct - Replaces displayed product with the most recent
  * from db after update or in case of stale data.
  */
 export const ProductComponent = ({
-  product: book,
+  product,
   onPressImg,
-  updateDisplayedProduct: updateDisplayedBook,
+  updateDisplayedProduct: updateDisplayedproduct,
   showSnackBar,
   cartScreen = false,
   centerCard = false,
@@ -52,19 +52,19 @@ export const ProductComponent = ({
     ? styles.hidden
     : styles.visible;
 
-  const _updateFav = async (bookId: string) => {
-    updateFav(bookId, favs, (modifiedFavs, isAdded) => {
+  const _updateFav = async (productId: string) => {
+    updateFav(productId, favs, (modifiedFavs, isAdded) => {
       setFavs(modifiedFavs);
       showSnackBar(isAdded ? msgs.addedToFav : msgs.removedFromFav);
     });
   };
 
   const _addOrRmvFrmCart = async (id: string, addOrRmv: 1 | -1) => {
-    const bk = await findBook(id);
+    const bk = await findProduct(id);
     if (addOrRmv === 1 && bk.inventory < 1) {
       // stale data
       Alert.alert('', msgs.sorryBookNotAvailable, alertBtns(bk._id));
-      updateDisplayedBook(bk);
+      updateDisplayedproduct(bk);
       return;
     }
     addOrRmvFrmCart(bk, cart, (modifiedCart) => {
@@ -72,19 +72,19 @@ export const ProductComponent = ({
       addOrRmv === 1
         ? showSnackBar(msgs.addedToCart)
         : showSnackBar(msgs.removedFromCart);
-      findBook(id).then((bok) => {
-        updateDisplayedBook(bok);
+      findProduct(id).then((prd) => {
+        updateDisplayedproduct(prd);
       });
     });
   };
 
-  const _requestBook = (id: string) => {
+  const _requestproduct = (id: string) => {
     requestProduct(id).then(() => showSnackBar(msgs.requestSaved));
   };
 
-  const alertBtns = (bookId: string): AlertButton[] => {
+  const alertBtns = (productId: string): AlertButton[] => {
     return [
-      {text: msgs.yes, onPress: () => _requestBook(bookId)},
+      {text: msgs.yes, onPress: () => _requestproduct(productId)},
       {text: msgs.no},
     ];
   };
@@ -95,13 +95,13 @@ export const ProductComponent = ({
       style={centerCard ? styles.flexCenter : styles.flexStart}>
       <TouchableHighlight
         testID="touchable"
-        key={book.name + 'toh'}
+        key={product.name + 'toh'}
         onPress={() => {
-          onPressImg === undefined ? () => {} : onPressImg(book);
+          onPressImg === undefined ? () => {} : onPressImg(product);
         }}>
         <Image
           source={{
-            uri: `${STATIC_FILES_URL}/${book._id}/${imgFileNames[0]}`,
+            uri: `${STATIC_FILES_URL}/${product._id}/${imgFileNames[0]}`,
           }}
           style={styles.image}
         />
@@ -110,41 +110,41 @@ export const ProductComponent = ({
         icon="heart-outline"
         style={{
           ...styles.fav,
-          backgroundColor: getIconColor(book._id, favs, theme),
+          backgroundColor: getIconColor(product._id, favs, theme),
         }}
-        onPress={() => _updateFav(book._id)}
+        onPress={() => _updateFav(product._id)}
       />
-      <Text style={styles.title} text={book.name} color={theme.secondary} />
+      <Text style={styles.title} text={product.name} color={theme.secondary} />
       <Text
         align="right"
         style={{...styles.bold, ...styles.price}}
-        text={`${book.price} ${currency}`}
+        text={`${product.price} ${currency}`}
       />
       <Text
-        visible={book.inventory !== undefined && book.inventory > 0}
+        visible={product.inventory !== undefined && product.inventory > 0}
         align="right"
         testID="copies"
         style={{...styles.bold, ...styles.price, ...cartScreenVisibilty}}
-        text={`${msgs.stock}: ${book.inventory}`}
+        text={`${msgs.stock}: ${product.inventory}`}
       />
       <IconButton
         testID={'removeFromCartBtn'}
         icon="cart-outline"
-        color={isInCart(book._id, cart) ? theme.primary : theme.onBackground}
+        color={isInCart(product._id, cart) ? theme.primary : theme.onBackground}
         style={[
           cartScreenVisibilty,
           styles.flexEnd,
-          {backgroundColor: getCartIconColor(book._id, cart, theme)},
+          {backgroundColor: getCartIconColor(product._id, cart, theme)},
         ]}
         onPress={() =>
-          _addOrRmvFrmCart(book._id, isInCart(book._id, cart) ? -1 : 1)
+          _addOrRmvFrmCart(product._id, isInCart(product._id, cart) ? -1 : 1)
         }
       />
       <IconButton
         style={[styles.flexEnd, cartScreen ? styles.visible : styles.hidden]}
         icon={'delete'}
         color={theme.secondary}
-        onPress={() => _addOrRmvFrmCart(book._id, -1)}
+        onPress={() => _addOrRmvFrmCart(product._id, -1)}
       />
     </Card>
   );

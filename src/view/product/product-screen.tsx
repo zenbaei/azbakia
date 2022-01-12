@@ -12,7 +12,7 @@ import {
 } from 'zenbaei-js-lib/react';
 import {NavigationScreens} from 'constants/navigation-screens';
 import {
-  findBook,
+  findProduct,
   findProductsByPage,
   findSearchedProductsByPage,
   find1stSearchedProductsPageAndPageSize,
@@ -128,7 +128,7 @@ export function ProductScreen({
               minLength={minSearchTextLength}
               onChangeText={search}
               onSelectItem={async (id: string) => {
-                const book = await findBook(id);
+                const book = await findProduct(id);
                 setBooks([book]);
               }}
               onBlur={onBlurSearch}
