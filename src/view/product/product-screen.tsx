@@ -13,7 +13,6 @@ import {
 import {NavigationScreens} from 'constants/navigation-screens';
 import {
   findProduct,
-  findProductsByPage,
   findSearchedProductsByPage,
   find1stSearchedProductsPageAndPageSize,
   findSearchedProductsProjected,
@@ -25,15 +24,16 @@ import {isEmpty} from 'zenbaei-js-lib/utils';
 import ActivityIndicator from 'react-native-paper/src/components/ActivityIndicator';
 import {ProductComponent} from 'view/product/product-component';
 import {Loading} from 'view/loading-component';
+import {productService} from 'domain/product/product-service';
 
 export function ProductScreen({
   navigation,
   route,
 }: NavigationProps<NavigationScreens, 'productScreen'>) {
-  const [books, setBooks] = useState([] as Product[]);
+  const [products, setProducts] = useState([] as Product[]);
   const subGenre = route.params?.subGenre;
   const [page, setPage] = useState(0);
-  const [maxPageNumber, setMaxPageNumber] = useState(1);
+  const [maxPageNumber, setPagingNumber] = useState(1);
   const {cart, msgs, theme, language, pageSize} = useContext(UserContext);
   const [animating, setAnimating] = useState(false);
   const [isShowLoadingIndicator, setShowLoadingIndicator] = useState(false);
@@ -51,16 +51,22 @@ export function ProductScreen({
 
   const findFirstPageProducts = useCallback(() => {
     setShowLoadingIndicator(true);
-    find1stProductsPageAndPagingNumber(
-      subGenre?.enName,
-      pageSize,
-      (result, totalPagesNumber) => {
-        setMaxPageNumber(totalPagesNumber);
-        setBooks(result);
-        setPage(1);
-      },
-    );
-  }, [cart, subGenre, pageSize]);
+    subGenre?.enName
+      ? find1stProductsPageAndPagingNumber(
+          subGenre.enName,
+          pageSize,
+          (result, totalPagesNumber) => {
+            setPagingNumber(totalPagesNumber);
+            setProducts(result);
+            setPage(1);
+          },
+        )
+      : productService.findLatestProducts(0, 20).then((prds) => {
+          setProducts(prds);
+          setPagingNumber(1);
+          setPage(1);
+        });
+  }, [subGenre, pageSize]);
 
   useFocusEffect(
     useCallback(() => {
@@ -77,15 +83,14 @@ export function ProductScreen({
     if (searchToken.length > 0) {
       result = await findSearchedProductsByPage(searchToken, page, pageSize);
     } else {
-      const bks = await findProductsByPage(
-        cart,
-        subGenre?.enName,
-        page,
+      const prds = await productService.findByGenre(
+        subGenre.enName,
+        page * pageSize,
         pageSize,
       );
-      result = [...books, ...bks];
+      result = [...products, ...prds];
     }
-    setBooks(result);
+    setProducts(result);
     setPage(page + 1);
     setAnimating(false);
   };
@@ -97,8 +102,8 @@ export function ProductScreen({
       text,
       pageSize,
       (result, totalPagesNumber) => {
-        setBooks(result);
-        setMaxPageNumber(totalPagesNumber);
+        setProducts(result);
+        setPagingNumber(totalPagesNumber);
         setPage(1);
       },
     );
@@ -110,8 +115,8 @@ export function ProductScreen({
   };
 
   const _updateDisplayedProduct = (book: Product) => {
-    const bks = books.map((bk) => (bk._id === book._id ? book : bk));
-    setBooks(bks);
+    const bks = products.map((bk) => (bk._id === book._id ? book : bk));
+    setProducts(bks);
   };
 
   const renderFooter = () => {
@@ -128,7 +133,7 @@ export function ProductScreen({
               onChangeText={search}
               onSelectItem={async (id: string) => {
                 const book = await findProduct(id);
-                setBooks([book]);
+                setProducts([book]);
               }}
               onBlur={onBlurSearch}
               onClear={findFirstPageProducts}
@@ -146,7 +151,7 @@ export function ProductScreen({
               align="center"
             />
             <Loading
-              visible={books?.length < 1}
+              visible={products?.length < 1}
               showLoading={isShowLoadingIndicator}
               text={msgs.noBooksAvailable}
             />
@@ -154,7 +159,7 @@ export function ProductScreen({
               testID="flatList"
               scrollEnabled
               numColumns={2}
-              data={books}
+              data={products}
               keyExtractor={(item) => item._id}
               onEndReached={loadNextPage}
               onEndReachedThreshold={0.1}

@@ -1,6 +1,6 @@
 import {productCardWidth, productCardWidthBig} from 'constants/styles';
 import {Product} from 'domain/product/product';
-import React, {useContext} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {AlertButton, ViewStyle} from 'react-native';
 import {Alert, Image, TouchableHighlight} from 'react-native';
 import IconButton from 'react-native-paper/src/components/IconButton';
@@ -13,9 +13,10 @@ import {
   getCartIconColor,
   isInCart,
   requestProduct,
+  getMainImageUrl,
 } from 'view/product/product-screen-actions';
 import {Card, Fab, Text} from 'zenbaei-js-lib/react';
-import {STATIC_FILES_URL} from '../../app-config';
+import {SERVER_URL} from '../../app-config';
 
 /**
  *
@@ -37,20 +38,16 @@ export const ProductComponent = ({
   cartScreen?: boolean;
   centerCard?: boolean;
 }) => {
-  const {
-    cart,
-    setCart,
-    favs,
-    setFavs,
-    msgs,
-    theme,
-    styles,
-    imgFileNames,
-    currency,
-  } = useContext(UserContext);
+  const {cart, setCart, favs, setFavs, msgs, theme, styles, currency} =
+    useContext(UserContext);
   const cartScreenVisibilty: ViewStyle = cartScreen
     ? styles.hidden
     : styles.visible;
+  const [imageUrl, setImageUrl] = useState('');
+
+  useEffect(() => {
+    getMainImageUrl(product._id).then(setImageUrl);
+  }, [product]);
 
   const _updateFav = async (productId: string) => {
     updateFav(productId, favs, (modifiedFavs, isAdded) => {
@@ -99,12 +96,16 @@ export const ProductComponent = ({
         onPress={() => {
           onPressImg === undefined ? () => {} : onPressImg(product);
         }}>
-        <Image
-          source={{
-            uri: `${STATIC_FILES_URL}/${product._id}/${imgFileNames[0]}`,
-          }}
-          style={styles.image}
-        />
+        {imageUrl ? (
+          <Image
+            source={{
+              uri: `${SERVER_URL}${imageUrl}`,
+            }}
+            style={styles.image}
+          />
+        ) : (
+          <></>
+        )}
       </TouchableHighlight>
       <Fab
         icon="heart-outline"

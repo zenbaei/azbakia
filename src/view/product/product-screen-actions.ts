@@ -1,10 +1,11 @@
+import {IMAGE_DIR} from 'app-config';
 import {Product, request} from 'domain/product/product';
 import {productService} from 'domain/product/product-service';
 import {Cart} from 'domain/user/cart';
 import {userService} from 'domain/user/user-service';
 import {AppThemeInterface} from 'zenbaei-js-lib/constants';
 import {modificationResult} from 'zenbaei-js-lib/types';
-import {isEmpty} from 'zenbaei-js-lib/utils';
+import {getFilePaths, sort} from 'zenbaei-js-lib/utils';
 
 export const getIconColor = (
   id: string,
@@ -120,8 +121,7 @@ export const updateFav = async (
 };
 
 /**
- * @param page - starts from zero
- */
+ * @param page - starts from zero 
 export const findProductsByPage = async (
   cart: Cart[],
   genre: string,
@@ -133,6 +133,7 @@ export const findProductsByPage = async (
     ? productService.findByNewArrivals(bookNames, page * pageSize, pageSize)
     : productService.findByGenre(bookNames, genre, page * pageSize, pageSize);
 };
+*/
 
 /**
  * Finds books by genre or newArrivals and return items for 1st page.
@@ -158,9 +159,7 @@ export const find1stProductsPageAndPagingNumber = async (
   pageSize: number,
   clb: searchResultCallback,
 ): Promise<void> => {
-  const result = isEmpty(genre)
-    ? await productService.findLatestProducts()
-    : await productService.findByGenre(genre);
+  const result = await productService.findByGenre(genre);
   let firstPageBooks =
     result.length >= pageSize ? result.slice(0, pageSize) : result;
   clb(firstPageBooks, Math.ceil(result.length / pageSize));
@@ -217,15 +216,19 @@ export const requestProduct = async (id: string): Promise<void> => {
   productService.updateRequest(id, br);
 };
 
+export const getMainImageUrl = async (_id: string): Promise<string> => {
+  const filesPath = await getFilePaths(`${IMAGE_DIR}/${_id}`);
+  const {files} = sort(filesPath);
+  return files[0];
+};
+
 /**
  * @param result - first page books
  * @param totalPagesNumber - the number of search books divided by items per page
  */
-type searchResultCallback = (
-  result: Product[],
-  totalPagesNumber: number,
-) => void;
+type searchResultCallback = (result: Product[], pagingNumber: number) => void;
 
+/*
 const findCartProductNames = async (cart: Cart[]): Promise<string[]> => {
   const productsIds = cart.map((car) => car.productId);
   const products: Product[] = await productService.findAllByProductIds(
@@ -233,3 +236,4 @@ const findCartProductNames = async (cart: Cart[]): Promise<string[]> => {
   );
   return products.map((b) => b.name);
 };
+*/

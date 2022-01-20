@@ -11,7 +11,6 @@ import {getStyles} from 'constants/styles';
 import {
   Config,
   getCurrency,
-  getImgFileNames,
   getMobileNoLength,
   getPageSize,
 } from 'domain/config/config';
@@ -27,7 +26,6 @@ interface UserProps {
   language: Language;
   styles: ReturnType<typeof getStyles>;
   pageSize: number;
-  imgFileNames: string[];
   currency: string;
   mobileNoLength: number;
 }
@@ -57,7 +55,6 @@ export const UserContextProvider = ({children}: {children: any}) => {
   const [favs, updFavs] = useState([] as string[]);
   const [pageSize, setPageSize] = useState(6);
   const [currency, setCurrency] = useState('EGP');
-  const [imgFileNames, setImgFileNames] = useState([] as string[]);
   const [mobileNoLength, setMobileNoLength] = useState(10);
   const {language, theme} = useContext(Ctx);
   const msgs = getMessages(language);
@@ -68,7 +65,6 @@ export const UserContextProvider = ({children}: {children: any}) => {
   const setConfigs = useCallback((cfgs) => {
     setPageSize(getPageSize(cfgs));
     setCurrency(getCurrency(global.user.country, cfgs));
-    setImgFileNames(getImgFileNames(cfgs));
     setMobileNoLength(getMobileNoLength(cfgs));
   }, []);
 
@@ -84,7 +80,6 @@ export const UserContextProvider = ({children}: {children: any}) => {
     styles,
     pageSize,
     currency,
-    imgFileNames,
     mobileNoLength,
   };
 

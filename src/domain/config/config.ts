@@ -5,7 +5,7 @@ export class Config extends _id {
   value!: any;
 }
 
-type ConfigKey = 'currencies' | 'mobileNoLength' | 'imgFileNames' | 'pageSize';
+type ConfigKey = 'currencies' | 'mobileNoLength' | 'pageSize';
 export type CountryCurrency = {country: string; currency: string};
 
 const getConfigValue = (key: ConfigKey, configs: Config[]): Config =>
@@ -16,11 +16,6 @@ export const getCurrency = (country: string, configs: Config[]): string => {
     .value as CountryCurrency[];
   const cr = values.find((c) => c.country === country) as CountryCurrency;
   return cr.currency;
-};
-
-export const getImgFileNames = (configs: Config[]): string[] => {
-  const cfg = getConfigValue('imgFileNames', configs);
-  return cfg.value;
 };
 
 export const getPageSize = (configs: Config[]): number => {

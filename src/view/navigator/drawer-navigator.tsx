@@ -77,31 +77,43 @@ function CustomDrawerContent(
         labelStyle={{color: theme.secondary, ...styles.drawerItemLabel}}
         label={msgs.home}
         onPress={() =>
-          props.navigation.navigate('bookScreen', {
+          props.navigation.navigate('productScreen', {
             subGenre: undefined,
           })
         }
       />
-      {genres.map((genre) => (
-        <Accordion
-          titleStyle={{color: theme.secondary, ...styles.drawerItemLabel}}
-          key={genre.enName}
-          title={language === 'en' ? genre.enName : genre.arName}>
-          {genre.subGenres.map((sub) => (
-            <Item
-              rippleColor={theme.secondary}
-              titleStyle={styles.drawerItemLabel}
-              key={sub.enName}
-              title={`${tab} ${language === 'en' ? sub.enName : sub.arName}`}
-              onPress={() => {
-                props.navigation.navigate('bookScreen', {
-                  subGenre: sub,
-                });
-              }}
-            />
-          ))}
-        </Accordion>
-      ))}
+      {genres.map((genre) =>
+        genre?.subGenres && genre.subGenres.length > 0 ? (
+          <Accordion
+            titleStyle={{color: theme.secondary, ...styles.drawerItemLabel}}
+            key={genre.enName}
+            title={language === 'en' ? genre.enName : genre.arName}>
+            {genre.subGenres.map((sub) => (
+              <Item
+                rippleColor={theme.secondary}
+                titleStyle={styles.drawerItemLabel}
+                key={sub.enName}
+                title={`${tab} ${language === 'en' ? sub.enName : sub.arName}`}
+                onPress={() => {
+                  props.navigation.navigate('productScreen', {
+                    subGenre: sub,
+                  });
+                }}
+              />
+            ))}
+          </Accordion>
+        ) : (
+          <DrawerItem
+            labelStyle={{color: theme.secondary, ...styles.drawerItemLabel}}
+            label={language === 'en' ? genre.enName : genre.arName}
+            onPress={() =>
+              props.navigation.navigate('productScreen', {
+                subGenre: genre,
+              })
+            }
+          />
+        ),
+      )}
       <DrawerItem
         labelStyle={{color: theme.secondary, ...styles.drawerItemLabel}}
         label={msgs.orders}
