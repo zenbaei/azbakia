@@ -17,7 +17,7 @@ import {
   findSearchedProductsByPage,
   find1stSearchedProductsPageAndPageSize,
   findSearchedProductsProjected,
-  find1stProductsPageAndPageSize,
+  find1stProductsPageAndPagingNumber,
 } from './product-screen-actions';
 import {UserContext} from 'user-context';
 import {useFocusEffect} from '@react-navigation/native';
@@ -51,8 +51,7 @@ export function ProductScreen({
 
   const findFirstPageProducts = useCallback(() => {
     setShowLoadingIndicator(true);
-    find1stProductsPageAndPageSize(
-      cart,
+    find1stProductsPageAndPagingNumber(
       subGenre?.enName,
       pageSize,
       (result, totalPagesNumber) => {

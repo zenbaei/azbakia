@@ -4,6 +4,7 @@ import {DbCollectionNames} from 'constants/db-collection-names';
 import {MongoHttpService} from 'zenbaei-js-lib/utils';
 import {Product, request} from './product';
 import {modificationResult, queryOptions} from 'zenbaei-js-lib/types';
+import moment from 'moment';
 
 class ProductService extends MongoHttpService<Product> {
   constructor() {
@@ -22,6 +23,19 @@ class ProductService extends MongoHttpService<Product> {
     return this.findAll(book, undefined, skip, limit);
   };
 
+  findLatestProducts = (
+    skip: number = 0,
+    limit: number = 0,
+  ): Promise<Product[]> => {
+    const filter: any = {
+      $and: [
+        {inventory: {$gt: 0}},
+        {date: {$gt: moment(Date.now()).subtract(7, 'days')}},
+      ],
+    };
+    return this.findAll(filter, undefined, skip, limit);
+  };
+  /*
   findByGenre = (
     productsInCart: string[],
     genre: string,
@@ -35,6 +49,18 @@ class ProductService extends MongoHttpService<Product> {
       ],
     };
     return this.findAll(book, undefined, skip, limit);
+  };
+*/
+
+  findByGenre = (
+    genre: string,
+    skip: number = 0,
+    limit: number = 0,
+  ): Promise<Product[]> => {
+    const filter: any = {
+      $and: [{genre: genre}, {inventory: {$gt: 0}}],
+    };
+    return this.findAll(filter, undefined, skip, limit);
   };
 
   findBySearchToken = (

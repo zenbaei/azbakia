@@ -135,8 +135,8 @@ export const findProductsByPage = async (
 };
 
 /**
- * Finds books by genere or newArrivals and return items for 1st page.
- */
+ * Finds books by genre or newArrivals and return items for 1st page.
+
 export const find1stProductsPageAndPageSize = async (
   cart: Cart[],
   genre: string,
@@ -147,6 +147,20 @@ export const find1stProductsPageAndPageSize = async (
   const result = isEmpty(genre)
     ? await productService.findByNewArrivals(bookNames)
     : await productService.findByGenre(bookNames, genre);
+  let firstPageBooks =
+    result.length >= pageSize ? result.slice(0, pageSize) : result;
+  clb(firstPageBooks, Math.ceil(result.length / pageSize));
+};
+*/
+
+export const find1stProductsPageAndPagingNumber = async (
+  genre: string,
+  pageSize: number,
+  clb: searchResultCallback,
+): Promise<void> => {
+  const result = isEmpty(genre)
+    ? await productService.findLatestProducts()
+    : await productService.findByGenre(genre);
   let firstPageBooks =
     result.length >= pageSize ? result.slice(0, pageSize) : result;
   clb(firstPageBooks, Math.ceil(result.length / pageSize));
