@@ -16,7 +16,8 @@ import {
   getMainImageUrl,
 } from 'view/product/product-screen-actions';
 import {Card, Fab, Text} from 'zenbaei-js-lib/react';
-import {SERVER_URL} from '../../app-config';
+import {getFilePaths} from 'zenbaei-js-lib/utils';
+import {IMAGE_DIR, SERVER_URL} from '../../app-config';
 
 /**
  *
@@ -32,7 +33,7 @@ export const ProductComponent = ({
   centerCard = false,
 }: {
   product: Product;
-  onPressImg?: (product: Product) => void;
+  onPressImg?: (imagesUrl: string[]) => void;
   updateDisplayedProduct: (product: Product) => void;
   showSnackBar: (msg: string) => void;
   cartScreen?: boolean;
@@ -44,10 +45,20 @@ export const ProductComponent = ({
     ? styles.hidden
     : styles.visible;
   const [imageUrl, setImageUrl] = useState('');
+  const [imagesUrl, setImagesUrl] = useState([] as string[]);
 
   useEffect(() => {
-    getMainImageUrl(product._id).then(setImageUrl);
-  }, [product]);
+    /*
+    if (imagesUrl.length === 0) {
+      console.log(imageUrl);
+      getFilePaths(`${IMAGE_DIR}/${product._id}`)
+        .then((filesPath) => {
+          setImagesUrl(filesPath.files);
+          getMainImageUrl(filesPath).then(setImageUrl);
+        })
+        .catch(() => {});
+    }*/
+  }, [product, imagesUrl]);
 
   const _updateFav = async (productId: string) => {
     updateFav(productId, favs, (modifiedFavs, isAdded) => {
@@ -94,7 +105,7 @@ export const ProductComponent = ({
         testID="touchable"
         key={product.name + 'toh'}
         onPress={() => {
-          onPressImg === undefined ? () => {} : onPressImg(product);
+          onPressImg === undefined ? () => {} : onPressImg(imagesUrl);
         }}>
         {imageUrl ? (
           <Image

@@ -11,7 +11,7 @@
     "clean": ".scripts/clean.sh",
     "build-android": "./android/gradlew assembleRelease",
     "build-module": ".scripts/build-module.sh",
-    "upload-apk": "curl -k -F 'myFile=@android/app/build/outputs/apk/release/app-release.apk' https://zenbaei.ddns.net:3500/api/file"
+    "upload-apk": "curl -k -F 'file=@android/app/build/outputs/apk/release/app-release.apk' https://zenbaei.ddns.net:3500/api/file"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.32",

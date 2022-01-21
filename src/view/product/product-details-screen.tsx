@@ -22,18 +22,22 @@ export function ProductDetailsScreen({
   navigation,
   route,
 }: NavigationProps<NavigationScreens, 'productDetailsScreen'>) {
-  const [book, setBook] = useState({} as Product);
+  const [product, setProduct] = useState({} as Product);
   const {theme, language, cart} = useContext(UserContext);
   const styles = getStyles(theme);
   const msgs = getMessages(language);
   const [snackBarMsg, setSnackBarMsg] = useState('');
   const [isSnackBarVisible, setSnackBarVisible] = useState(false);
+  const [imagesUrl, setImagesUrl] = useState([] as string[]);
 
   useFocusEffect(
     useCallback(() => {
       global.setAppBarTitle(msgs.bookDetails);
-      productService.findOne('_id', route.params.id).then((bk) => setBook(bk));
-    }, [msgs, route.params.id]),
+      setImagesUrl(route.params.imagesUrl);
+      productService
+        .findOne('_id', route.params._id)
+        .then((bk) => setProduct(bk));
+    }, [msgs, route.params._id, route.params.imagesUrl]),
   );
 
   useFocusEffect(
@@ -43,7 +47,7 @@ export function ProductDetailsScreen({
   );
 
   const textDirection = (): 'left' | 'right' => {
-    return book.language === 'ar' ? 'right' : 'left';
+    return product.language === 'ar' ? 'right' : 'left';
   };
 
   return (
@@ -53,20 +57,21 @@ export function ProductDetailsScreen({
           <Col>
             <ProductComponent
               centerCard
-              product={book}
+              product={product}
               showSnackBar={(msg) => {
                 setSnackBarVisible(true);
                 setSnackBarMsg(msg);
               }}
-              updateDisplayedProduct={(bk) => setBook(bk)}
+              updateDisplayedProduct={(pd) => setProduct(pd)}
             />
             <View style={styles.wide}>
               <Link
                 align="center"
                 label={msgs.lookInside}
                 onPress={() =>
-                  navigation.navigate('lookInsideProductScreen', {
-                    imageFolderName: book._id,
+                  navigation.navigate('productImagesScreen', {
+                    _id: product._id,
+                    imagesUrl: imagesUrl,
                   })
                 }
               />
@@ -79,7 +84,7 @@ export function ProductDetailsScreen({
               style={styles.bold}
               text={`${msgs.description}:`}
             />
-            <Text align={textDirection()} text={book.description} />
+            <Text align={textDirection()} text={product.description} />
           </Col>
         </Row>
       </Grid>

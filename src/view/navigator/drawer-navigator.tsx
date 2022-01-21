@@ -10,7 +10,7 @@ import React, {useContext, useEffect, useState} from 'react';
 import {ProductScreen} from '../product/product-screen';
 import {Item, Accordion} from 'react-native-paper/src/components/List/List';
 import {ProductDetailsScreen} from 'view/product/product-details-screen';
-import {LookInsideProductScreen} from 'view/product/look-inside-product-screen';
+import {ProductImagesScreen} from 'view/product/product-images-screen';
 import {CartScreen} from 'view/cart/cart-screen';
 import {Genre} from 'domain/genre/genre';
 import {genreService} from 'domain/genre/genre-service';
@@ -43,8 +43,8 @@ export function DrawerNavigator() {
         component={ProductDetailsScreen}
       />
       <Drawer.Screen
-        name="lookInsideProductScreen"
-        component={LookInsideProductScreen}
+        name="productImagesScreen"
+        component={ProductImagesScreen}
       />
       <Drawer.Screen name="cartScreen" component={CartScreen} />
       <Drawer.Screen name="addressListScreen" component={AddressListScreen} />
@@ -74,7 +74,7 @@ function CustomDrawerContent(
   return (
     <DrawerContentScrollView {...props}>
       <DrawerItem
-        labelStyle={{color: theme.secondary, ...styles.drawerItemLabel}}
+        labelStyle={styles.drawerItemLabel}
         label={msgs.home}
         onPress={() =>
           props.navigation.navigate('productScreen', {
@@ -85,7 +85,7 @@ function CustomDrawerContent(
       {genres.map((genre) =>
         genre?.subGenres && genre.subGenres.length > 0 ? (
           <Accordion
-            titleStyle={{color: theme.secondary, ...styles.drawerItemLabel}}
+            titleStyle={styles.drawerItemLabel}
             key={genre.enName}
             title={language === 'en' ? genre.enName : genre.arName}>
             {genre.subGenres.map((sub) => (
@@ -104,7 +104,8 @@ function CustomDrawerContent(
           </Accordion>
         ) : (
           <DrawerItem
-            labelStyle={{color: theme.secondary, ...styles.drawerItemLabel}}
+            key={genre._id}
+            labelStyle={styles.drawerItemLabel}
             label={language === 'en' ? genre.enName : genre.arName}
             onPress={() =>
               props.navigation.navigate('productScreen', {
@@ -115,22 +116,22 @@ function CustomDrawerContent(
         ),
       )}
       <DrawerItem
-        labelStyle={{color: theme.secondary, ...styles.drawerItemLabel}}
+        labelStyle={styles.drawerItemLabel}
         label={msgs.orders}
         onPress={() => props.navigation.navigate('orderScreen', {})}
       />
       <DrawerItem
-        labelStyle={{color: theme.secondary, ...styles.drawerItemLabel}}
+        labelStyle={styles.drawerItemLabel}
         label={msgs.favourite}
         onPress={() => props.navigation.navigate('favouriteScreen', {})}
       />
       <DrawerItem
-        labelStyle={{color: theme.secondary, ...styles.drawerItemLabel}}
+        labelStyle={styles.drawerItemLabel}
         label={msgs.profile}
         onPress={() => props.navigation.navigate('profileScreen', {})}
       />
       <DrawerItem
-        labelStyle={{color: theme.secondary, ...styles.drawerItemLabel}}
+        labelStyle={styles.drawerItemLabel}
         label={msgs.logout}
         onPress={() => {
           global.token = '';

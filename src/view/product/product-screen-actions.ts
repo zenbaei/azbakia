@@ -1,11 +1,10 @@
-import {IMAGE_DIR} from 'app-config';
 import {Product, request} from 'domain/product/product';
 import {productService} from 'domain/product/product-service';
 import {Cart} from 'domain/user/cart';
 import {userService} from 'domain/user/user-service';
 import {AppThemeInterface} from 'zenbaei-js-lib/constants';
 import {modificationResult} from 'zenbaei-js-lib/types';
-import {getFilePaths, sort} from 'zenbaei-js-lib/utils';
+import {sort} from 'zenbaei-js-lib/utils';
 
 export const getIconColor = (
   id: string,
@@ -216,8 +215,9 @@ export const requestProduct = async (id: string): Promise<void> => {
   productService.updateRequest(id, br);
 };
 
-export const getMainImageUrl = async (_id: string): Promise<string> => {
-  const filesPath = await getFilePaths(`${IMAGE_DIR}/${_id}`);
+export const getMainImageUrl = async (filesPath: {
+  files: string[];
+}): Promise<string> => {
   const {files} = sort(filesPath);
   return files[0];
 };

@@ -167,8 +167,11 @@ export function ProductScreen({
               renderItem={({item}) => (
                 <ProductComponent
                   product={item}
-                  onPressImg={() =>
-                    navigation.navigate('productDetailsScreen', {id: item._id})
+                  onPressImg={(imagesUrl) =>
+                    navigation.navigate('productDetailsScreen', {
+                      _id: item._id,
+                      imagesUrl: imagesUrl,
+                    })
                   }
                   updateDisplayedProduct={(book: Product) => {
                     _updateDisplayedProduct(book);
