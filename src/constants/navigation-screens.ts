@@ -1,13 +1,14 @@
 import {SubGenre} from 'domain/genre/genre';
+import {Product} from 'domain/product/product';
 import {Cart} from 'domain/user/cart';
 
 export type NavigationScreens = {
   loginScreen: {};
   productScreen: {subGenre: SubGenre};
-  productDetailsScreen: {_id: string; imagesUrl: string[]};
+  productDetailsScreen: {product: Product; imagesUrl: string[]};
   favouriteScreen: {};
   cartScreen: {cart: Cart[]};
-  productImagesScreen: {_id: string; imagesUrl: string[]};
+  productImagesScreen: {imagesUrl: string[]};
   drawerNavigator: {};
   paymentScreen: {};
   unexpectedErrorScreen: {};

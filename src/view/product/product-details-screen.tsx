@@ -15,7 +15,6 @@ import {getMessages} from 'constants/in18/messages-interface';
 import {ProductComponent} from 'view/product/product-component';
 import {useFocusEffect} from '@react-navigation/native';
 import {UserContext} from 'user-context';
-import {productService} from 'domain/product/product-service';
 import {Product} from 'domain/product/product';
 
 export function ProductDetailsScreen({
@@ -32,12 +31,10 @@ export function ProductDetailsScreen({
 
   useFocusEffect(
     useCallback(() => {
-      global.setAppBarTitle(msgs.bookDetails);
+      global.setAppBarTitle(msgs.details);
       setImagesUrl(route.params.imagesUrl);
-      productService
-        .findOne('_id', route.params._id)
-        .then((bk) => setProduct(bk));
-    }, [msgs, route.params._id, route.params.imagesUrl]),
+      setProduct(route.params.product);
+    }, [msgs, route.params.product, route.params.imagesUrl]),
   );
 
   useFocusEffect(
@@ -67,10 +64,9 @@ export function ProductDetailsScreen({
             <View style={styles.wide}>
               <Link
                 align="center"
-                label={msgs.lookInside}
+                label={msgs.moreImages}
                 onPress={() =>
                   navigation.navigate('productImagesScreen', {
-                    _id: product._id,
                     imagesUrl: imagesUrl,
                   })
                 }

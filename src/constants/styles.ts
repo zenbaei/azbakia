@@ -42,14 +42,14 @@ export const getStyles = (theme: AppThemeInterface) =>
       right: 20,
       zIndex: 100,
     },
-    lookInsideImgFrame: {
+    imageFrame: {
       borderRadius: 10,
       borderColor: theme.secondary,
       borderWidth: 2,
       margin: 5,
       padding: 5,
     },
-    lookInsideImg: {
+    fullScreenImage: {
       height: '100%',
       resizeMode: 'stretch',
       aspectRatio: 1 / 2,
@@ -67,4 +67,14 @@ export const getStyles = (theme: AppThemeInterface) =>
     labelViewContainer: {width: '50%'},
     columnCenterChildren: {alignItems: 'center'},
     marginBottom: {marginBottom: 10},
+
+    centerLoading: {
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+    },
+
+    fullScreenImagesContainer: {
+      alignSelf: 'center',
+    },
   });

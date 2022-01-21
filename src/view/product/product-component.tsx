@@ -17,7 +17,7 @@ import {
 } from 'view/product/product-screen-actions';
 import {Card, Fab, Text} from 'zenbaei-js-lib/react';
 import {getFilePaths} from 'zenbaei-js-lib/utils';
-import {IMAGE_DIR, SERVER_URL} from '../../app-config';
+import {IMAGE_DIR, SERVER_URL, STATIC_FILES_URL} from '../../app-config';
 
 /**
  *
@@ -48,17 +48,13 @@ export const ProductComponent = ({
   const [imagesUrl, setImagesUrl] = useState([] as string[]);
 
   useEffect(() => {
-    /*
-    if (imagesUrl.length === 0) {
-      console.log(imageUrl);
-      getFilePaths(`${IMAGE_DIR}/${product._id}`)
-        .then((filesPath) => {
-          setImagesUrl(filesPath.files);
-          getMainImageUrl(filesPath).then(setImageUrl);
-        })
-        .catch(() => {});
-    }*/
-  }, [product, imagesUrl]);
+    getFilePaths(`${IMAGE_DIR}/${product._id}`)
+      .then((filesPath) => {
+        setImagesUrl(filesPath.files);
+        getMainImageUrl(filesPath).then(setImageUrl);
+      })
+      .catch(() => {});
+  }, [product]);
 
   const _updateFav = async (productId: string) => {
     updateFav(productId, favs, (modifiedFavs, isAdded) => {
@@ -67,8 +63,8 @@ export const ProductComponent = ({
     });
   };
 
-  const _addOrRmvFrmCart = async (id: string, addOrRmv: 1 | -1) => {
-    const bk = await findProduct(id);
+  const _addOrRmvFrmCart = async (_id: string, addOrRmv: 1 | -1) => {
+    const bk = await findProduct(_id);
     if (addOrRmv === 1 && bk.inventory < 1) {
       // stale data
       Alert.alert('', msgs.sorryBookNotAvailable, alertBtns(bk._id));
@@ -80,14 +76,14 @@ export const ProductComponent = ({
       addOrRmv === 1
         ? showSnackBar(msgs.addedToCart)
         : showSnackBar(msgs.removedFromCart);
-      findProduct(id).then((prd) => {
+      findProduct(_id).then((prd) => {
         updateDisplayedproduct(prd);
       });
     });
   };
 
-  const _requestproduct = (id: string) => {
-    requestProduct(id).then(() => showSnackBar(msgs.requestSaved));
+  const _requestproduct = (_id: string) => {
+    requestProduct(_id).then(() => showSnackBar(msgs.requestSaved));
   };
 
   const alertBtns = (productId: string): AlertButton[] => {
@@ -107,16 +103,14 @@ export const ProductComponent = ({
         onPress={() => {
           onPressImg === undefined ? () => {} : onPressImg(imagesUrl);
         }}>
-        {imageUrl ? (
-          <Image
-            source={{
-              uri: `${SERVER_URL}${imageUrl}`,
-            }}
-            style={styles.image}
-          />
-        ) : (
-          <></>
-        )}
+        <Image
+          source={{
+            uri: imageUrl
+              ? `${SERVER_URL}${imageUrl}`
+              : `${STATIC_FILES_URL}/no-image-icon-15.png`,
+          }}
+          style={styles.image}
+        />
       </TouchableHighlight>
       <Fab
         icon="heart-outline"

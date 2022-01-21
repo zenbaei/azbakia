@@ -5,12 +5,12 @@ export interface MessagesInterface {
   invalidUser: string;
   login: string;
   home: string;
-  bookDetails: string;
+  details: string;
   bookGenre: string;
   description: string;
   price: string;
   checkout: string;
-  lookInside: string;
+  moreImages: string;
   addedToFav: string;
   removedFromFav: string;
   addToCart: string;
@@ -107,6 +107,7 @@ export interface MessagesInterface {
   itemCanceled: string;
   noOrders: string;
   activateAcc: string;
+  enterProductName: string;
   getKeyAtRuntime: (key: string) => string;
 }
 

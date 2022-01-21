@@ -1,7 +1,7 @@
-import {STATIC_FILES_URL} from '../../app-config';
+import {SERVER_URL} from '../../app-config';
 import {NavigationScreens} from 'constants/navigation-screens';
-import React, {useCallback, useContext} from 'react';
-import {FlatList, Image, StyleSheet, View} from 'react-native';
+import React, {useCallback, useContext, useState} from 'react';
+import {ActivityIndicator, FlatList, Image, View} from 'react-native';
 import {NavigationProps} from 'zenbaei-js-lib/react';
 import {useFocusEffect} from '@react-navigation/native';
 import {UserContext} from 'user-context';
@@ -11,19 +11,19 @@ export function ProductImagesScreen({
   navigation,
   route,
 }: NavigationProps<NavigationScreens, 'productImagesScreen'>) {
-  const _id = route.params._id;
   const {theme, msgs, styles, cart} = useContext(UserContext);
 
   useFocusEffect(
     useCallback(() => {
-      global.setAppBarTitle(msgs.lookInside);
+      global.setAppBarTitle(msgs.details);
       global.setDisplayCartBtn(cart);
     }, [msgs, cart]),
   );
 
-  const InsideBook = ({item}: {item: string}) => {
+  const ImageFrame = ({imgUrl}: {imgUrl: string}) => {
+    const [loading, setLoading] = useState(true);
     return (
-      <View style={styles.lookInsideImgFrame}>
+      <View style={styles.imageFrame}>
         <IconButton
           color={theme.primary}
           icon="close"
@@ -32,26 +32,29 @@ export function ProductImagesScreen({
           }}
           style={styles.closeImgIcon}
         />
+        <ActivityIndicator
+          style={styles.centerLoading}
+          animating={loading}
+          color={theme.secondary}
+        />
         <Image
-          style={styles.lookInsideImg}
-          source={{uri: `${STATIC_FILES_URL}/${imageFolderName}/${item}`}}
+          onLoadStart={() => setLoading(true)}
+          onLoadEnd={() => setLoading(false)}
+          style={styles.fullScreenImage}
+          source={{uri: `${SERVER_URL}${imgUrl}`}}
         />
       </View>
     );
   };
 
   return (
-    <View style={inlineStyles.view}>
+    <View style={styles.fullScreenImagesContainer}>
       <FlatList
-        data={imgFileNames}
+        data={route.params.imagesUrl}
         keyExtractor={(item) => item}
         horizontal
-        renderItem={({item}) => <InsideBook item={item} />}
+        renderItem={({item}) => <ImageFrame imgUrl={item} />}
       />
     </View>
   );
 }
-
-const inlineStyles = StyleSheet.create({
-  view: {alignSelf: 'center'},
-});

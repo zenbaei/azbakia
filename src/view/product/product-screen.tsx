@@ -137,6 +137,7 @@ export function ProductScreen({
               }}
               onBlur={onBlurSearch}
               onClear={findFirstPageProducts}
+              searchTextPlaceholder={msgs.enterProductName}
             />
             <Text
               bold
@@ -169,7 +170,7 @@ export function ProductScreen({
                   product={item}
                   onPressImg={(imagesUrl) =>
                     navigation.navigate('productDetailsScreen', {
-                      _id: item._id,
+                      product: item,
                       imagesUrl: imagesUrl,
                     })
                   }

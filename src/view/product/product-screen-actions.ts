@@ -18,24 +18,24 @@ export const getIconColor = (
 };
 
 export const getCartIconColor = (
-  bookId: string,
+  productId: string,
   cart: Cart[],
   theme: AppThemeInterface,
 ): string => {
-  if (isInCart(bookId, cart)) {
+  if (isInCart(productId, cart)) {
     return theme.secondary;
   }
   return theme.primary;
 };
 
-export const isInCart = (bookId: string, cart: Cart[]): boolean => {
-  const cr = cart.find((c) => c.productId === bookId);
+export const isInCart = (productId: string, cart: Cart[]): boolean => {
+  const cr = cart.find((c) => c.productId === productId);
   return cr ? true : false;
 };
 
 /**
  *
- * @param bookId
+ * @param product
  * @param cart
  * @returns - the modified cart and the quantity of 1 in case of adding to cart or the cart's amount
  * in case of removing from cart
@@ -66,23 +66,26 @@ export const _updateCart = async (cart: Cart[]): Promise<boolean> => {
 };
 
 export const _updateInventory = async (
-  book: Product,
+  product: Product,
   quantity: number,
 ): Promise<boolean> => {
   const result: modificationResult = await productService.updateInventory(
-    book._id,
-    book.inventory + quantity,
+    product._id,
+    product.inventory + quantity,
   );
   return result.modified === 1;
 };
 
 export const addOrRmvFrmCart = async (
-  book: Product,
+  product: Product,
   cart: Cart[],
   callback: cartCallback,
 ): Promise<void> => {
-  const {modifiedCart, cartQuantity} = _pushOrPopCart(book, cart);
-  const isCopiesUpdated: boolean = await _updateInventory(book, cartQuantity);
+  const {modifiedCart, cartQuantity} = _pushOrPopCart(product, cart);
+  const isCopiesUpdated: boolean = await _updateInventory(
+    product,
+    cartQuantity,
+  );
   const isCartUpdated: boolean = await _updateCart(modifiedCart);
   if (isCartUpdated && isCopiesUpdated) {
     callback(modifiedCart);
@@ -105,15 +108,15 @@ export const _pushOrPop = (id: string, ids: string[]): string[] => {
 };
 
 export const updateFav = async (
-  bookId: string,
+  productId: string,
   favs: string[],
   callback: favCallback,
 ) => {
-  const modifiedFavs = _pushOrPop(bookId, favs);
+  const modifiedFavs = _pushOrPop(productId, favs);
   const isAdded: boolean = modifiedFavs.length > favs.length;
   const result: modificationResult = isAdded
-    ? await userService.addToFav(global.user._id, bookId)
-    : await userService.removeFromFav(global.user._id, bookId);
+    ? await userService.addToFav(global.user._id, productId)
+    : await userService.removeFromFav(global.user._id, productId);
   if (result.modified === 1) {
     callback(modifiedFavs, isAdded);
   }
