@@ -39,7 +39,7 @@ export function ProductDetailsScreen({
 
   useFocusEffect(
     useCallback(() => {
-      global.setDisplayCartBtn(cart);
+      global.setDisplayCartBtn(cart.products);
     }, [cart]),
   );
 

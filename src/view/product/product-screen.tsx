@@ -45,27 +45,33 @@ export function ProductScreen({
   useFocusEffect(
     useCallback(() => {
       global.setAppBarTitle(msgs.home);
-      global.setDisplayCartBtn(cart);
+      global.setDisplayCartBtn(cart.products);
     }, [msgs, cart]),
   );
 
   const findFirstPageProducts = useCallback(() => {
     setShowLoadingIndicator(true);
-    subGenre?.enName
-      ? find1stProductsPageAndPagingNumber(
-          subGenre.enName,
-          pageSize,
-          (result, totalPagesNumber) => {
-            setPagingNumber(totalPagesNumber);
-            setProducts(result);
-            setPage(1);
-          },
-        )
-      : productService.findLatestProducts(0, 20).then((prds) => {
-          setProducts(prds);
-          setPagingNumber(1);
+    if (subGenre?.enName) {
+      find1stProductsPageAndPagingNumber(
+        subGenre.enName,
+        pageSize,
+        (result, totalPagesNumber) => {
+          setPagingNumber(totalPagesNumber);
+          setProducts(result);
           setPage(1);
-        });
+        },
+      );
+    } else {
+      productService.findLatestProducts(20).then((prds) => {
+        if (!prds || prds.length === 0) {
+          productService.findLastNProducts(20).then((pds) => setProducts(pds));
+        } else {
+          setProducts(prds);
+        }
+        setPagingNumber(1);
+        setPage(1);
+      });
+    }
   }, [subGenre, pageSize]);
 
   useFocusEffect(
@@ -114,9 +120,18 @@ export function ProductScreen({
     return result.map((bk) => ({value: bk._id, label: bk.name}));
   };
 
-  const _updateDisplayedProduct = (book: Product) => {
-    const bks = products.map((bk) => (bk._id === book._id ? book : bk));
-    setProducts(bks);
+  const _updateDisplayedProduct = (product: Product) => {
+    let newProductList: Product[];
+    if (product.inventory === 0) {
+      const toRemove = products.findIndex((p) => p._id === product._id);
+      products.splice(toRemove, 1);
+      newProductList = [...products];
+    } else {
+      newProductList = products.map((pd) =>
+        pd._id === product._id ? product : pd,
+      );
+    }
+    setProducts(newProductList);
   };
 
   const renderFooter = () => {
@@ -167,6 +182,7 @@ export function ProductScreen({
               ListFooterComponent={renderFooter}
               renderItem={({item}) => (
                 <ProductComponent
+                  isProductScreen
                   product={item}
                   onPressImg={(imagesUrl) =>
                     navigation.navigate('productDetailsScreen', {

@@ -1,6 +1,6 @@
 import {Product, request} from 'domain/product/product';
 import {productService} from 'domain/product/product-service';
-import {Cart} from 'domain/user/cart';
+import {Cart, CartProduct} from 'domain/user/cart';
 import {userService} from 'domain/user/user-service';
 import {AppThemeInterface} from 'zenbaei-js-lib/constants';
 import {modificationResult} from 'zenbaei-js-lib/types';
@@ -19,17 +19,20 @@ export const getIconColor = (
 
 export const getCartIconColor = (
   productId: string,
-  cart: Cart[],
+  cartProducts: CartProduct[],
   theme: AppThemeInterface,
 ): string => {
-  if (isInCart(productId, cart)) {
+  if (isInCart(productId, cartProducts)) {
     return theme.secondary;
   }
   return theme.primary;
 };
 
-export const isInCart = (productId: string, cart: Cart[]): boolean => {
-  const cr = cart.find((c) => c.productId === productId);
+export const isInCart = (
+  productId: string,
+  cartProducts: CartProduct[],
+): boolean => {
+  const cr = cartProducts?.find((c) => c.productId === productId);
   return cr ? true : false;
 };
 
@@ -43,21 +46,23 @@ export const isInCart = (productId: string, cart: Cart[]): boolean => {
  */
 export const _pushOrPopCart = (
   product: Product,
-  cart: Cart[],
-): {modifiedCart: Cart[]; cartQuantity: number} => {
+  cartProducts: CartProduct[],
+): {modifiedCart: CartProduct[]; plusOrMinusOneQty: number} => {
   let quantity: number = -1;
-  let cartClone = [...cart];
-  const index: number = cart.findIndex((val) => val.productId === product._id);
+  let cartClone = [...cartProducts];
+  const index: number = cartProducts.findIndex(
+    (val) => val.productId === product._id,
+  );
   if (index === -1) {
-    cartClone.push({productId: product._id, quantity: 1, date: new Date()});
+    cartClone.push({productId: product._id, quantity: 1});
   } else {
     const crt = cartClone.splice(index, 1);
     quantity = crt[0].quantity;
   }
-  return {modifiedCart: cartClone, cartQuantity: quantity};
+  return {modifiedCart: cartClone, plusOrMinusOneQty: quantity};
 };
 
-export const _updateCart = async (cart: Cart[]): Promise<boolean> => {
+export const _updateCart = async (cart: Cart): Promise<boolean> => {
   const result: modificationResult = await userService.updateCart(
     global.user._id,
     cart,
@@ -78,17 +83,24 @@ export const _updateInventory = async (
 
 export const addOrRmvFrmCart = async (
   product: Product,
-  cart: Cart[],
+  cart: Cart,
   callback: cartCallback,
 ): Promise<void> => {
-  const {modifiedCart, cartQuantity} = _pushOrPopCart(product, cart);
-  const isCopiesUpdated: boolean = await _updateInventory(
+  if (cart.products.length === 0) {
+    cart.date = new Date();
+  }
+  const {modifiedCart, plusOrMinusOneQty} = _pushOrPopCart(
     product,
-    cartQuantity,
+    cart.products,
   );
-  const isCartUpdated: boolean = await _updateCart(modifiedCart);
-  if (isCartUpdated && isCopiesUpdated) {
-    callback(modifiedCart);
+  const isInventoryUpdated: boolean = await _updateInventory(
+    product,
+    plusOrMinusOneQty,
+  );
+  const newCart: Cart = {date: cart.date, products: modifiedCart};
+  const isCartUpdated: boolean = await _updateCart(newCart);
+  if (isCartUpdated && isInventoryUpdated) {
+    callback(newCart);
   }
 };
 
@@ -204,7 +216,7 @@ export const findSearchedProductsByPage = async (
   );
 };
 
-export type cartCallback = (modifiedCart: Cart[]) => void;
+export type cartCallback = (modifiedCart: Cart) => void;
 type favCallback = (modifiedFavs: string[], isAdded: boolean) => void;
 
 export const findProduct = (id: string): Promise<Product> =>

@@ -1,7 +1,7 @@
 import {Address} from 'zenbaei-js-lib/types/address';
 import {userService} from 'domain/user/user-service';
 import {countryService} from 'domain/country/country-service';
-import {Country} from 'domain/country/country';
+import {City, Country, DistrictDetails} from 'domain/country/country';
 import {v1 as uuidv1} from 'uuid';
 
 export const findCountry = (country: string): Promise<Country> => {
@@ -24,13 +24,15 @@ export const updateDefaultAddress = async (
   result.modified === 1 ? clb(updatedAdds) : addresses;
 };
 
-export const getDistrictCharge = async (address: Address): Promise<number> => {
+export const getDistrictDetails = async (
+  address: Address,
+): Promise<DistrictDetails> => {
   const country = await countryService.findOne('country', global.user.country);
-  const city = country.cities.find((c) => c.city === address.city);
-  const districtAndCharge = city?.districtsAndCharges.find(
+  const city = country.cities.find((c) => c.city === address.city) as City;
+  const districtDetails = city.districtsDetails.find(
     (d) => d.district === address.district,
-  );
-  return districtAndCharge?.deliveryCharge as number;
+  ) as DistrictDetails;
+  return districtDetails;
 };
 
 export const updateAddress = async (

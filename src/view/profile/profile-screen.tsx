@@ -40,7 +40,7 @@ export const ProfileScreen = ({
   useFocusEffect(
     useCallback(() => {
       global.setAppBarTitle(msgs.profile);
-      global.setDisplayCartBtn(cart);
+      global.setDisplayCartBtn(cart.products);
     }, [msgs, cart]),
   );
 
@@ -91,6 +91,7 @@ export const ProfileScreen = ({
 
   const snackBar = (mr: modificationResult, msg: string) => {
     if (mr.modified === 1) {
+      setShowSnackBar(true);
       setSnackBarMsg(msg);
     }
   };

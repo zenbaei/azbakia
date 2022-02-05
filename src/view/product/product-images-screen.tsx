@@ -16,7 +16,7 @@ export function ProductImagesScreen({
   useFocusEffect(
     useCallback(() => {
       global.setAppBarTitle(msgs.details);
-      global.setDisplayCartBtn(cart);
+      global.setDisplayCartBtn(cart.products);
     }, [msgs, cart]),
   );
 

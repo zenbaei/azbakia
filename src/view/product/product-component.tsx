@@ -1,7 +1,7 @@
 import {productCardWidth, productCardWidthBig} from 'constants/styles';
 import {Product} from 'domain/product/product';
 import React, {useContext, useEffect, useState} from 'react';
-import {AlertButton, ViewStyle} from 'react-native';
+import {ActivityIndicator, AlertButton, ViewStyle} from 'react-native';
 import {Alert, Image, TouchableHighlight} from 'react-native';
 import IconButton from 'react-native-paper/src/components/IconButton';
 import {UserContext} from 'user-context';
@@ -17,7 +17,7 @@ import {
 } from 'view/product/product-screen-actions';
 import {Card, Fab, Text} from 'zenbaei-js-lib/react';
 import {getFilePaths} from 'zenbaei-js-lib/utils';
-import {IMAGE_DIR, SERVER_URL, STATIC_FILES_URL} from '../../app-config';
+import {IMAGE_DIR, SERVER_URL} from '../../app-config';
 
 /**
  *
@@ -31,6 +31,7 @@ export const ProductComponent = ({
   showSnackBar,
   cartScreen = false,
   centerCard = false,
+  isProductScreen = false,
 }: {
   product: Product;
   onPressImg?: (imagesUrl: string[]) => void;
@@ -38,6 +39,7 @@ export const ProductComponent = ({
   showSnackBar: (msg: string) => void;
   cartScreen?: boolean;
   centerCard?: boolean;
+  isProductScreen?: boolean;
 }) => {
   const {cart, setCart, favs, setFavs, msgs, theme, styles, currency} =
     useContext(UserContext);
@@ -46,6 +48,7 @@ export const ProductComponent = ({
     : styles.visible;
   const [imageUrl, setImageUrl] = useState('');
   const [imagesUrl, setImagesUrl] = useState([] as string[]);
+  const [loadingImage, setLoadingImage] = useState(true);
 
   useEffect(() => {
     getFilePaths(`${IMAGE_DIR}/${product._id}`)
@@ -100,17 +103,29 @@ export const ProductComponent = ({
       <TouchableHighlight
         testID="touchable"
         key={product.name + 'toh'}
+        style={isProductScreen ? {...styles.imageTouchableContainer} : {}}
         onPress={() => {
-          onPressImg === undefined ? () => {} : onPressImg(imagesUrl);
+          onPressImg === undefined || !imageUrl
+            ? () => {}
+            : onPressImg(imagesUrl);
         }}>
-        <Image
-          source={{
-            uri: imageUrl
-              ? `${SERVER_URL}${imageUrl}`
-              : `${STATIC_FILES_URL}/no-image-icon-15.png`,
-          }}
-          style={styles.image}
-        />
+        <>
+          <ActivityIndicator
+            style={styles.centerLoading}
+            animating={loadingImage}
+            color={theme.secondary}
+          />
+          <Image
+            onLoadStart={() => setLoadingImage(true)}
+            onLoadEnd={() => setLoadingImage(false)}
+            source={
+              imageUrl
+                ? {uri: `${SERVER_URL}${imageUrl}`}
+                : require('../../resources/images/no-image.png')
+            }
+            style={{...styles.image}}
+          />
+        </>
       </TouchableHighlight>
       <Fab
         icon="heart-outline"
@@ -136,14 +151,27 @@ export const ProductComponent = ({
       <IconButton
         testID={'removeFromCartBtn'}
         icon="cart-outline"
-        color={isInCart(product._id, cart) ? theme.primary : theme.onBackground}
+        color={
+          isInCart(product._id, cart.products)
+            ? theme.primary
+            : theme.onBackground
+        }
         style={[
           cartScreenVisibilty,
           styles.flexEnd,
-          {backgroundColor: getCartIconColor(product._id, cart, theme)},
+          {
+            backgroundColor: getCartIconColor(
+              product._id,
+              cart.products,
+              theme,
+            ),
+          },
         ]}
         onPress={() =>
-          _addOrRmvFrmCart(product._id, isInCart(product._id, cart) ? -1 : 1)
+          _addOrRmvFrmCart(
+            product._id,
+            isInCart(product._id, cart.products) ? -1 : 1,
+          )
         }
       />
       <IconButton

@@ -42,7 +42,7 @@ export function CartScreen({
       global.setAppBarTitle(msgs.cart);
       global.setDisplayCartBtn(undefined);
       setShowLoadingIndicator(true);
-      loadCartProductsVOs(cart).then((vo) => {
+      loadCartProductsVOs(cart.products).then((vo) => {
         setCartProductsVOs(vo);
         setTotal(calculateSum(vo));
         setShowLoadingIndicator(false);
@@ -78,7 +78,7 @@ export function CartScreen({
     setCartProductsVOs(cartVOs);
   };
 
-  return cart.length > 0 ? (
+  return cart.products.length > 0 ? (
     <>
       <Grid>
         <Row proportion={1}>
@@ -106,9 +106,17 @@ export function CartScreen({
                             setSnackBarMsg(msg);
                             setSnackBarVisible(true);
                           }}
-                          onPressImg={(bk) =>
+                          onPressImg={(imagesUrl) =>
                             navigation.navigate('productDetailsScreen', {
-                              id: bk._id,
+                              product: {
+                                _id: item._id,
+                                name: item.name,
+                                price: item.price,
+                                inventory: item.inventory,
+                                description: item.description,
+                                language: item.language,
+                              } as Product,
+                              imagesUrl: imagesUrl,
                             })
                           }
                         />

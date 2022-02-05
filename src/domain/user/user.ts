@@ -5,7 +5,7 @@ export class User extends _id {
   email!: string;
   password!: string;
   favs: string[] = [];
-  cart: Cart[] = [];
+  cart!: Cart;
   activated: boolean = false;
   addresses!: Address[];
   phoneNo!: string;

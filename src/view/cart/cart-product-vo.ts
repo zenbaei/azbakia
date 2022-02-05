@@ -5,5 +5,7 @@ export class CartProductVO {
     public quantity: number,
     public price: number,
     public inventory: number,
+    public description: string,
+    public language: Language,
   ) {}
 }

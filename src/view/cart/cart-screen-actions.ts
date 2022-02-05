@@ -1,6 +1,6 @@
 import {Product} from 'domain/product/product';
 import {productService} from 'domain/product/product-service';
-import {Cart} from 'domain/user/cart';
+import {Cart, CartProduct} from 'domain/user/cart';
 import {userService} from 'domain/user/user-service';
 import {cartCallback} from 'view/product/product-screen-actions';
 import {_pushOrPopCart} from '../product/product-screen-actions';
@@ -13,18 +13,22 @@ export const calculateSum = (cartBooksVO: CartProductVO[]): number => {
 };
 
 export const loadCartProductsVOs = async (
-  cart: Cart[],
+  cartProducts: CartProduct[],
 ): Promise<CartProductVO[]> => {
-  const bookIds = cart.map((car) => car.productId);
-  const books: Product[] = await productService.findAllByProductIds(bookIds);
-  return books.map((bk) => {
-    const crt = cart.find((val) => val.productId === bk._id);
+  const productIds = cartProducts.map((car) => car.productId);
+  const products: Product[] = await productService.findAllByProductIds(
+    productIds,
+  );
+  return products.map((prd) => {
+    const crt = cartProducts.find((val) => val.productId === prd._id);
     return new CartProductVO(
-      bk._id,
-      bk.name,
+      prd._id,
+      prd.name,
       crt?.quantity as number,
-      bk.price,
-      bk.inventory,
+      prd.price,
+      prd.inventory,
+      prd.description,
+      prd.language,
     );
   });
 };
@@ -39,7 +43,7 @@ export const flatenNumberToArray = (val: number): labelValue[] => {
 
 export const updateQuantity = async (
   product: Product,
-  cart: Cart[],
+  cart: Cart,
   oldQuantity: number,
   newQuantity: number,
   clb: cartCallback,
@@ -48,38 +52,34 @@ export const updateQuantity = async (
     product._id,
     product.inventory + oldQuantity - newQuantity,
   );
-  const modifiedCart: Cart[] = cart.map((crt) =>
+  const modifiedCart: CartProduct[] = cart.products.map((crt) =>
     crt.productId === product._id
-      ? {productId: product._id, quantity: newQuantity, date: new Date()}
+      ? {productId: product._id, quantity: newQuantity}
       : crt,
   );
-  const cartUpdated = await userService.updateCart(
-    global.user._id,
-    modifiedCart,
-  );
+  const newCart = {date: cart.date, products: modifiedCart};
+  const cartUpdated = await userService.updateCart(global.user._id, newCart);
   if (invUpdated && cartUpdated) {
-    clb(modifiedCart);
+    clb(newCart);
   }
 };
 
 export const removeFromCart = async (
   productId: string,
-  cart: Cart[],
+  cart: Cart,
   clb: cartCallback,
 ) => {
   const product = await productService.findOne('_id', productId);
-  const cartPd = cart.find((crt) => crt.productId === productId);
+  const cartPd = cart.products.find((crt) => crt.productId === productId);
   const invUpdated = await productService.updateInventory(
     productId,
     product.inventory + (cartPd ? cartPd.quantity : 0),
   );
-  const {modifiedCart} = _pushOrPopCart(product, cart);
-  const cartUpdated = await userService.updateCart(
-    global.user._id,
-    modifiedCart,
-  );
+  const {modifiedCart} = _pushOrPopCart(product, cart.products);
+  cart.products = modifiedCart;
+  const cartUpdated = await userService.updateCart(global.user._id, cart);
   if (invUpdated && cartUpdated) {
-    clb(modifiedCart);
+    clb(cart);
   }
 };
 

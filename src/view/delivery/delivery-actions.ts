@@ -3,15 +3,15 @@ import {orderService} from 'domain/order/order-service';
 import moment from 'moment';
 import {CartProductVO} from 'view/cart/cart-product-vo';
 
-const dateFormat = 'ddd MM MMM YYYY';
+const dateFormat = 'ddd DD MMM YYYY';
 
-export const inspectDeliveryDate = (): DeliveryDateRange => {
-  const now: Date = new Date();
-  const from = new Date();
-  const to = new Date();
-  from.setDate(now.getDate() + 3);
-  to.setDate(now.getDate() + 7);
-  return {from: new Date(from), to: new Date(to)};
+export const inspectDeliveryDate = (
+  deliveryDays: number,
+): DeliveryDateRange => {
+  return {
+    from: moment(moment.now()).add(3, 'days').toDate(),
+    to: moment(moment.now()).add(7, 'days').toDate(),
+  };
 };
 
 export const createOrder = async (
@@ -40,5 +40,6 @@ export const createOrder = async (
 export type DeliveryDateRange = {from: Date; to: Date};
 
 export const formatDate = (date: Date): string => {
+  console.log(moment(date).format(dateFormat));
   return moment(date).format(dateFormat);
 };

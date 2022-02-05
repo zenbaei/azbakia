@@ -28,7 +28,8 @@ export const getStyles = (theme: AppThemeInterface) =>
       paddingVertical: 5,
       textAlign: 'center',
     },
-    image: {width: '100%', resizeMode: 'contain', aspectRatio: 2 / 2},
+    imageTouchableContainer: {width: '100%', height: '50%'},
+    image: {width: '100%', resizeMode: 'center', aspectRatio: 2 / 2},
     addToCartBtn: {
       marginTop: 5,
     },

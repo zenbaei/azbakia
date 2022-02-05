@@ -14,7 +14,7 @@ import {NavigationProps} from 'zenbaei-js-lib/react/types/navigation-props';
 import {NavigationScreens} from 'constants/navigation-screens';
 import {userService} from 'domain/user/user-service';
 import {UserContext} from 'user-context';
-import {getDistrictCharge} from 'view/address/address-actions';
+import {getDistrictDetails} from 'view/address/address-actions';
 import {
   createOrder,
   DeliveryDateRange,
@@ -24,6 +24,7 @@ import {
 
 import {Alert, ScrollView, StyleSheet, View} from 'react-native';
 import {loadCartProductsVOs} from 'view/cart/cart-screen-actions';
+import {isEmpty} from 'zenbaei-js-lib/utils';
 
 export const DeliveryScreen = ({
   navigation,
@@ -38,7 +39,7 @@ export const DeliveryScreen = ({
   const [additionalPhoneNo, setAdditionalPhoneNo] = useState('');
   const [cardNumber, setCardNumber] = useState('');
   const [cvv, setCvv] = useState('');
-  const {msgs, theme, cart, currency} = useContext(UserContext);
+  const {msgs, theme, cart, currency, styles} = useContext(UserContext);
 
   const emptyString = '     ';
   const [showManageDeliveryDetailsBtn, setShowManageDeliveryDetailsBtn] =
@@ -64,10 +65,10 @@ export const DeliveryScreen = ({
         setAddress(ad as Address);
         setPhoneNo(usr.phoneNo);
         setAdditionalPhoneNo(usr.additionalPhoneNo);
-        getDistrictCharge(ad as Address).then((charge) =>
-          setDeliveryCharge(charge),
-        );
-        setExpectedDeliveryDate(inspectDeliveryDate());
+        getDistrictDetails(ad as Address).then((details) => {
+          setDeliveryCharge(details.deliveryCharge);
+          setExpectedDeliveryDate(inspectDeliveryDate(details.deliveryDays));
+        });
       });
       return cleanup();
     }, [msgs]),
@@ -79,10 +80,14 @@ export const DeliveryScreen = ({
   };
 
   const checkout = () => {
-    createOrder(loadCartProductsVOs(cart), expectedDeliveryDate, () => {
-      userService.deleteCart(global.user._id);
-      Alert.alert('Payment Gate');
-    });
+    createOrder(
+      loadCartProductsVOs(cart.products),
+      expectedDeliveryDate,
+      () => {
+        userService.deleteCart(global.user._id);
+        Alert.alert('Payment Gate');
+      },
+    );
   };
 
   return (
@@ -133,7 +138,11 @@ export const DeliveryScreen = ({
                   <Text text={phoneNo} />
                 </View>
 
-                <View style={inlineStyle.viewRow}>
+                <View
+                  style={
+                    (inlineStyle.viewRow,
+                    isEmpty(additionalPhoneNo) ? styles.hidden : styles.visible)
+                  }>
                   <Text
                     text={`${msgs.additionalPhoneNo}: `}
                     color={theme.secondary}

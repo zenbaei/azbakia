@@ -23,18 +23,22 @@ class ProductService extends MongoHttpService<Product> {
     return this.findAll(book, undefined, skip, limit);
   };
 
-  findLatestProducts = (
-    skip: number = 0,
-    limit: number = 0,
-  ): Promise<Product[]> => {
+  findLatestProducts = (limit: number = 0): Promise<Product[]> => {
     const filter: any = {
       $and: [
         {inventory: {$gt: 0}},
         {date: {$gt: moment(Date.now()).subtract(7, 'days')}},
       ],
     };
-    return this.findAll(filter, undefined, skip, limit);
+    return this.findAll(filter, undefined, 0, limit);
   };
+
+  findLastNProducts = (limit: number): Promise<Product[]> => {
+    const filter = {inventory: {$gt: 0}};
+    const options: queryOptions<Product> = {sort: {date: -1}};
+    return this.findAll(filter, options, 0, limit);
+  };
+
   /*
   findByGenre = (
     productsInCart: string[],

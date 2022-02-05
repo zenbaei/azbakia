@@ -23,14 +23,16 @@ import {
 } from './address-actions';
 import {userService} from 'domain/user/user-service';
 import {Alert, ScrollView} from 'react-native';
-import {City, DistrictAndCharge} from 'domain/country/country';
+import {City, DistrictDetails} from 'domain/country/country';
 
 export function AddressManagementScreen({
   navigation,
   route,
 }: NavigationProps<NavigationScreens, 'addressManagementScreen'>) {
   const [cities, setCities] = useState([] as City[]);
-  const [districts, setDistricts] = useState([] as DistrictAndCharge[]);
+  const [districtsDetails, setDistrictsDetails] = useState(
+    [] as DistrictDetails[],
+  );
   const [selectedCity, setSelectedCity] = useState('');
   const [selectedDistrict, setSelectedDistrict] = useState('');
   const [street, setStreet] = useState('');
@@ -50,7 +52,7 @@ export function AddressManagementScreen({
           ? msgs.createAddress
           : msgs.modifyAddress,
       );
-      global.setDisplayCartBtn(cart);
+      global.setDisplayCartBtn(cart.products);
     }, [msgs, modifiedAddressId, cart]),
   );
 
@@ -67,7 +69,7 @@ export function AddressManagementScreen({
       findCountry(global.user.country).then((country) => {
         const cty = country.cities[0];
         setCities(country.cities);
-        setDistricts(cty.districtsAndCharges);
+        setDistrictsDetails(cty.districtsDetails);
         setSelectedCity(cty.city);
       });
       return cleanUp();
@@ -89,7 +91,7 @@ export function AddressManagementScreen({
         setComment(ad.comment);
         setDefaultAddress(ad.default);
         const cty = cities.find((c) => c.city === ad.city) as City;
-        setDistricts(cty.districtsAndCharges);
+        setDistrictsDetails(cty.districtsDetails);
         setSelectedCity(ad.city);
         setSelectedDistrict(ad.district);
       });
@@ -99,8 +101,8 @@ export function AddressManagementScreen({
   const onCityValueChange = (item: string) => {
     setSelectedCity(item);
     const cty = cities.find((ct) => ct.city === item) as City;
-    setDistricts(cty.districtsAndCharges);
-    setSelectedDistrict(cty.districtsAndCharges[0].district);
+    setDistrictsDetails(cty.districtsDetails);
+    setSelectedDistrict(cty.districtsDetails[0].district);
   };
 
   const insertNewAddress = () => {
@@ -165,7 +167,7 @@ export function AddressManagementScreen({
             <Picker
               selectedValue={selectedDistrict}
               onValueChange={(item) => setSelectedDistrict(item)}
-              data={districts.map((d) => ({
+              data={districtsDetails.map((d) => ({
                 label: d.district,
                 value: d.district,
               }))}

@@ -6,11 +6,12 @@ import {UserContext} from 'user-context';
 import {useFocusEffect} from '@react-navigation/native';
 import {ActivityIndicator, Alert} from 'react-native';
 import {configService} from 'domain/config/config-service';
+import {countryService} from 'domain/country/country-service';
 
 export default function LoginScreen({
   navigation,
 }: NavigationProps<NavigationScreens, 'loginScreen'>) {
-  const {setCart, setFavs, msgs, theme, styles, setConfigs} =
+  const {setCart, setFavs, setCurrency, msgs, theme, styles, setConfigs} =
     useContext(UserContext);
   const [showLoading, setShowLoading] = useState(false);
 
@@ -39,9 +40,12 @@ export default function LoginScreen({
           country: user.country,
         };
         global.token = user.token;
-        setCart(user.cart ? user.cart : []);
+        setCart(user.cart ? user.cart : {date: new Date(), products: []});
         setFavs(user.favs ? user.favs : []);
         configService.findAll().then((cfgs) => setConfigs(cfgs));
+        countryService
+          .findOne('country', user.country)
+          .then((c) => setCurrency(c.currency));
 
         navigation.navigate('drawerNavigator', {});
       })

@@ -22,7 +22,7 @@ export function FavouriteScreen({
     useCallback(() => {
       setBooks([] as Product[]);
       global.setAppBarTitle(msgs.favourite);
-      global.setDisplayCartBtn(cart);
+      global.setDisplayCartBtn(cart.products);
       if (favs?.length > 0) {
         setShowLoadingIndicator(true);
         productService.findAllByProductIds(favs).then((bks) => {

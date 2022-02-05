@@ -8,19 +8,16 @@ import React, {useCallback, useContext, useState} from 'react';
 import {Ctx} from 'zenbaei-js-lib/react';
 import {AppThemeInterface} from 'zenbaei-js-lib/constants';
 import {getStyles} from 'constants/styles';
-import {
-  Config,
-  getCurrency,
-  getMobileNoLength,
-  getPageSize,
-} from 'domain/config/config';
+import {Config, getMobileNoLength, getPageSize} from 'domain/config/config';
+import {Country} from 'domain/country/country';
 
 interface UserProps {
-  cart: Cart[];
-  setCart: (crt: Cart[]) => void;
+  cart: Cart;
+  setCart: (cart: Cart) => void;
   favs: string[];
   setFavs: (fvs: string[]) => void;
   setConfigs: (configs: Config[]) => void;
+  setCountry: (country: Country) => void;
   msgs: MessagesInterface;
   theme: AppThemeInterface;
   language: Language;
@@ -28,6 +25,7 @@ interface UserProps {
   pageSize: number;
   currency: string;
   mobileNoLength: number;
+  shipmentCollectionDays: number;
 }
 /*
 export const initialValue: UserProps = {
@@ -51,7 +49,7 @@ export const initialValue: UserProps = {
 export const UserContext = React.createContext<UserProps>({} as UserProps);
 
 export const UserContextProvider = ({children}: {children: any}) => {
-  const [cart, updCart] = useState([] as Cart[]);
+  const [cart, updCart] = useState({} as Cart);
   const [favs, updFavs] = useState([] as string[]);
   const [pageSize, setPageSize] = useState(6);
   const [currency, setCurrency] = useState('EGP');
@@ -60,12 +58,14 @@ export const UserContextProvider = ({children}: {children: any}) => {
   const msgs = getMessages(language);
   const styles = getStyles(theme);
 
-  const setCart = useCallback((car: Cart[]) => updCart(car), []);
+  const setCart = useCallback((car: Cart) => updCart(car), []);
   const setFavs = useCallback((fvs: string[]) => updFavs(fvs), []);
-  const setConfigs = useCallback((cfgs) => {
+  const setConfigs = useCallback((cfgs: Config[]) => {
     setPageSize(getPageSize(cfgs));
-    setCurrency(getCurrency(global.user.country, cfgs));
     setMobileNoLength(getMobileNoLength(cfgs));
+  }, []);
+  const setCountry = useCallback((country: Country) => {
+    setCu;
   }, []);
 
   const val = {
@@ -74,11 +74,13 @@ export const UserContextProvider = ({children}: {children: any}) => {
     setCart,
     setFavs,
     setConfigs,
+    setCountry,
     msgs,
     theme,
     language,
     styles,
     pageSize,
+    shipmentCollectionDays,
     currency,
     mobileNoLength,
   };

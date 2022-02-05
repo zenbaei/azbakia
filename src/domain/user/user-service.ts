@@ -25,12 +25,12 @@ class UserService extends MongoHttpService<User> {
     return this.updateById(id, {$pull: favs});
   };
 
-  updateCart = (id: string, cart: Cart[]): Promise<modificationResult> => {
+  updateCart = (id: string, cart: Cart): Promise<modificationResult> => {
     return this.updateById(id, {$set: {cart: cart}});
   };
 
   deleteCart = (id: string): Promise<modificationResult> => {
-    return this.updateCart(id, []);
+    return this.updateById(id, {$unset: {cart: ''}});
   };
 }
 

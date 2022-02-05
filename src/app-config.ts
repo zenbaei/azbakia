@@ -5,6 +5,6 @@ const SERVER = REOMTE_SERVER;
 export const SERVER_URL = `https://${SERVER}:${SERVER_PORT}`;
 export const APP_REST_API = `${SERVER_URL}/api/azbakia`;
 export const EMAIL_REST_API = `${SERVER_URL}/api/email`;
-export const STATIC_FILES_URL = `${SERVER_URL}/static/images`;
 export const IMAGE_DIR = 'images';
+export const STATIC_FILES_URL = `${SERVER_URL}/public/${IMAGE_DIR}`;
 export const DATE_FORMAT = 'ddd MM MMM YYYY';

@@ -39,7 +39,7 @@ export function AddressListScreen({
   useFocusEffect(
     useCallback(() => {
       global.setAppBarTitle(msgs.address);
-      global.setDisplayCartBtn(cart);
+      global.setDisplayCartBtn(cart.products);
     }, [msgs, cart]),
   );
 

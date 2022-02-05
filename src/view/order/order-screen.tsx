@@ -4,7 +4,7 @@ import {productService} from 'domain/product/product-service';
 import {Item, Order} from 'domain/order/order';
 import {orderService} from 'domain/order/order-service';
 import React, {useCallback, useContext, useState} from 'react';
-import {Image, ScrollView, View} from 'react-native';
+import {ActivityIndicator, Image, ScrollView, View} from 'react-native';
 import {UserContext} from 'user-context';
 import {Alert} from 'view/alert-component';
 import {formatDate} from 'view/delivery/delivery-actions';
@@ -19,13 +19,17 @@ import {
   SnackBar,
   Text,
 } from 'zenbaei-js-lib/react';
-import {STATIC_FILES_URL} from '../../app-config';
+import {IMAGE_DIR, SERVER_URL} from 'app-config';
+import {getFilePaths} from 'zenbaei-js-lib/utils';
+import {getMainImageUrl} from 'view/product/product-screen-actions';
 
 export const OrderScreen = () => {
   const [orders, setOrders] = useState([] as Order[]);
-  const {styles, imgFileNames, msgs} = useContext(UserContext);
+  const {styles, msgs, theme} = useContext(UserContext);
   const [showSnackBar, setShowSnackBar] = useState(false);
   const [showLoading, setShowLoading] = useState(false);
+  const [imageUrl, setImageUrl] = useState('');
+  const [loadingImage, setLoadingImage] = useState(true);
   const SPACE = '                 ';
 
   useFocusEffect(
@@ -42,6 +46,13 @@ export const OrderScreen = () => {
       .then((o) => {
         setOrders(o);
         setShowLoading(false);
+        o.forEach((or) =>
+          getFilePaths(`${IMAGE_DIR}/${or._id}`)
+            .then((filesPath) => {
+              getMainImageUrl(filesPath).then(setImageUrl);
+            })
+            .catch(() => {}),
+        );
       });
   };
 
@@ -84,12 +95,23 @@ export const OrderScreen = () => {
                     <>
                       <View key={i.productId} style={styles.viewRow}>
                         <Card width={productCardWidth}>
-                          <Image
-                            source={{
-                              uri: `${STATIC_FILES_URL}/${i.productId}/${imgFileNames[0]}`,
-                            }}
-                            style={styles.image}
-                          />
+                          <>
+                            <ActivityIndicator
+                              style={styles.centerLoading}
+                              animating={loadingImage}
+                              color={theme.secondary}
+                            />
+                            <Image
+                              onLoadStart={() => setLoadingImage(true)}
+                              onLoadEnd={() => setLoadingImage(false)}
+                              source={
+                                imageUrl
+                                  ? {uri: `${SERVER_URL}${imageUrl}`}
+                                  : require('../../resources/images/no-image.png')
+                              }
+                              style={styles.image}
+                            />
+                          </>
                         </Card>
                         <View
                           style={[
