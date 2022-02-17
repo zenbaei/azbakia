@@ -1,9 +1,10 @@
-const ANDROID_LOCALHOST = '10.0.2.2';
+//const ANDROID_LOCALHOST = '10.0.2.2';
 const REOMTE_SERVER = 'zenbaei.ddns.net';
 const SERVER_PORT = '3500';
 const SERVER = REOMTE_SERVER;
+const APP_NAME = 'brandsSelection';
 export const SERVER_URL = `https://${SERVER}:${SERVER_PORT}`;
-export const APP_REST_API = `${SERVER_URL}/api/azbakia`;
+export const APP_REST_API = `${SERVER_URL}/api/${APP_NAME}`;
 export const EMAIL_REST_API = `${SERVER_URL}/api/email`;
 export const IMAGE_DIR = 'images';
 export const STATIC_FILES_URL = `${SERVER_URL}/public/${IMAGE_DIR}`;

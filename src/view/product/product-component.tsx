@@ -13,10 +13,9 @@ import {
   getCartIconColor,
   isInCart,
   requestProduct,
-  getMainImageUrl,
 } from 'view/product/product-screen-actions';
 import {Card, Fab, Text} from 'zenbaei-js-lib/react';
-import {getFilePaths} from 'zenbaei-js-lib/utils';
+import {getMainImageName} from 'zenbaei-js-lib/utils';
 import {IMAGE_DIR, SERVER_URL} from '../../app-config';
 
 /**
@@ -34,7 +33,7 @@ export const ProductComponent = ({
   isProductScreen = false,
 }: {
   product: Product;
-  onPressImg?: (imagesUrl: string[]) => void;
+  onPressImg?: () => void;
   updateDisplayedProduct: (product: Product) => void;
   showSnackBar: (msg: string) => void;
   cartScreen?: boolean;
@@ -47,14 +46,12 @@ export const ProductComponent = ({
     ? styles.hidden
     : styles.visible;
   const [imageUrl, setImageUrl] = useState('');
-  const [imagesUrl, setImagesUrl] = useState([] as string[]);
   const [loadingImage, setLoadingImage] = useState(true);
 
   useEffect(() => {
-    getFilePaths(`${IMAGE_DIR}/${product._id}`)
-      .then((filesPath) => {
-        setImagesUrl(filesPath.files);
-        getMainImageUrl(filesPath).then(setImageUrl);
+    getMainImageName(`${IMAGE_DIR}/${product._id}`)
+      .then((res) => {
+        setImageUrl(res.file);
       })
       .catch(() => {});
   }, [product]);
@@ -103,11 +100,9 @@ export const ProductComponent = ({
       <TouchableHighlight
         testID="touchable"
         key={product.name + 'toh'}
-        style={isProductScreen ? {...styles.imageTouchableContainer} : {}}
+        style={isProductScreen ? {} : {}}
         onPress={() => {
-          onPressImg === undefined || !imageUrl
-            ? () => {}
-            : onPressImg(imagesUrl);
+          onPressImg === undefined || !imageUrl ? () => {} : onPressImg();
         }}>
         <>
           <ActivityIndicator

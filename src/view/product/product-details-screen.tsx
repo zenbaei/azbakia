@@ -27,14 +27,12 @@ export function ProductDetailsScreen({
   const msgs = getMessages(language);
   const [snackBarMsg, setSnackBarMsg] = useState('');
   const [isSnackBarVisible, setSnackBarVisible] = useState(false);
-  const [imagesUrl, setImagesUrl] = useState([] as string[]);
 
   useFocusEffect(
     useCallback(() => {
       global.setAppBarTitle(msgs.details);
-      setImagesUrl(route.params.imagesUrl);
       setProduct(route.params.product);
-    }, [msgs, route.params.product, route.params.imagesUrl]),
+    }, [msgs, route.params.product]),
   );
 
   useFocusEffect(
@@ -67,7 +65,7 @@ export function ProductDetailsScreen({
                 label={msgs.moreImages}
                 onPress={() =>
                   navigation.navigate('productImagesScreen', {
-                    imagesUrl: imagesUrl,
+                    _id: product._id,
                   })
                 }
               />

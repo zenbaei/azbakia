@@ -59,6 +59,9 @@ export function ProductScreen({
           setPagingNumber(totalPagesNumber);
           setProducts(result);
           setPage(1);
+          if (result.length === 0) {
+            setShowLoadingIndicator(false);
+          }
         },
       );
     } else {
@@ -70,9 +73,12 @@ export function ProductScreen({
         }
         setPagingNumber(1);
         setPage(1);
+        if (products.length === 0) {
+          setShowLoadingIndicator(false);
+        }
       });
     }
-  }, [subGenre, pageSize]);
+  }, [subGenre, pageSize, products.length]);
 
   useFocusEffect(
     useCallback(() => {
@@ -132,6 +138,9 @@ export function ProductScreen({
       );
     }
     setProducts(newProductList);
+    if (newProductList.length === 0) {
+      setShowLoadingIndicator(false);
+    }
   };
 
   const renderFooter = () => {
@@ -180,14 +189,14 @@ export function ProductScreen({
               onEndReached={loadNextPage}
               onEndReachedThreshold={0.1}
               ListFooterComponent={renderFooter}
+              ItemSeparatorComponent={() => <Text text={''} />}
               renderItem={({item}) => (
                 <ProductComponent
                   isProductScreen
                   product={item}
-                  onPressImg={(imagesUrl) =>
+                  onPressImg={() =>
                     navigation.navigate('productDetailsScreen', {
                       product: item,
-                      imagesUrl: imagesUrl,
                     })
                   }
                   updateDisplayedProduct={(book: Product) => {

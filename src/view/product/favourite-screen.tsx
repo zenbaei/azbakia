@@ -52,10 +52,9 @@ export function FavouriteScreen({
               renderItem={({item}) => (
                 <ProductComponent
                   product={item}
-                  onPressImg={(imagesUrl) =>
+                  onPressImg={() =>
                     navigation.navigate('productDetailsScreen', {
                       product: item,
-                      imagesUrl: imagesUrl,
                     })
                   }
                   updateDisplayedProduct={() => {}}

@@ -5,10 +5,10 @@ import {Cart} from 'domain/user/cart';
 export type NavigationScreens = {
   loginScreen: {};
   productScreen: {subGenre: SubGenre};
-  productDetailsScreen: {product: Product; imagesUrl: string[]};
+  productDetailsScreen: {product: Product};
   favouriteScreen: {};
   cartScreen: {cart: Cart[]};
-  productImagesScreen: {imagesUrl: string[]};
+  productImagesScreen: {_id: string};
   drawerNavigator: {};
   paymentScreen: {};
   unexpectedErrorScreen: {};

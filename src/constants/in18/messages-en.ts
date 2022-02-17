@@ -34,15 +34,15 @@ export const messagesEn: MessagesInterface = {
   activationEmailBody:
     'Please activate your account by clicking the following link:',
   activationEmailSubject: 'Activate your account on azbakia',
-  searchPlaceholder: '..Enter book name',
+  searchPlaceholder: '...Enter name',
   inCart: 'In cart',
   sorryBookNotAvailable:
-    'Sorry this book is no longer available, do you want to request a copy?',
-  noBooksAvailable: 'No books available..',
+    'Sorry it is no longer available, do you want to request it?',
+  noBooksAvailable: 'Not available..',
   sorryInventoryChanged:
     'Sorry the inventory has been changed while you were online',
   noResultFound: 'No result found',
-  amountUpdated: 'Amount updated',
+  amountUpdated: 'Quantity updated',
   addressDeleted: 'Address deleted',
   addressCreated: 'Address created',
   addressUpdated: 'Address updated',
@@ -91,7 +91,7 @@ export const messagesEn: MessagesInterface = {
   phoneNoSaved: 'Phone number saved',
   passwordSaved: 'Password saved',
   favourite: 'Favourite',
-  noFavBooks: 'No favourite books',
+  noFavBooks: 'No favourites',
   emailExists: 'Email already exists',
   sendingEmailError: 'Problem sending activation email, we will retry again',
   wrongUsernameOrPassword: 'Wrong username or password',
@@ -109,6 +109,6 @@ export const messagesEn: MessagesInterface = {
   cannotCancel: `Order can only be canceled during 'pending' or 'processing' status`,
   itemCanceled: 'Item canceled',
   noOrders: 'No orders yet..',
-  enterProductName: 'Enter product name',
+  enterProductName: '...Enter name',
   getKeyAtRuntime: (key: string) => messagesEn[key] as string,
 };

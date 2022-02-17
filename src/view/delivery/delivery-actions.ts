@@ -6,11 +6,14 @@ import {CartProductVO} from 'view/cart/cart-product-vo';
 const dateFormat = 'ddd DD MMM YYYY';
 
 export const inspectDeliveryDate = (
+  pickupDays: number,
   deliveryDays: number,
 ): DeliveryDateRange => {
+  const from: number = pickupDays + 1;
+  const to: number = pickupDays + deliveryDays;
   return {
-    from: moment(moment.now()).add(3, 'days').toDate(),
-    to: moment(moment.now()).add(7, 'days').toDate(),
+    from: moment(moment.now()).add(from, 'days').toDate(),
+    to: moment(moment.now()).add(to, 'days').toDate(),
   };
 };
 
@@ -40,6 +43,5 @@ export const createOrder = async (
 export type DeliveryDateRange = {from: Date; to: Date};
 
 export const formatDate = (date: Date): string => {
-  console.log(moment(date).format(dateFormat));
   return moment(date).format(dateFormat);
 };

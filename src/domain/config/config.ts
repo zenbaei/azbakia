@@ -5,7 +5,7 @@ export class Config extends _id {
   value!: any;
 }
 
-type ConfigKey = 'MOBILE_LENGTH' | 'PAGE_SIZE' | 'SHIPMENT_COLLECTION_DAYS';
+type ConfigKey = 'MOBILE_NO_LENGTH' | 'PAGE_SIZE' | 'SHIPMENT_COLLECTION_DAYS';
 
 const getConfigValue = (key: ConfigKey, configs: Config[]): Config =>
   configs.find((c) => c.key === key) as Config;
@@ -16,7 +16,7 @@ export const getPageSize = (configs: Config[]): number => {
 };
 
 export const getMobileNoLength = (configs: Config[]): number => {
-  const cfg = getConfigValue('MOBILE_LENGTH', configs);
+  const cfg = getConfigValue('MOBILE_NO_LENGTH', configs);
   return Number(cfg.value);
 };
 

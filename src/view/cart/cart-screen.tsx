@@ -106,7 +106,7 @@ export function CartScreen({
                             setSnackBarMsg(msg);
                             setSnackBarVisible(true);
                           }}
-                          onPressImg={(imagesUrl) =>
+                          onPressImg={() =>
                             navigation.navigate('productDetailsScreen', {
                               product: {
                                 _id: item._id,
@@ -116,7 +116,6 @@ export function CartScreen({
                                 description: item.description,
                                 language: item.language,
                               } as Product,
-                              imagesUrl: imagesUrl,
                             })
                           }
                         />

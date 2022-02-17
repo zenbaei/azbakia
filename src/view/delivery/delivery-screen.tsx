@@ -39,7 +39,8 @@ export const DeliveryScreen = ({
   const [additionalPhoneNo, setAdditionalPhoneNo] = useState('');
   const [cardNumber, setCardNumber] = useState('');
   const [cvv, setCvv] = useState('');
-  const {msgs, theme, cart, currency, styles} = useContext(UserContext);
+  const {msgs, theme, cart, currency, styles, shipmentCollectionDays, setCart} =
+    useContext(UserContext);
 
   const emptyString = '     ';
   const [showManageDeliveryDetailsBtn, setShowManageDeliveryDetailsBtn] =
@@ -67,11 +68,13 @@ export const DeliveryScreen = ({
         setAdditionalPhoneNo(usr.additionalPhoneNo);
         getDistrictDetails(ad as Address).then((details) => {
           setDeliveryCharge(details.deliveryCharge);
-          setExpectedDeliveryDate(inspectDeliveryDate(details.deliveryDays));
+          setExpectedDeliveryDate(
+            inspectDeliveryDate(shipmentCollectionDays, details.deliveryDays),
+          );
         });
       });
       return cleanup();
-    }, [msgs]),
+    }, [msgs, shipmentCollectionDays]),
   );
 
   const cleanup = () => {
@@ -84,7 +87,11 @@ export const DeliveryScreen = ({
       loadCartProductsVOs(cart.products),
       expectedDeliveryDate,
       () => {
-        userService.deleteCart(global.user._id);
+        userService
+          .deleteCart(global.user._id)
+          .then((mr) =>
+            mr.modified > 0 ? setCart({date: new Date(), products: []}) : {},
+          );
         Alert.alert('Payment Gate');
       },
     );

@@ -1,4 +1,4 @@
-import {SERVER_URL} from '../../app-config';
+import {IMAGE_DIR, SERVER_URL} from '../../app-config';
 import {NavigationScreens} from 'constants/navigation-screens';
 import React, {useCallback, useContext, useState} from 'react';
 import {ActivityIndicator, FlatList, Image, View} from 'react-native';
@@ -6,18 +6,23 @@ import {NavigationProps} from 'zenbaei-js-lib/react';
 import {useFocusEffect} from '@react-navigation/native';
 import {UserContext} from 'user-context';
 import IconButton from 'react-native-paper/src/components/IconButton';
+import {getFileNames} from 'zenbaei-js-lib/utils';
 
 export function ProductImagesScreen({
   navigation,
   route,
 }: NavigationProps<NavigationScreens, 'productImagesScreen'>) {
   const {theme, msgs, styles, cart} = useContext(UserContext);
+  const [imagesUrl, setImagesUrl] = useState([] as string[]);
 
   useFocusEffect(
     useCallback(() => {
       global.setAppBarTitle(msgs.details);
       global.setDisplayCartBtn(cart.products);
-    }, [msgs, cart]),
+      getFileNames(`${IMAGE_DIR}/${route.params._id}`).then((res) =>
+        setImagesUrl(res.files),
+      );
+    }, [msgs, cart, route.params._id]),
   );
 
   const ImageFrame = ({imgUrl}: {imgUrl: string}) => {
@@ -50,7 +55,7 @@ export function ProductImagesScreen({
   return (
     <View style={styles.fullScreenImagesContainer}>
       <FlatList
-        data={route.params.imagesUrl}
+        data={imagesUrl}
         keyExtractor={(item) => item}
         horizontal
         renderItem={({item}) => <ImageFrame imgUrl={item} />}

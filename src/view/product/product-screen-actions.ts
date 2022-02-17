@@ -4,7 +4,6 @@ import {Cart, CartProduct} from 'domain/user/cart';
 import {userService} from 'domain/user/user-service';
 import {AppThemeInterface} from 'zenbaei-js-lib/constants';
 import {modificationResult} from 'zenbaei-js-lib/types';
-import {sort} from 'zenbaei-js-lib/utils';
 
 export const getIconColor = (
   id: string,
@@ -228,13 +227,6 @@ export const requestProduct = async (id: string): Promise<void> => {
     date: new Date(),
   };
   productService.updateRequest(id, br);
-};
-
-export const getMainImageUrl = async (filesPath: {
-  files: string[];
-}): Promise<string> => {
-  const {files} = sort(filesPath);
-  return files[0];
 };
 
 /**
