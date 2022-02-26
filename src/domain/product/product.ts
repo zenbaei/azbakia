@@ -11,6 +11,7 @@ export class Product extends _id {
   language: Language = 'ar';
   inventory: number = 1;
   requests!: request[];
+  uuid!: string;
 }
 
 export type request = {email: string; date: Date};
