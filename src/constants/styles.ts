@@ -62,7 +62,7 @@ export const getStyles = (theme: AppThemeInterface) =>
     flexStart: {alignSelf: 'flex-start'},
     flexCenter: {alignSelf: 'center'},
     flexEnd: {alignSelf: 'flex-end'},
-    drawerItemLabel: {fontSize: 14, color: theme.secondary},
+    drawerItemLabel: {fontSize: 14, color: theme.onSurface},
     loginLoading: {position: 'absolute', top: '45%', right: '50%'},
     widthAuto: {width: 'auto'},
     labelViewContainer: {width: '50%'},

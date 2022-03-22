@@ -30,6 +30,7 @@ export function DrawerNavigator() {
   return (
     <Drawer.Navigator
       initialRouteName={'productScreen'}
+      drawerStyle={{backgroundColor: 'white'}}
       drawerContent={(props) => <CustomDrawerContent {...props} />}>
       <Drawer.Screen
         name="productScreen"
@@ -90,7 +91,9 @@ function CustomDrawerContent(
             title={language === 'en' ? genre.enName : genre.arName}>
             {genre.subGenres.map((sub) => (
               <Item
-                rippleColor={theme.secondary}
+                right={(props) => {
+                  return {...props, color: 'black'};
+                }}
                 titleStyle={styles.drawerItemLabel}
                 key={sub.enName}
                 title={`${tab} ${language === 'en' ? sub.enName : sub.arName}`}

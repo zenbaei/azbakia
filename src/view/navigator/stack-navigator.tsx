@@ -49,7 +49,7 @@ export function StackNavigator() {
           return (
             <IconButton
               style={_displayMenuIcon(route.name)}
-              color={theme.onSurface}
+              color={theme.onPrimary}
               icon="menu"
               onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
             />

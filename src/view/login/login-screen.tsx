@@ -70,7 +70,7 @@ export default function LoginScreen({
       <ActivityIndicator
         style={styles.loginLoading}
         animating={showLoading}
-        color={theme.secondary}
+        color={theme.primary}
       />
     </>
   );

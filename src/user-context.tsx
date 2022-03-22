@@ -12,7 +12,7 @@ import {
   Config,
   getMobileNoLength,
   getPageSize,
-  getShipmentCollectionDays,
+  getPickupDays,
 } from 'domain/config/config';
 
 interface UserProps {
@@ -56,7 +56,7 @@ export const UserContextProvider = ({children}: {children: any}) => {
   const [cart, updCart] = useState({} as Cart);
   const [favs, updFavs] = useState([] as string[]);
   const [pageSize, setPageSize] = useState(6);
-  const [shipmentCollectionDays, setShipmentCollectionDays] = useState(0);
+  const [pickupDays, setPickupDays] = useState(0);
   const [currency, updCurrency] = useState('EGP');
   const [mobileNoLength, setMobileNoLength] = useState(10);
   const {language, theme} = useContext(Ctx);
@@ -68,7 +68,7 @@ export const UserContextProvider = ({children}: {children: any}) => {
   const setConfigs = useCallback((cfgs: Config[]) => {
     setPageSize(getPageSize(cfgs));
     setMobileNoLength(getMobileNoLength(cfgs));
-    setShipmentCollectionDays(getShipmentCollectionDays(cfgs));
+    setPickupDays(getPickupDays(cfgs));
   }, []);
   const setCurrency = useCallback((c: string) => {
     updCurrency(c);
@@ -87,7 +87,7 @@ export const UserContextProvider = ({children}: {children: any}) => {
     styles,
     pageSize,
     currency,
-    shipmentCollectionDays,
+    shipmentCollectionDays: pickupDays,
     mobileNoLength,
   };
 

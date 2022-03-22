@@ -15,8 +15,8 @@ import {
   requestProduct,
 } from 'view/product/product-screen-actions';
 import {Card, Fab, Text} from 'zenbaei-js-lib/react';
-import {getMainImageName} from 'zenbaei-js-lib/utils';
-import {IMAGE_DIR, SERVER_URL} from '../../app-config';
+import {getMainImage, Logger} from 'zenbaei-js-lib/utils';
+import {IMAGE_DIR} from '../../app-config';
 
 /**
  *
@@ -45,15 +45,19 @@ export const ProductComponent = ({
   const cartScreenVisibilty: ViewStyle = cartScreen
     ? styles.hidden
     : styles.visible;
-  const [imageUrl, setImageUrl] = useState('');
+  const [imageBase64, setImageBase64] = useState(
+    undefined as string | undefined,
+  );
   const [loadingImage, setLoadingImage] = useState(true);
 
   useEffect(() => {
-    getMainImageName(`${IMAGE_DIR}/${product._id}`)
-      .then((res) => {
-        setImageUrl(res.file);
+    getMainImage(`${IMAGE_DIR}/${product.uuid}`)
+      .then((base) => {
+        setImageBase64(base as string);
       })
-      .catch(() => {});
+      .catch((e) => {
+        Logger.error('ProductComponent', 'useEffect', e);
+      });
   }, [product]);
 
   const _updateFav = async (productId: string) => {
@@ -102,7 +106,7 @@ export const ProductComponent = ({
         key={product.name + 'toh'}
         style={isProductScreen ? {} : {}}
         onPress={() => {
-          onPressImg === undefined || !imageUrl ? () => {} : onPressImg();
+          onPressImg === undefined || !imageBase64 ? () => {} : onPressImg();
         }}>
         <>
           <ActivityIndicator
@@ -114,8 +118,10 @@ export const ProductComponent = ({
             onLoadStart={() => setLoadingImage(true)}
             onLoadEnd={() => setLoadingImage(false)}
             source={
-              imageUrl
-                ? {uri: `${SERVER_URL}${imageUrl}`}
+              imageBase64
+                ? {
+                    uri: `data:image/png;base64,${imageBase64}`,
+                  }
                 : require('../../resources/images/no-image.png')
             }
             style={{...styles.image}}

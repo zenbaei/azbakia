@@ -14,7 +14,7 @@ import {
 } from 'react-native-paper';
 import {UserContextProvider} from 'user-context';
 import {Zenbaei} from 'zenbaei-js-lib/react';
-import {DarkTheme} from 'zenbaei-js-lib/constants';
+import {LightTheme} from 'zenbaei-js-lib/constants';
 import {ErrorBoundary} from 'view/error-boundary';
 
 //adding icons
@@ -29,7 +29,7 @@ global.LogLevel = 'debug';
 
 const App = (): ReactNode => {
   return (
-    <Zenbaei>
+    <Zenbaei useTheme={LightTheme}>
       <UserContextProvider>
         <PaperProvider theme={CombinedDarkTheme}>
           <NavigationContainer theme={CombinedDarkTheme}>
@@ -51,6 +51,7 @@ const CombinedDarkTheme = {
   colors: {
     ...PapDarkTheme.colors,
     ...NavDarkTheme.colors,
-    primary: DarkTheme.primary,
+    primary: LightTheme.primary,
+    background: LightTheme.background,
   },
 };
