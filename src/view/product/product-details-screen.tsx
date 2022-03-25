@@ -16,6 +16,9 @@ import {ProductComponent} from 'view/product/product-component';
 import {useFocusEffect} from '@react-navigation/native';
 import {UserContext} from 'user-context';
 import {Product} from 'domain/product/product';
+import {getFileNames} from 'zenbaei-js-lib/utils';
+import {IMAGE_DIR, SERVER_URL, STATIC_FILES_URL} from 'app-config';
+import {ImagesGallery} from 'view/image-gallery';
 
 export function ProductDetailsScreen({
   navigation,
@@ -27,11 +30,15 @@ export function ProductDetailsScreen({
   const msgs = getMessages(language);
   const [snackBarMsg, setSnackBarMsg] = useState('');
   const [isSnackBarVisible, setSnackBarVisible] = useState(false);
+  const [imagesUrl, setImagesUrl] = useState([] as string[]);
 
   useFocusEffect(
     useCallback(() => {
       global.setAppBarTitle(msgs.details);
       setProduct(route.params.product);
+      getFileNames(`${IMAGE_DIR}/${route.params.product.uuid}`).then((res) =>
+        setImagesUrl(res.files),
+      );
     }, [msgs, route.params.product]),
   );
 
@@ -50,30 +57,9 @@ export function ProductDetailsScreen({
       <Grid>
         <Row>
           <Col>
-            <ProductComponent
-              centerCard
-              product={product}
-              showSnackBar={(msg) => {
-                setSnackBarVisible(true);
-                setSnackBarMsg(msg);
-              }}
-              updateDisplayedProduct={(pd) => setProduct(pd)}
-            />
-            <View style={styles.wide}>
-              <Link
-                align="center"
-                label={msgs.moreImages}
-                onPress={() =>
-                  navigation.navigate('productImagesScreen', {
-                    _id: product._id,
-                  })
-                }
-              />
-            </View>
-
+            <ImagesGallery images={toImagesGallery(imagesUrl, product.uuid)} />
             <Text
               bold
-              color={theme.secondary}
               align={textDirection()}
               style={styles.bold}
               text={`${msgs.description}:`}
@@ -91,3 +77,10 @@ export function ProductDetailsScreen({
     </>
   );
 }
+
+const toImagesGallery = (images: string[], directory: string) => {
+  return images.map((i, idx) => ({
+    id: idx,
+    url: `${STATIC_FILES_URL}/${directory}/${i}`,
+  }));
+};

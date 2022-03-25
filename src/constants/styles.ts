@@ -1,7 +1,7 @@
 import {StyleSheet} from 'react-native';
 import {AppThemeInterface} from 'zenbaei-js-lib/constants';
 
-export const productCardWidth = '48%';
+export const productCardWidth = '100%';
 export const productCardWidthBig = '68%';
 
 export const getStyles = (theme: AppThemeInterface) =>

@@ -1,6 +1,6 @@
 import {Product} from 'domain/product/product';
 import React, {useCallback, useContext, useState} from 'react';
-import {FlatList} from 'react-native';
+import {FlatList, StyleSheet, View} from 'react-native';
 import {
   Grid,
   NavigationProps,
@@ -165,7 +165,7 @@ export function ProductScreen({
             />
             <Text
               bold
-              color={theme.secondary}
+              color={theme.primary}
               text={
                 isEmpty(subGenre?.enName)
                   ? msgs.newArrivals
@@ -183,7 +183,6 @@ export function ProductScreen({
             <FlatList
               testID="flatList"
               scrollEnabled
-              numColumns={2}
               data={products}
               keyExtractor={(item) => item._id}
               onEndReached={loadNextPage}

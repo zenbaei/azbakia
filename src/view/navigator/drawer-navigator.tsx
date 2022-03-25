@@ -86,14 +86,12 @@ function CustomDrawerContent(
       {genres.map((genre) =>
         genre?.subGenres && genre.subGenres.length > 0 ? (
           <Accordion
+            theme={{colors: {text: theme.primary}}}
             titleStyle={styles.drawerItemLabel}
             key={genre.enName}
             title={language === 'en' ? genre.enName : genre.arName}>
             {genre.subGenres.map((sub) => (
               <Item
-                right={(props) => {
-                  return {...props, color: 'black'};
-                }}
                 titleStyle={styles.drawerItemLabel}
                 key={sub.enName}
                 title={`${tab} ${language === 'en' ? sub.enName : sub.arName}`}

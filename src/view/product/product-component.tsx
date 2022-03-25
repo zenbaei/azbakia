@@ -1,7 +1,6 @@
-import {productCardWidth, productCardWidthBig} from 'constants/styles';
 import {Product} from 'domain/product/product';
 import React, {useContext, useEffect, useState} from 'react';
-import {ActivityIndicator, AlertButton, ViewStyle} from 'react-native';
+import {ActivityIndicator, AlertButton, View, ViewStyle} from 'react-native';
 import {Alert, Image, TouchableHighlight} from 'react-native';
 import IconButton from 'react-native-paper/src/components/IconButton';
 import {UserContext} from 'user-context';
@@ -29,8 +28,6 @@ export const ProductComponent = ({
   updateDisplayedProduct: updateDisplayedproduct,
   showSnackBar,
   cartScreen = false,
-  centerCard = false,
-  isProductScreen = false,
 }: {
   product: Product;
   onPressImg?: () => void;
@@ -51,13 +48,9 @@ export const ProductComponent = ({
   const [loadingImage, setLoadingImage] = useState(true);
 
   useEffect(() => {
-    getMainImage(`${IMAGE_DIR}/${product.uuid}`)
-      .then((base) => {
-        setImageBase64(base as string);
-      })
-      .catch((e) => {
-        Logger.error('ProductComponent', 'useEffect', e);
-      });
+    getMainImage(`${IMAGE_DIR}/${product.uuid}`).then((base) => {
+      setImageBase64(base as string);
+    });
   }, [product]);
 
   const _updateFav = async (productId: string) => {
@@ -98,22 +91,25 @@ export const ProductComponent = ({
   };
 
   return (
-    <Card
-      width={cartScreen ? productCardWidthBig : productCardWidth}
-      style={centerCard ? styles.flexCenter : styles.flexStart}>
-      <TouchableHighlight
-        testID="touchable"
-        key={product.name + 'toh'}
-        style={isProductScreen ? {} : {}}
-        onPress={() => {
-          onPressImg === undefined || !imageBase64 ? () => {} : onPressImg();
+    <Card width="100%" direction="row">
+      <ActivityIndicator
+        style={styles.centerLoading}
+        animating={loadingImage}
+        color={theme.primary}
+      />
+      <View
+        style={{
+          width: '50%',
+          alignSelf: 'flex-start',
+          borderWidth: 1,
+          borderColor: theme.primary,
         }}>
-        <>
-          <ActivityIndicator
-            style={styles.centerLoading}
-            animating={loadingImage}
-            color={theme.secondary}
-          />
+        <TouchableHighlight
+          testID="touchable"
+          key={product.name + 'toh'}
+          onPress={() => {
+            onPressImg === undefined || !imageBase64 ? () => {} : onPressImg();
+          }}>
           <Image
             onLoadStart={() => setLoadingImage(true)}
             onLoadEnd={() => setLoadingImage(false)}
@@ -126,61 +122,78 @@ export const ProductComponent = ({
             }
             style={{...styles.image}}
           />
-        </>
-      </TouchableHighlight>
-      <Fab
-        icon="heart-outline"
+        </TouchableHighlight>
+      </View>
+      <View
         style={{
-          ...styles.fav,
-          backgroundColor: getIconColor(product._id, favs, theme),
-        }}
-        onPress={() => _updateFav(product._id)}
-      />
-      <Text style={styles.title} text={product.name} color={theme.secondary} />
-      <Text
-        align="right"
-        style={{...styles.bold, ...styles.price}}
-        text={`${product.price} ${currency}`}
-      />
-      <Text
-        visible={product.inventory !== undefined && product.inventory > 0}
-        align="right"
-        testID="copies"
-        style={{...styles.bold, ...styles.price, ...cartScreenVisibilty}}
-        text={`${msgs.stock}: ${product.inventory}`}
-      />
-      <IconButton
-        testID={'removeFromCartBtn'}
-        icon="cart-outline"
-        color={
-          isInCart(product._id, cart.products)
-            ? theme.primary
-            : theme.onBackground
-        }
-        style={[
-          cartScreenVisibilty,
-          styles.flexEnd,
-          {
-            backgroundColor: getCartIconColor(
-              product._id,
-              cart.products,
-              theme,
-            ),
-          },
-        ]}
-        onPress={() =>
-          _addOrRmvFrmCart(
-            product._id,
-            isInCart(product._id, cart.products) ? -1 : 1,
-          )
-        }
-      />
-      <IconButton
-        style={[styles.flexEnd, cartScreen ? styles.visible : styles.hidden]}
-        icon={'delete'}
-        color={theme.secondary}
-        onPress={() => _addOrRmvFrmCart(product._id, -1)}
-      />
+          height: '100%',
+          width: '50%',
+        }}>
+        <View style={{flex: 1}}>
+          <Text text={product.name} bold />
+        </View>
+        <View style={{flex: 1}}>
+          <Text
+            align="right"
+            style={styles.price}
+            bold
+            text={`${product.price} ${currency}`}
+          />
+          <Text
+            visible={product.inventory !== undefined && product.inventory > 0}
+            align="right"
+            testID="copies"
+            bold
+            style={{...styles.price, ...cartScreenVisibilty}}
+            text={`${msgs.stock}: ${product.inventory}`}
+          />
+        </View>
+        <View style={{flexDirection: 'row'}}>
+          <IconButton
+            icon="heart-outline"
+            style={{
+              alignSelf: 'flex-end',
+              backgroundColor: getIconColor(product._id, favs, theme),
+            }}
+            onPress={() => _updateFav(product._id)}
+          />
+          <IconButton
+            testID={'removeFromCartBtn'}
+            icon="cart-outline"
+            color={
+              isInCart(product._id, cart.products)
+                ? theme.secondary
+                : theme.onBackground
+            }
+            style={[
+              cartScreenVisibilty,
+              styles.flexEnd,
+              {
+                backgroundColor: getCartIconColor(
+                  product._id,
+                  cart.products,
+                  theme,
+                ),
+              },
+            ]}
+            onPress={() =>
+              _addOrRmvFrmCart(
+                product._id,
+                isInCart(product._id, cart.products) ? -1 : 1,
+              )
+            }
+          />
+          <IconButton
+            style={[
+              styles.flexEnd,
+              cartScreen ? styles.visible : styles.hidden,
+            ]}
+            icon={'delete'}
+            color={theme.secondary}
+            onPress={() => _addOrRmvFrmCart(product._id, -1)}
+          />
+        </View>
+      </View>
     </Card>
   );
 };
