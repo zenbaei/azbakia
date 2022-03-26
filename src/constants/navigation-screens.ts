@@ -8,7 +8,6 @@ export type NavigationScreens = {
   productDetailsScreen: {product: Product};
   favouriteScreen: {};
   cartScreen: {cart: Cart[]};
-  productImagesScreen: {_id: string};
   drawerNavigator: {};
   paymentScreen: {};
   unexpectedErrorScreen: {};

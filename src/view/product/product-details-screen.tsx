@@ -9,7 +9,7 @@ import {
   Col,
   SnackBar,
 } from 'zenbaei-js-lib/react';
-import {View} from 'react-native';
+import {View, ImageURISource} from 'react-native';
 import {getStyles} from 'constants/styles';
 import {getMessages} from 'constants/in18/messages-interface';
 import {ProductComponent} from 'view/product/product-component';
@@ -19,6 +19,8 @@ import {Product} from 'domain/product/product';
 import {getFileNames} from 'zenbaei-js-lib/utils';
 import {IMAGE_DIR, SERVER_URL, STATIC_FILES_URL} from 'app-config';
 import {ImagesGallery} from 'view/image-gallery';
+import ImageSlider from 'view/image-slider';
+import {url} from 'inspector';
 
 export function ProductDetailsScreen({
   navigation,
@@ -57,7 +59,11 @@ export function ProductDetailsScreen({
       <Grid>
         <Row>
           <Col>
-            <ImagesGallery images={toImagesGallery(imagesUrl, product.uuid)} />
+            {imagesUrl.length > 0 ? (
+              <ImageSlider images={toImagesURI(imagesUrl, product.uuid)} />
+            ) : (
+              <></>
+            )}
             <Text
               bold
               align={textDirection()}
@@ -82,5 +88,11 @@ const toImagesGallery = (images: string[], directory: string) => {
   return images.map((i, idx) => ({
     id: idx,
     url: `${STATIC_FILES_URL}/${directory}/${i}`,
+  }));
+};
+
+const toImagesURI = (images: string[], directory: string): ImageURISource[] => {
+  return images.map((i) => ({
+    uri: `${STATIC_FILES_URL}/${directory}/${i}`,
   }));
 };

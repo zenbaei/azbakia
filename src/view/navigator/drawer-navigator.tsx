@@ -10,7 +10,6 @@ import React, {useContext, useEffect, useState} from 'react';
 import {ProductScreen} from '../product/product-screen';
 import {Item, Accordion} from 'react-native-paper/src/components/List/List';
 import {ProductDetailsScreen} from 'view/product/product-details-screen';
-import {ProductImagesScreen} from 'view/product/product-images-screen';
 import {CartScreen} from 'view/cart/cart-screen';
 import {Genre} from 'domain/genre/genre';
 import {genreService} from 'domain/genre/genre-service';
@@ -42,10 +41,6 @@ export function DrawerNavigator() {
       <Drawer.Screen
         name="productDetailsScreen"
         component={ProductDetailsScreen}
-      />
-      <Drawer.Screen
-        name="productImagesScreen"
-        component={ProductImagesScreen}
       />
       <Drawer.Screen name="cartScreen" component={CartScreen} />
       <Drawer.Screen name="addressListScreen" component={AddressListScreen} />
