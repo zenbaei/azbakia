@@ -21,6 +21,7 @@ export const loadCartProductsVOs = async (
   );
   return products.map((prd) => {
     const crt = cartProducts.find((val) => val.productId === prd._id);
+
     return new CartProductVO(
       prd._id,
       prd.name,
@@ -29,6 +30,7 @@ export const loadCartProductsVOs = async (
       prd.inventory,
       prd.description,
       prd.language,
+      prd.uuid,
     );
   });
 };

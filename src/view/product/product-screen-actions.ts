@@ -13,18 +13,7 @@ export const getIconColor = (
   if (ids.find((val) => val === id)) {
     return theme.secondary;
   }
-  return theme.primary;
-};
-
-export const getCartIconColor = (
-  productId: string,
-  cartProducts: CartProduct[],
-  theme: AppThemeInterface,
-): string => {
-  if (isInCart(productId, cartProducts)) {
-    return theme.secondary;
-  }
-  return theme.primary;
+  return theme.onPrimary;
 };
 
 export const isInCart = (

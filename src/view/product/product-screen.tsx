@@ -165,7 +165,7 @@ export function ProductScreen({
             />
             <Text
               bold
-              color={theme.primary}
+              color={theme.secondary}
               text={
                 isEmpty(subGenre?.enName)
                   ? msgs.newArrivals

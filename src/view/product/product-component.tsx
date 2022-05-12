@@ -9,7 +9,6 @@ import {
   updateFav,
   getIconColor,
   findProduct,
-  getCartIconColor,
   isInCart,
   requestProduct,
 } from 'view/product/product-screen-actions';
@@ -151,29 +150,26 @@ export const ProductComponent = ({
         <View style={{flexDirection: 'row'}}>
           <IconButton
             icon="heart-outline"
+            color={getIconColor(product._id, favs, theme)}
             style={{
               alignSelf: 'flex-end',
-              backgroundColor: getIconColor(product._id, favs, theme),
+              backgroundColor: theme.secondary,
             }}
             onPress={() => _updateFav(product._id)}
           />
           <IconButton
             testID={'removeFromCartBtn'}
             icon="cart-outline"
-            color={
-              isInCart(product._id, cart.products)
-                ? theme.secondary
-                : theme.onBackground
-            }
+            color={getIconColor(
+              product._id,
+              cart.products.map((p) => p.productId),
+              theme,
+            )}
             style={[
               cartScreenVisibilty,
               styles.flexEnd,
               {
-                backgroundColor: getCartIconColor(
-                  product._id,
-                  cart.products,
-                  theme,
-                ),
+                backgroundColor: theme.secondary,
               },
             ]}
             onPress={() =>
@@ -189,7 +185,7 @@ export const ProductComponent = ({
               cartScreen ? styles.visible : styles.hidden,
             ]}
             icon={'delete'}
-            color={theme.secondary}
+            color={theme.primary}
             onPress={() => _addOrRmvFrmCart(product._id, -1)}
           />
         </View>

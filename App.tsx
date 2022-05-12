@@ -52,6 +52,7 @@ const CombinedDarkTheme = {
     ...PapDarkTheme.colors,
     ...NavDarkTheme.colors,
     primary: LightTheme.primary,
+    secondary: LightTheme.secondary,
     background: LightTheme.background,
   },
 };

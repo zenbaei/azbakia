@@ -99,6 +99,7 @@ export function CartScreen({
                               _id: item._id,
                               name: item.name,
                               price: item.price,
+                              uuid: item.uuid,
                             } as Product
                           }
                           updateDisplayedProduct={() => {}}

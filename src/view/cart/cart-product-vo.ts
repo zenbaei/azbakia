@@ -7,5 +7,6 @@ export class CartProductVO {
     public inventory: number,
     public description: string,
     public language: Language,
+    public uuid: string,
   ) {}
 }
