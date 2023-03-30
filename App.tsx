@@ -31,8 +31,8 @@ const App = (): ReactNode => {
   return (
     <Zenbaei useTheme={LightTheme}>
       <UserContextProvider>
-        <PaperProvider theme={CombinedDarkTheme}>
-          <NavigationContainer theme={CombinedDarkTheme}>
+        <PaperProvider>
+          <NavigationContainer>
             <ErrorBoundary>
               <StackNavigator />
             </ErrorBoundary>
